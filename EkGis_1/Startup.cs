@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EkGis.Application.Catalog.Loais;
+using EkGis.Application.Catalog.YeuCaus;
+using EkGis.Data.EF;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace EkGis_1
 {
@@ -23,7 +28,23 @@ namespace EkGis_1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<EkGisDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("Ekgis")));
+
+            services.AddTransient<ILoaiservice , LoaiService>();
+            services.AddTransient<IYeuCauService, YeuCauService>();
+
             services.AddControllersWithViews();
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v3", new OpenApiInfo
+                {
+                    Title = "Service API",
+                    Version = "v3",
+                });
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +66,11 @@ namespace EkGis_1
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v3/swagger.json", "API"));
+
 
             app.UseEndpoints(endpoints =>
             {
