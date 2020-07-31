@@ -16,6 +16,10 @@ Ext.define('Ext.viewport.Ios', {
     constructor: function() {
         this.callParent(arguments);
 
+        if (this.getAutoMaximize() && !this.isFullscreen()) {
+            this.addWindowListener('touchstart', this.onTouchStart.bind(this));
+        }
+
         // Chrome on iOS has a bug whereby the body can be scrolled out of view.
         // Also fixes the "mysterious bug on iOS where double tapping on a sheet
         // being animated from the bottom shift the whole body up".
@@ -23,16 +27,14 @@ Ext.define('Ext.viewport.Ios', {
     },
 
     maximize: function() {
-        var stretchHeights, orientation, currentHeight, height;
-
         if (this.isFullscreen()) {
             return this.callParent();
         }
 
-        stretchHeights = this.stretchHeights;
-        orientation = this.getOrientation();
-        currentHeight = this.getWindowHeight();
-        height = stretchHeights[orientation];
+        var stretchHeights = this.stretchHeights,
+            orientation = this.getOrientation(),
+            currentHeight = this.getWindowHeight(),
+            height = stretchHeights[orientation];
 
         if (window.scrollY > 0) {
             this.scrollToTop();
@@ -53,7 +55,6 @@ Ext.define('Ext.viewport.Ios', {
 
             this.waitUntil(function() {
                 this.scrollToTop();
-
                 return currentHeight !== this.getWindowHeight();
             }, function() {
                 if (!stretchHeights[orientation]) {
@@ -75,6 +76,28 @@ Ext.define('Ext.viewport.Ios', {
 
     getScreenHeight: function() {
         return window.screen[this.getOrientation() === this.PORTRAIT ? 'height' : 'width'];
+    },
+
+    onElementFocus: function() {
+        if (this.getAutoMaximize() && !this.isFullscreen()) {
+            clearTimeout(this.scrollToTopTimer);
+        }
+
+        this.callParent(arguments);
+    },
+
+    onElementBlur: function() {
+        if (this.getAutoMaximize() && !this.isFullscreen()) {
+            this.scrollToTopTimer = Ext.defer(this.scrollToTop, 500);
+        }
+
+        this.callParent(arguments);
+    },
+
+    onTouchStart: function() {
+        if (this.focusedElement === null) {
+            this.scrollToTop();
+        }
     },
 
     scrollToTop: function() {
@@ -107,7 +130,7 @@ Ext.define('Ext.viewport.Ios', {
                 var target = e.target;
 
                 if (target && target.nodeType === 1 && !this.isInputRegex.test(target.tagName) &&
-                    target.className.indexOf(this.fieldMaskClsTest) === -1) {
+                    target.className.indexOf(this.fieldMaskClsTest) == -1) {
                     e.preventDefault();
                 }
             }
@@ -122,17 +145,12 @@ Ext.define('Ext.viewport.Ios', {
         });
     }
 
-    // Some magic here for iOS 7 devices. Jacky had hacked this together for a 
-    // iPad/HomeScreen related issue the issue for this workaround is unknown anymore, 
-    // when iOS9 was released simulators older then 8 were removed, so looking back into 
-    // this is more difficult.
+    // Some magic here for iOS 7 devices. Jacky had hacked this together for a iPad/HomeScreen related issue
+    // the issue for this workaround is unknown anymore, when iOS9 was released simulators older then 8 were
+    // removed, so looking back into this is more difficult.
     if (Ext.os.version.gtEq('7') && Ext.os.version.lt('8')) {
         // iPad or Homescreen or UIWebView
-        if (
-            Ext.os.deviceType === 'Tablet' ||
-            !Ext.browser.is.Safari ||
-            window.navigator.standalone
-        ) {
+        if (Ext.os.deviceType === 'Tablet' || !Ext.browser.is.Safari || window.navigator.standalone) {
             this.override({
                 constructor: function() {
                     var stretchHeights = {},
@@ -195,7 +213,6 @@ Ext.define('Ext.viewport.Ios', {
 
                 onElementBlur: function() {
                     this.callOverridden(arguments);
-
                     if (window.scrollY !== 0) {
                         window.scrollTo(0, 0);
                     }

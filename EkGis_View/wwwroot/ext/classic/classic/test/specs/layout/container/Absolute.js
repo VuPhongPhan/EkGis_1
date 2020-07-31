@@ -1,4 +1,4 @@
-topSuite("Ext.layout.container.Absolute", 'Ext.Container', function() {
+describe('Ext.layout.container.Absolute', function() {
     var ct;
 
     afterEach(function() {
@@ -21,9 +21,7 @@ topSuite("Ext.layout.container.Absolute", 'Ext.Container', function() {
         });
 
         var c = ct.items.first();
-
         c.show();
-
         expect(c.getWidth()).toBe(195);
         expect(c.getHeight()).toBe(250);
         expect(c.getX()).toBe(200);

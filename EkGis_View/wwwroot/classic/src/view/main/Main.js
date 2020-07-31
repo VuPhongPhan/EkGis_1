@@ -5,22 +5,17 @@
  *
  * TODO - Replace this content of this view to suite the needs of your application.
  */
-Ext.define('MRequest.view.main.Main', {
+Ext.define('LoaiYeuCau.view.main.Main', {
     extend: 'Ext.tab.Panel',
-    // extend: 'Ext.data.TreeStore',
     xtype: 'app-main',
 
     requires: [
         'Ext.plugin.Viewport',
         'Ext.window.MessageBox',
-        'Ext.data.TreeStore',
 
-        'MRequest.view.main.MainController',
-        'MRequest.view.main.MainModel',
-        'MRequest.view.main.List',
-        'MRequest.view.type.TypeForm',
-        'MRequest.view.state.StateForm',
-        'MRequest.view.require.RequireForm',
+        'LoaiYeuCau.view.main.MainController',
+        'LoaiYeuCau.view.main.MainModel',
+        'LoaiYeuCau.view.main.List'
     ],
 
     controller: 'main',
@@ -31,7 +26,6 @@ Ext.define('MRequest.view.main.Main', {
     tabBarHeaderPosition: 1,
     titleRotation: 0,
     tabRotation: 0,
-    scollable:true,
 
     header: {
         layout: {
@@ -39,7 +33,7 @@ Ext.define('MRequest.view.main.Main', {
         },
         title: {
             bind: {
-                text: 'MRequire'
+                text: '{name}'
             },
             flex: 0
         },
@@ -74,7 +68,7 @@ Ext.define('MRequest.view.main.Main', {
                 tall: {
                     iconAlign: 'top',
                     textAlign: 'center',
-                    width: 80
+                    width: 120
                 }
             }
         }
@@ -85,8 +79,7 @@ Ext.define('MRequest.view.main.Main', {
         iconCls: 'fa-home',
         // The following grid shares a store with the classic version's grid as well!
         items: [{
-            // xtype: 'mainlist'
-            html:'Index'
+            xtype: 'mainlist'
         }]
     }, {
         title: 'Users',
@@ -106,60 +99,5 @@ Ext.define('MRequest.view.main.Main', {
         bind: {
             html: '{loremIpsum}'
         }
-    }, {
-        title: 'Yêu cầu',
-        iconCls: 'fa-flag',
-        items: [{
-            xtype: 'require'
-        }]
-    },{
-        title:'Loại yêu cầu',
-        iconCls:'fa-thumbs-up',
-        items:[{
-            xtype:'type',
-        }]
-
-    },{
-        title:'Trạng thái',
-        iconCls:'fa-question',
-        items:[{
-            xtype:'state',
-        }]
-
-    },{
-        title:'Components',
-        iconCls:'fa-book',
-        expanded: false,
-        selectable: false,
-        children: [
-            {
-                text: 'Grid',
-                iconCls: 'x-fa fa-file',
-                viewType: 'pageblank',
-                leaf: true
-            },
-
-            {
-                text: 'Form',
-                iconCls: 'x-fa fa-exclamation-triangle',
-                viewType: 'page404',
-                leaf: true
-            },
-            {
-                text: 'Message Box',
-                iconCls: 'x-fa fa-times-circle',
-                viewType: 'page500',
-                leaf: true
-            },
-            {
-                text: 'Window',
-                iconCls: 'x-fa fa-lock',
-                viewType: 'lockscreen',
-                leaf: true
-            },
-        ]
-    }
-
-
-]
+    }]
 });

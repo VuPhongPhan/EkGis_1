@@ -1,6 +1,6 @@
 {
-    "name": "MRequest",
-    "namespace": "MRequest",
+    "name": "LoaiYeuCau",
+    "namespace": "LoaiYeuCau",
     "version": "1.0.0.0",
     "framework": "ext",
 
@@ -49,7 +49,7 @@
      * Fashion build configuration properties.
      */
     "fashion": {
-        "missingParameters": "error",
+
         "inliner": {
             /**
              * Disable resource inliner. Production builds enable this by default.
@@ -64,13 +64,13 @@
     "sass": {
         /**
          * The root namespace to use when mapping *.scss files to classes in the
-         * sass/src and sass/var directories. For example, "MRequest.view.Foo" would
-         * map to "sass/src/view/Foo.scss". If we changed this to "MRequest.view" then
+         * sass/src and sass/var directories. For example, "LoaiYeuCau.view.Foo" would
+         * map to "sass/src/view/Foo.scss". If we changed this to "LoaiYeuCau.view" then
          * it would map to "sass/src/Foo.scss". To style classes outside the app's
          * root namespace, change this to "". Doing so would change the mapping of
-         * "MRequest.view.Foo" to "sass/src/MRequest/view/Foo.scss".
+         * "LoaiYeuCau.view.Foo" to "sass/src/LoaiYeuCau/view/Foo.scss".
          */
-        "namespace": "MRequest",
+        "namespace": "LoaiYeuCau",
 
         /**
          * Generated sass source settings
@@ -547,5 +547,5 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "c1351084-bd46-4370-9497-64f46cf9d7ac"
+    "id": "035122cc-fd7b-4d94-9541-1f38b0912163"
 }

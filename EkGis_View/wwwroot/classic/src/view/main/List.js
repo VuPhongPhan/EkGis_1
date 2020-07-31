@@ -1,15 +1,15 @@
 /**
  * This view is an example list of people.
  */
-Ext.define('MRequest.view.main.List', {
+Ext.define('LoaiYeuCau.view.main.List', {
     extend: 'Ext.grid.Panel',
     xtype: 'mainlist',
 
     requires: [
-        'MRequest.store.Personnel'
+        'LoaiYeuCau.store.Personnel'
     ],
 
-    title: 'Thông tin',
+    title: 'Personnel',
 
     store: {
         type: 'personnel'

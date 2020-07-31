@@ -3,33 +3,31 @@
  * Windows Phone version of Viewport.
  */
 Ext.define('Ext.viewport.WindowsPhone', {
-    extend: 'Ext.viewport.Default',
-
     requires: [],
 
     alternateClassName: 'Ext.viewport.WP',
 
-    // so one pixel line is displayed on the right side of the screen. Setting width 
-    // more than 100% fix the issue
-    //    config: {
-    //        width: '100.2%',
-    //        height: '100.2%'
-    //    },
+    extend: 'Ext.viewport.Default',
+
+    // so one pixel line is displayed on the right side of the screen. Setting width more than 100% fix the issue
+//    config: {
+//        width: '100.2%',
+//        height: '100.2%'
+//    },
 
     config: {
         translatable: {
-            type: 'csstransform'
+            translationMethod: 'csstransform'
         }
     },
 
-    initialize: function() {
-        // There is -ms-user-select CSS property for IE10, but it seems it works only 
-        // in desktop browser. So we need to prevent selection event.
+    initialize: function () {
+        // There is -ms-user-select CSS property for IE10, but it seems it works only in desktop browser. So we need to prevent selection event.
         var preventSelection = function(e) {
             var srcElement = e.srcElement.nodeName.toUpperCase(),
                 selectableElements = ['INPUT', 'TEXTAREA'];
 
-            if (selectableElements.indexOf(srcElement) === -1) {
+            if (selectableElements.indexOf(srcElement) == -1) {
                 return false;
             }
         };
@@ -45,8 +43,7 @@ Ext.define('Ext.viewport.WindowsPhone', {
         return false;
     },
 
-    onWindowResize: function(width, height) {
-        this.callParent([width, height]);
+    onResize: function() {
         this.waitUntil(function() {
             var oldWidth = this.windowWidth,
                 oldHeight = this.windowHeight,
@@ -55,14 +52,10 @@ Ext.define('Ext.viewport.WindowsPhone', {
                 currentOrientation = this.getOrientation(),
                 newOrientation = this.determineOrientation();
 
-            return (
-                (oldWidth !== width && oldHeight !== height) &&
-                currentOrientation !== newOrientation
-            );
+            return ((oldWidth !== width && oldHeight !== height) && currentOrientation !== newOrientation);
         }, function() {
             var currentOrientation = this.getOrientation(),
                 newOrientation = this.determineOrientation();
-
             this.fireOrientationChangeEvent(newOrientation, currentOrientation);
 
         }, Ext.emptyFn, 250);

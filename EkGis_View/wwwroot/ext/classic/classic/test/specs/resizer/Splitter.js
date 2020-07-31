@@ -1,6 +1,4 @@
-topSuite("Ext.resizer.Splitter",
-    ['Ext.Panel', 'Ext.layout.container.Border'],
-function() {
+describe("Ext.resizer.Splitter", function () {
     var splitter, c;
 
     function makeContainer(splitterCfg) {
@@ -22,23 +20,22 @@ function() {
         });
     }
 
-    afterEach(function() {
+    afterEach(function () {
         if (c) {
             c.destroy();
         }
-
         splitter = c = null;
     });
 
-    describe("init", function() {
-        describe("the tracker", function() {
-            it("should create a SplitterTracker by default", function() {
+    describe("init", function () {
+        describe("the tracker", function () {
+            it("should create a SplitterTracker by default", function () {
                 makeContainer();
 
                 expect(splitter.tracker instanceof Ext.resizer.SplitterTracker).toBe(true);
             });
 
-            it("should honor a custom tracker config", function() {
+            it("should honor a custom tracker config", function () {
                 makeContainer({
                     tracker: {
                         xclass: 'Ext.resizer.BorderSplitter',
@@ -50,7 +47,7 @@ function() {
                 expect(splitter.tracker.foo).toBe('baz');
             });
         });
-
+        
         describe("collapsing", function() {
             function makeContainer(splitterCfg) {
                 c = new Ext.container.Container({
@@ -72,33 +69,32 @@ function() {
                         html: 'bar'
                     }]
                 });
-
+                
                 splitter = c.down('splitter');
             }
-
+            
             describe("listeners", function() {
                 it("should not attach collapse listeners when target is not a panel", function() {
                     makeContainer({ collapseTarget: 'prev' });
-
+                    
                     var item = c.down('#foo');
-
+                    
                     expect(item.hasListeners.collapse).not.toBeDefined();
                 });
-
+                
                 it("should attach listeners when target is a panel", function() {
                     makeContainer();
-
+                    
                     var item = c.down('#bar');
-
+                    
                     expect(item.hasListeners.collapse).toBe(1);
                 });
             });
         });
     });
-
+    
     describe("splitter with border layout and iframes", function() {
         var iframe;
-
         beforeEach(function() {
             iframe = new Ext.Component({
                 autoEl: {
@@ -117,7 +113,6 @@ function() {
                     region: 'west',
                     split: true,
                     collapsible: true,
-                    animCollapse: false
                 }, iframe]
             });
             splitter = c.down('splitter');
@@ -148,7 +143,6 @@ function() {
             c.down('panel').collapse();
             jasmine.fireMouseEvent(splitter, 'mousedown');
             expect(Ext.fly(iframe.el.dom.parentNode).isMasked()).toBe(false);
-            jasmine.fireMouseEvent(splitter, 'mouseup');
         });
     });
 
@@ -156,15 +150,15 @@ function() {
         beforeEach(function() {
             makeContainer();
         });
-
+        
         it("should be tabbable", function() {
             expect(splitter.el.isTabbable()).toBe(true);
         });
-
+        
         it("should have separator role", function() {
             expect(splitter).toHaveAttr('role', 'separator');
         });
-
+        
         it("should have aria-orientation", function() {
             expect(splitter).toHaveAttr('aria-orientation', 'vertical');
         });

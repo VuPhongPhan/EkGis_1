@@ -1,14 +1,14 @@
 /**
- * A DragTracker listens for drag events on an Element and fires events at the start and end of the
- * drag, as well as during the drag. This is useful for components such as {@link Ext.slider.Multi},
- * where there is an element that can be dragged around to change the Slider's value.
+ * A DragTracker listens for drag events on an Element and fires events at the start and end of the drag,
+ * as well as during the drag. This is useful for components such as {@link Ext.slider.Multi}, where there is
+ * an element that can be dragged around to change the Slider's value.
  *
- * DragTracker provides a series of template methods that should be overridden to provide
- * functionality in response to detected drag operations. These are onBeforeStart, onStart, onDrag,
- * onCancel and onEnd.
+ * DragTracker provides a series of template methods that should be overridden to provide functionality
+ * in response to detected drag operations. These are onBeforeStart, onStart, onDrag, onCancel and onEnd.
  * See {@link Ext.slider.Multi}'s initEvents function for an example implementation.
  */
 Ext.define('Ext.dd.DragTracker', {
+
     uses: ['Ext.util.Region'],
 
     mixins: {
@@ -28,30 +28,26 @@ Ext.define('Ext.dd.DragTracker', {
      *
      * Only valid during drag operations.
      *
-     * If the {@link #delegate} option is used, this will be the delegate element which was
-     * mousedowned.
+     * If the {@link #delegate} option is used, this will be the delegate element which was mousedowned.
      * @readonly
      */
 
     /**
      * @cfg {Boolean} trackOver
-     * Set to true to fire mouseover and mouseout events when the mouse enters or leaves the target
-     * element.
+     * Set to true to fire mouseover and mouseout events when the mouse enters or leaves the target element.
      *
      * This is implicitly set when an {@link #overCls} is specified.
      *
-     * If the {@link #delegate} option is used, these events fire only when a delegate element
-     * is entered of left.
+     * If the {@link #delegate} option is used, these events fire only when a delegate element is entered of left.
      */
     trackOver: false,
 
     /**
      * @cfg {String} overCls
-     * A CSS class to add to the DragTracker's target element when the element (or, if the
-     * {@link #delegate} option is used, when a delegate element) is mouseovered.
+     * A CSS class to add to the DragTracker's target element when the element (or, if the {@link #delegate}
+     * option is used, when a delegate element) is mouseovered.
      *
-     * If the {@link #delegate} option is used, these events fire only when a delegate element
-     * is entered of left.
+     * If the {@link #delegate} option is used, these events fire only when a delegate element is entered of left.
      */
 
     /**
@@ -59,8 +55,7 @@ Ext.define('Ext.dd.DragTracker', {
      * A {@link Ext.util.Region Region} (Or an element from which a Region measurement will be read)
      * which is used to constrain the result of the {@link #getOffset} call.
      *
-     * This may be set any time during the DragTracker's lifecycle to set a dynamic constraining
-     * region.
+     * This may be set any time during the DragTracker's lifecycle to set a dynamic constraining region.
      */
 
     /**
@@ -85,11 +80,9 @@ Ext.define('Ext.dd.DragTracker', {
     /**
      * @cfg {String} delegate
      * A CSS selector which identifies child elements within the DragTracker's encapsulating
-     * Element which are the tracked elements. This limits tracking to only begin when the matching
-     * elements are mousedowned.
+     * Element which are the tracked elements. This limits tracking to only begin when the matching elements are mousedowned.
      *
-     * This may also be a specific child element within the DragTracker's encapsulating element
-     * to use as the tracked element.
+     * This may also be a specific child element within the DragTracker's encapsulating element to use as the tracked element.
      */
 
     /**
@@ -99,8 +92,7 @@ Ext.define('Ext.dd.DragTracker', {
 
     /**
      * @cfg {Boolean} [stopEvent=false]
-     * Specify `true` to stop the `mousedown` event from bubbling to outer listeners from the target
-     * element (or its delegates).
+     * Specify `true` to stop the `mousedown` event from bubbling to outer listeners from the target element (or its delegates).
      */
 
     /**
@@ -152,7 +144,7 @@ Ext.define('Ext.dd.DragTracker', {
      */
 
     /**
-     * @event beforedragstart
+     * @event beforestart
      * @param {Object} this
      * @param {Object} e event object
      */
@@ -175,12 +167,11 @@ Ext.define('Ext.dd.DragTracker', {
      * @param {Object} e event object
      */
 
-    constructor: function(config) {
+    constructor : function(config){
         var me = this;
-
         Ext.apply(me, config);
 
-        me.dragRegion = new Ext.util.Region(0, 0, 0, 0);
+        me.dragRegion = new Ext.util.Region(0,0,0,0);
 
         if (me.el) {
             me.initEl(me.el);
@@ -188,7 +179,6 @@ Ext.define('Ext.dd.DragTracker', {
 
         // Dont pass the config so that it is not applied to 'this' again
         me.mixins.observable.constructor.call(me);
-
         if (me.disabled) {
             me.disable();
         }
@@ -209,43 +199,29 @@ Ext.define('Ext.dd.DragTracker', {
     initEl: function(el) {
         var me = this,
             delegate = me.delegate,
-            elCmp, touchScrollable, unselectable;
+            elCmp,
+            touchScrollable;
 
         me.el = el = Ext.get(el);
 
         // Disable drag to select. We must take over any drag selecting gestures.
+        el.addCls(Ext.baseCSSPrefix + 'unselectable');
 
         // The delegate option may also be an element on which to listen
-        if (delegate) {
-            if (delegate.isElement) {
-                me.handle = delegate;
-                unselectable = delegate;
-            }
-        }
-        else {
-            unselectable = el;
+        if (delegate && delegate.isElement) {
+            me.handle = delegate;
         }
 
-        // Only make the element unselectable if we have a known delegate, or this item
-        // is to be dragged. Otherwise it's too wide of a net to cast, callers will need
-        // to apply unselectable to the appropriate delegated elements to get the same effect.
-        if (unselectable) {
-            unselectable.addCls(Ext.baseCSSPrefix + 'unselectable');
-        }
-
-        // If delegate specified an actual element to listen on, we do not use
-        // the delegate listener option
+        // If delegate specified an actual element to listen on, we do not use the delegate listener option
         me.delegate = me.handle ? undefined : me.delegate;
 
         // See if the handle or delegates are inside the scrolling part of the component.
         // If they are, we will need to use longpress to trigger the dragstart.
         if (Ext.supports.Touch) {
-            elCmp = Ext.Component.from(el);
+            elCmp = Ext.ComponentManager.fromElement(el);
             touchScrollable = elCmp && elCmp.getScrollable();
-
             if (touchScrollable) {
                 elCmp = touchScrollable.getElement();
-
                 if (me.handle && !elCmp.contains(me.handle)) {
                     touchScrollable = false;
                 }
@@ -262,8 +238,7 @@ Ext.define('Ext.dd.DragTracker', {
             me.handle = el;
         }
 
-        // Add a mousedown listener which reacts only on the elements targeted
-        // by the delegate config.
+        // Add a mousedown listener which reacts only on the elements targeted by the delegate config.
         // We process mousedown to begin tracking.
         me.handleListeners = {
             scope: me,
@@ -281,26 +256,22 @@ Ext.define('Ext.dd.DragTracker', {
                 delegate: me.delegate,
                 translate: false
             };
-
             me.handleListeners.contextmenu = function(e) {
                 e.stopEvent();
             };
-        }
-        else {
+        } else {
             me.handleListeners.mousedown = me.onMouseDown;
         }
 
         // If configured to do so, track mouse entry and exit into the target (or delegate).
         // The mouseover and mouseout CANNOT be replaced with mouseenter and mouseleave
-        // because delegate cannot work with those pseudoevents. Entry/exit checking is done
-        // in the handler.
+        // because delegate cannot work with those pseudoevents. Entry/exit checking is done in the handler.
         if (!Ext.supports.TouchEvents && (me.trackOver || me.overCls)) {
             Ext.apply(me.handleListeners, {
                 mouseover: me.onMouseOver,
                 mouseout: me.onMouseOut
             });
         }
-
         me.mon(me.handle, me.handleListeners);
 
         // Accessibility
@@ -323,10 +294,12 @@ Ext.define('Ext.dd.DragTracker', {
     },
 
     destroy: function() {
+        var me = this;
+
         // endDrag has a mandatory event parameter
-        this.endDrag({});
-        Ext.destroy(this.keyNav);
-        this.callParent();
+        me.endDrag({});
+        me.el = me.handle = me.onBeforeStart = me.onStart = me.onDrag = me.onEnd = me.onCancel = null;
+        me.callParent();
     },
 
     onWindowTouchStart: function(e) {
@@ -336,20 +309,18 @@ Ext.define('Ext.dd.DragTracker', {
         }
     },
 
-    // When the pointer enters a tracking element, fire a mouseover if the mouse entered
-    // from outside. This is mouseenter functionality, but we cannot use mouseenter because
-    // we are using "delegate" to filter mouse targets
+    // When the pointer enters a tracking element, fire a mouseover if the mouse entered from outside.
+    // This is mouseenter functionality, but we cannot use mouseenter because we are using "delegate" to filter mouse targets
     onMouseOver: function(e, target) {
         var me = this,
             handleCls, el, i, len, cls;
 
         if (!me.disabled) {
             // Note that usually `delegate` is the same as `handleCls` just with a preceding '.'
-            // Also, we're now adding the classes directly to the resizer el rather than to
-            // an ancestor since this caused unwanted scrollbar flickering in IE 9 and less
-            // (both quirks and standards) when the panel contained a textarea with auto overflow.
-            // It would cause an unwanted recalc as the ancestor had classes added and removed.
-            // See EXTJS-11673.
+            // Also, we're now adding the classes directly to the resizer el rather than to an ancestor since this
+            // caused unwanted scrollbar flickering in IE 9 and less (both quirks and standards) when the panel
+            // contained a textarea with auto overflow.  It would cause an unwanted recalc as the ancestor had classes
+            // added and removed. See EXTJS-11673.
             if (e.within(e.target, true, true) || me.delegate) {
                 handleCls = me.handleCls;
                 me.mouseIsOut = false;
@@ -367,24 +338,20 @@ Ext.define('Ext.dd.DragTracker', {
                     }
                 }
 
-                me.fireEvent(
-                    'mouseover', me, e, me.delegate ? e.getTarget(me.delegate, target) : me.handle
-                );
+                me.fireEvent('mouseover', me, e, me.delegate ? e.getTarget(me.delegate, target) : me.handle);
             }
         }
     },
 
     // When the pointer exits a tracking element, fire a mouseout.
-    // This is mouseleave functionality, but we cannot use mouseleave because we are using
-    // "delegate" to filter mouse targets
+    // This is mouseleave functionality, but we cannot use mouseleave because we are using "delegate" to filter mouse targets
     onMouseOut: function(e) {
         var me = this,
             el, i, len;
 
         if (me.mouseIsDown) {
             me.mouseIsOut = true;
-        }
-        else {
+        } else {
             if (me.handleCls) {
                 for (i = 0, len = me.handleEls.length; i < len; i++) {
                     el = me.handleEls[i];
@@ -396,21 +363,18 @@ Ext.define('Ext.dd.DragTracker', {
         }
     },
 
-    onMouseDown: function(e, target) {
+    onMouseDown: function(e, target){
         var me = this,
             // If this is a translated event, the event object is chained, so
             // we need to track on the parentEvent if it exists.
             trackEvent = e.parentEvent || e;
 
-        // Ignore all mousedown events that were not started by the primary button
-        // If this is disabled, or the mousedown has been processed by an upstream DragTracker,
-        // return
-        if (e.button || me.disabled || trackEvent.dragTracked) {
+        // If this is disabled, or the mousedown has been processed by an upstream DragTracker, return
+        if (me.disabled || trackEvent.dragTracked) {
             return;
         }
 
-        // This information should be available in mousedown listener and onBeforeStart
-        // implementations
+        // This information should be available in mousedown listener and onBeforeStart implementations
         me.dragTarget = me.delegate ? target : me.handle.dom;
         me.startXY = me.lastXY = e.getXY();
         me.startRegion = Ext.fly(me.dragTarget).getRegion();
@@ -434,11 +398,9 @@ Ext.define('Ext.dd.DragTracker', {
         //</feature>
 
         e.stopPropagation();
-
         if (me.preventDefault !== false || e.pointerType === 'touch') {
             e.preventDefault();
         }
-
         Ext.getDoc().on({
             scope: me,
             capture: true,
@@ -449,45 +411,38 @@ Ext.define('Ext.dd.DragTracker', {
 
         // Flag for the onMouseMove method.
         // If endDrag is called while active via some other code such as a timer, or key event
-        // then it sets dragEnded to indicate to any subsequent mousemove event that
-        // it should not proceed.
+        // then it sets dragEnded to indicate to any subsequent mousemove event that it should not proceed.
         me.dragEnded = false;
 
         if (!me.tolerance) {
             me.triggerStart();
-        }
-        else if (me.autoStart) {
-            me.timer =
-                Ext.defer(me.triggerStart, me.autoStart === true ? 1000 : me.autoStart, me, [e]);
+        } else if (me.autoStart) {
+            me.timer =  Ext.defer(me.triggerStart, me.autoStart === true ? 1000 : me.autoStart, me, [e]);
         }
     },
 
-    onMouseMove: function(e, target) {
+    onMouseMove: function(e, target){
         var me = this,
             xy = e.getXY(),
             s = me.startXY;
 
         e.stopPropagation();
-
         if (me.preventDefault !== false) {
             e.preventDefault();
         }
 
         // If, during a drag, some other action (eg a keystroke) hides or destroys the target,
         // endDrag will be called and the mousemove listener removed. But is the mouse is down
-        // events continue to be delivered to the handler. If this happens, active will be false
-        // here.
+        // events continue to be delivered to the handler. If this happens, active will be false here.
         if (me.dragEnded) {
             return;
         }
 
         me.lastXY = xy;
-
         if (!me.active) {
-            if (Math.max(Math.abs(s[0] - xy[0]), Math.abs(s[1] - xy[1])) > me.tolerance) {
+            if (Math.max(Math.abs(s[0]-xy[0]), Math.abs(s[1]-xy[1])) > me.tolerance) {
                 me.triggerStart(e);
-            }
-            else {
+            } else {
                 return;
             }
         }
@@ -495,8 +450,7 @@ Ext.define('Ext.dd.DragTracker', {
         // Returning false from a mousemove listener deactivates
         if (me.fireEvent('mousemove', me, e) === false) {
             me.onMouseUp(e);
-        }
-        else {
+        } else {
             me.onDrag(e);
             me.fireEvent('drag', me, e);
         }
@@ -504,13 +458,11 @@ Ext.define('Ext.dd.DragTracker', {
 
     onMouseUp: function(e) {
         var me = this;
-
         // Clear the flag which ensures onMouseOut fires only after the mouse button
         // is lifted if the mouseout happens *during* a drag.
         me.mouseIsDown = false;
 
-        // If we mouseouted the el *during* the drag, the onMouseOut method will not have fired.
-        // Ensure that it gets processed.
+        // If we mouseouted the el *during* the drag, the onMouseOut method will not have fired. Ensure that it gets processed.
         if (me.mouseIsOut) {
             me.mouseIsOut = false;
             me.onMouseOut(e);
@@ -547,92 +499,83 @@ Ext.define('Ext.dd.DragTracker', {
         me.clearStart();
         me.active = false;
         me.dragEnded = true;
-
         if (wasActive) {
             me.onEnd(e);
             me.fireEvent('dragend', me, e);
-        }
-        else {
+        } else {
             me.onCancel(e);
         }
-
         // Private property calculated when first required and only cached during a drag
         me._constrainRegion = null;
     },
 
     triggerStart: function(e) {
         var me = this;
-
         me.clearStart();
         me.active = true;
         me.onStart(e);
         me.fireEvent('dragstart', me, e);
     },
 
-    clearStart: function() {
+    clearStart : function() {
         var timer = this.timer;
-
         if (timer) {
-            Ext.undefer(timer);
+            clearTimeout(timer);
             this.timer = null;
         }
     },
 
-    stopSelect: function(e) {
+    stopSelect : function(e) {
         e.stopEvent();
-
         return false;
     },
 
     /**
-     * Template method which should be overridden by each DragTracker instance. Called when the user
-     * first clicks and holds the mouse button down. Return false to disallow the drag
+     * Template method which should be overridden by each DragTracker instance. Called when the user first clicks and
+     * holds the mouse button down. Return false to disallow the drag
      * @param {Ext.event.Event} e The event object
      * @template
      */
-    onBeforeStart: function(e) {
+    onBeforeStart : function(e) {
 
     },
 
     /**
-     * Template method which should be overridden by each DragTracker instance. Called when a drag
-     * operation starts (e.g. the user has moved the tracked element beyond the specified tolerance)
+     * Template method which should be overridden by each DragTracker instance. Called when a drag operation starts
+     * (e.g. the user has moved the tracked element beyond the specified tolerance)
      * @param {Ext.event.Event} e The event object
      * @template
      */
-    onStart: function(e) {
+    onStart : function(xy) {
 
     },
 
     /**
-     * Template method which should be overridden by each DragTracker instance. Called whenever
-     * a drag has been detected.
+     * Template method which should be overridden by each DragTracker instance. Called whenever a drag has been detected.
      * @param {Ext.event.Event} e The event object
      * @template
      */
-    onDrag: function(e) {
+    onDrag : function(e) {
 
     },
 
     /**
-     * Template method which mey be overridden by each DragTracker instance. Called when a mouseup
-     * gesture is detected but the onStart has not yet been reached. To clear things up
-     * that may have been set up on {@link #onBeforeStart}.
+     * Template method which mey be overridden by each DragTracker instance. Called when a mouseup gesture is detected
+     * but the onStart has not yet been reached. To clear things up that may have been set up on {@link #onBeforeStart}.
      * @param {Ext.event.Event} e The event object
      * @template
      */
-    onCancel: function(e) {
+    onCancel : function(e) {
 
     },
 
     /**
-     * Template method which should be overridden by each DragTracker instance. Called when a drag
-     * operation has been completed (e.g. the user clicked and held the mouse down, dragged
-     * the element and then released the mouse button)
+     * Template method which should be overridden by each DragTracker instance. Called when a drag operation has been completed
+     * (e.g. the user clicked and held the mouse down, dragged the element and then released the mouse button)
      * @param {Ext.event.Event} e The event object
      * @template
      */
-    onEnd: function(e) {
+    onEnd : function(e) {
 
     },
 
@@ -644,7 +587,7 @@ Ext.define('Ext.dd.DragTracker', {
      *
      * @return {Ext.dom.Element} The element currently being tracked.
      */
-    getDragTarget: function() {
+    getDragTarget : function(){
         return this.dragTarget;
     },
 
@@ -652,7 +595,7 @@ Ext.define('Ext.dd.DragTracker', {
      * @private
      * @return {Ext.dom.Element} The DragTracker's encapsulating element.
      */
-    getDragCt: function() {
+    getDragCt : function(){
         return this.el;
     },
 
@@ -669,46 +612,43 @@ Ext.define('Ext.dd.DragTracker', {
             if (me.constrainTo instanceof Ext.util.Region) {
                 return me.constrainTo;
             }
-
             if (!me._constrainRegion) {
                 me._constrainRegion = Ext.fly(me.constrainTo).getViewRegion();
             }
-        }
-        else {
+        } else {
             if (!me._constrainRegion) {
                 me._constrainRegion = me.getDragCt().getViewRegion();
             }
         }
-
         return me._constrainRegion;
     },
 
-    getXY: function(constrain) {
+    getXY : function(constrain){
         return constrain ? this.constrainModes[constrain](this, this.lastXY) : this.lastXY;
     },
 
     /**
      * Returns the X, Y offset of the current mouse position from the mousedown point.
      *
-     * This method may optionally constrain the real offset values, and returns a point coerced
-     * in one of two modes:
+     * This method may optionally constrain the real offset values, and returns a point coerced in one
+     * of two modes:
      *
-     *  - `point` The current mouse position is coerced into the constrainRegion and the resulting
-     * position is returned.
-     *  - `dragTarget` The new {@link Ext.util.Region Region} of the
-     * {@link #getDragTarget dragTarget} is calculated based upon the current mouse position,
-     * and then coerced into the constrainRegion. The returned mouse position is then adjusted
-     * by the same delta as was used to coerce the region.
+     *  - `point`
+     *    The current mouse position is coerced into the constrainRegion and the resulting position is returned.
+     *  - `dragTarget`
+     *    The new {@link Ext.util.Region Region} of the {@link #getDragTarget dragTarget} is calculated
+     *    based upon the current mouse position, and then coerced into the constrainRegion. The returned
+     *    mouse position is then adjusted by the same delta as was used to coerce the region.
      *
-     * @param {String} constrain (Optional) If omitted the true mouse position is returned.
-     * May be passed as `point` or `dragTarget`. See above.
+     * @param {String} constrainMode (Optional) If omitted the true mouse position is returned. May be passed
+     * as `point` or `dragTarget`. See above.
      * @return {Number[]} The `X, Y` offset from the mousedown point, optionally constrained.
      */
-    getOffset: function(constrain) {
+    getOffset : function(constrain){
         var xy = this.getXY(constrain),
             s = this.startXY;
 
-        return [xy[0] - s[0], xy[1] - s[1]];
+        return [xy[0]-s[0], xy[1]-s[1]];
     },
 
     onDragStart: function(e) {
@@ -733,8 +673,7 @@ Ext.define('Ext.dd.DragTracker', {
             return [dr.left, dr.top];
         },
 
-        // Constrain the dragTarget to within the constrain region. Return the passed xy
-        // adjusted by the same delta.
+        // Constrain the dragTarget to within the constrain region. Return the passed xy adjusted by the same delta.
         dragTarget: function(me, xy) {
             var s = me.startXY,
                 dr = me.startRegion.copy(),
@@ -746,17 +685,16 @@ Ext.define('Ext.dd.DragTracker', {
                 return xy;
             }
 
-            // See where the passed XY would put the dragTarget if translated by the unconstrained
-            // offset. If it overflows, we constrain the passed XY to bring the potential
+            // See where the passed XY would put the dragTarget if translated by the unconstrained offset.
+            // If it overflows, we constrain the passed XY to bring the potential
             // region back within the boundary.
-            dr.translateBy(xy[0] - s[0], xy[1] - s[1]);
+            dr.translateBy(xy[0]-s[0], xy[1]-s[1]);
 
             // Constrain the X coordinate by however much the dragTarget overflows
             if (dr.right > constrainTo.right) {
                 xy[0] += adjust = (constrainTo.right - dr.right);    // overflowed the right
                 dr.left += adjust;
             }
-
             if (dr.left < constrainTo.left) {
                 xy[0] += (constrainTo.left - dr.left);      // overflowed the left
             }
@@ -766,11 +704,9 @@ Ext.define('Ext.dd.DragTracker', {
                 xy[1] += adjust = (constrainTo.bottom - dr.bottom);  // overflowed the bottom
                 dr.top += adjust;
             }
-
             if (dr.top < constrainTo.top) {
                 xy[1] += (constrainTo.top - dr.top);        // overflowed the top
             }
-
             return xy;
         }
     }

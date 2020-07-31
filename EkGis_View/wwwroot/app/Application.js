@@ -3,16 +3,24 @@
  * calls Ext.application(). This is the ideal place to handle application launch and
  * initialization details.
  */
-Ext.define('MRequest.Application', {
+Ext.define('LoaiYeuCau.Application', {
     extend: 'Ext.app.Application',
 
-    name: 'MRequest',
+    name: 'LoaiYeuCau',
 
     quickTips: false,
     platformConfig: {
         desktop: {
             quickTips: true
         }
+    },
+
+    stores: [
+        // TODO: add global / shared stores here
+    ],
+
+    launch: function () {
+        // TODO - Launch the application
     },
 
     onAppUpdate: function () {

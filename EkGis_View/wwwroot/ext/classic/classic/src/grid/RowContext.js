@@ -12,21 +12,7 @@
 Ext.define('Ext.grid.RowContext', {
     constructor: function(config) {
         Ext.apply(this, config);
-
         this.widgets = {};
-
-        /**
-         * @property {Number} usage
-         * Tracks the views that are using this row context. Each view is represented by
-         * a bit position. The normal view of a locked grid (or the only view in a
-         * non-locking grid) uses bit 0 (i.e., `1`). The locked view uses bit 1 (i.e., `2`).
-         *
-         * This value will be in the range of 0-3 (0 when unused by a view, 3 when used by
-         * both normal and locking views).
-         * @since 7.1
-         * @private
-         */
-        this.usage = 0;
     },
 
     setRecord: function(record, recordIndex) {
@@ -34,42 +20,24 @@ Ext.define('Ext.grid.RowContext', {
 
         this.record = record;
         this.recordIndex = recordIndex;
-
         if (viewModel) {
             viewModel.set('record', record);
             viewModel.set('recordIndex', recordIndex);
         }
     },
 
-    attach: function(view) {
-        var was = this.usage;
-
-        this.usage |= view.usageBitMask;
-
-        return !was;
-    },
-
-    detach: function(view) {
+    free: function() {
         var me = this,
             widgets = me.widgets,
-            usageBitMask = view.usageBitMask,
-            viewModel = me.viewModel,
-            focusEl, free, widget, widgetId;
+            widgetId,
+            widget,
+            focusEl,
+            viewModel = me.viewModel;
 
-        if (!(me.usage & usageBitMask)) {
-            return false;
-        }
-
-        me.usage &= ~usageBitMask;
-        free = !me.usage;
-
-        if (free) {
-            me.record = null;
-
-            if (viewModel) {
-                viewModel.set('record');
-                viewModel.set('recordIndex');
-            }
+        me.record = null;
+        if (viewModel) {
+            viewModel.set('record');
+            viewModel.set('recordIndex');
         }
 
         // All the widgets this RowContext manages must be blurred
@@ -77,16 +45,8 @@ Ext.define('Ext.grid.RowContext', {
         for (widgetId in widgets) {
             widget = widgets[widgetId];
 
-            // Only remove widgets owned by this view...
-            if (!view.isAncestor(widget)) {
-                // NOTE: We cannot do something like "view.el.contains(widget.el)" in
-                // trees because collapsing nodes de-render content too early.
-                continue;
-            }
-
             // Focusables in a grid must not be tabbable by default when they get put back in.
             focusEl = widget.getFocusEl();
-
             if (focusEl) {
                 // Widgets are reused so we must reset their tabbable state
                 // regardless of their visibility.
@@ -105,55 +65,33 @@ Ext.define('Ext.grid.RowContext', {
                 // Force the issue here.
                 focusEl.blur();
             }
-
-            if (widget.rendered) {
-                widget.detachFromBody();
-            }
+            widget.detachFromBody();
+            widget.hidden = true;
         }
-
-        return free;
     },
 
-    getWidget: function(view, ownerId, widgetCfg) {
+    getWidget: function(ownerId, widgetCfg) {
         var me = this,
             widgets = me.widgets || (me.widgets = {}),
-            ownerGrid = me.ownerGrid,
-            rowViewModel = ownerGrid.rowViewModel,
-            rowVM = me.viewModel,
             result;
 
         // Only spin up an attached ViewModel when we instantiate our first managed Widget
         // which uses binding.
-        if ((widgetCfg.bind || rowViewModel) && !rowVM) {
-            if (typeof rowViewModel === 'string') {
-                rowViewModel = {
-                    type: rowViewModel
-                };
-            }
-
-            me.viewModel = rowVM = Ext.Factory.viewModel(Ext.merge({
-                parent: ownerGrid.getRowContextViewModelParent(),
+        if (widgetCfg.bind && !me.viewModel) {
+            me.viewModel = Ext.Factory.viewModel({
+                parent: me.ownerGrid.lookupViewModel(),
                 data: {
                     record: me.record,
                     recordIndex: me.recordIndex
                 }
-            }, rowViewModel));
+            }, me.ownerGrid.rowViewModel);
         }
 
         if (!(result = widgets[ownerId])) {
             result = widgets[ownerId] = Ext.widget(Ext.apply({
-                ownerCmp: view,
-                _rowContext: me,
-                // This will spin up a VM on the grid if we don't have one that
-                // will be shared across all instances. If we don't have a rowVM
-                // or a viewmodel on the created object, we don't  need it, but
-                // we can't really tell until we create an instance.
-                $vmParent: rowVM || ownerGrid.getRowContextViewModelParent(),
-                initInheritedState: me.initInheritedStateHook,
-                lookupViewModel: me.lookupViewModelHook
+                viewModel: me.viewModel,
+                _rowContext: me
             }, widgetCfg));
-
-            result.$fromLocked = !!view.isLockedView;
 
             // Components initialize binding on render.
             // Widgets in finishRender which will not be called in this case.
@@ -161,17 +99,8 @@ Ext.define('Ext.grid.RowContext', {
             if (result.isWidget) {
                 result.initBindable();
             }
-            else {
-                // Components store an Element reference to their container element.
-                // For ordinary components that is not a problem since usually
-                // that element is also referenced by Container instance, and gets
-                // cleaned up when Container is destroyed. However for row widgets
-                // the container element is a cell; cells do not get Element instances
-                // and View is not going to clean them up.
-                // So we have to clean up explicitly when the widget is destroyed
-                // to avoid orphan Element instances in Ext.cache.
-                result.collectContainerElement = true;
-            }
+        } else {
+            result.hidden = false;
         }
 
         return result;
@@ -185,21 +114,7 @@ Ext.define('Ext.grid.RowContext', {
         for (id in widgets) {
             result.push(widgets[id]);
         }
-
         return result;
-    },
-
-    handleWidgetViewChange: function(view, ownerId) {
-        var widget = this.widgets[ownerId];
-
-        if (widget) {
-            // In this particular case poking the ownerCmp doesn't really have any significance here
-            // since users will typically be interacting at the grid level. However, this is more
-            // for the sake of correctness. We don't need to do anything other
-            // than poke the reference.
-            widget.ownerCmp = view;
-            widget.$fromLocked = !!view.isLockedView;
-        }
     },
 
     destroy: function() {
@@ -213,31 +128,9 @@ Ext.define('Ext.grid.RowContext', {
             widget._rowContext = null;
             widget.destroy();
         }
-
+        
         Ext.destroy(me.viewModel);
-
+        
         me.callParent();
-    },
-
-    privates: {
-        initInheritedStateHook: function(inheritedState, inheritedStateInner) {
-            var vmParent = this.$vmParent;
-
-            this.self.prototype.initInheritedState.call(this, inheritedState, inheritedStateInner);
-
-            if (!inheritedState.hasOwnProperty('viewModel') && vmParent) {
-                inheritedState.viewModel = vmParent;
-            }
-        },
-
-        lookupViewModelHook: function(skipThis) {
-            var ret = skipThis ? null : this.getViewModel();
-
-            if (!ret) {
-                ret = this.$vmParent || null;
-            }
-
-            return ret;
-        }
     }
 });

@@ -3,4 +3,3 @@ Ext.define('Ext.theme.touchsizing.form.trigger.Spinner', {
 
     vertical: false
 });
-

@@ -1,6 +1,5 @@
 /**
- * {@link Ext.Title} is used for the {@link Ext.Toolbar#title} configuration in the
- * {@link Ext.Toolbar} component.
+ * {@link Ext.Title} is used for the {@link Ext.Toolbar#title} configuration in the {@link Ext.Toolbar} component.
  * @private
  */
 Ext.define('Ext.Title', {
@@ -9,12 +8,16 @@ Ext.define('Ext.Title', {
 
     config: {
         /**
+         * @cfg
+         * @inheritdoc
+         */
+        baseCls: Ext.baseCSSPrefix + 'title',
+
+        /**
          * @cfg {String} title The title text
          */
         title: ''
     },
-
-    baseCls: Ext.baseCSSPrefix + 'title',
 
     /**
      * @private

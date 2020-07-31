@@ -1,7 +1,6 @@
 /**
  * Adds a separator bar to a menu, used to divide logical groups of menu items. Generally you will
- * add one of these by using "-" in your call to add() or in your items config rather than creating
- * one directly.
+ * add one of these by using "-" in your call to add() or in your items config rather than creating one directly.
  *
  *     @example
  *     Ext.create('Ext.menu.Menu', {
@@ -24,7 +23,7 @@
 Ext.define('Ext.menu.Separator', {
     extend: 'Ext.menu.Item',
     alias: 'widget.menuseparator',
-
+    
     focusable: false,
 
     /**
@@ -116,7 +115,7 @@ Ext.define('Ext.menu.Separator', {
      * @private
      */
     text: '&#160;',
-
+    
     ariaRole: 'separator',
 
     beforeRender: function() {

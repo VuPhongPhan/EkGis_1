@@ -1,5 +1,5 @@
 /**
- * A Progressable mixin.
+ * A Traversable mixin.
  * @private
  */
 Ext.define('Ext.mixin.Progressable', {
@@ -39,8 +39,7 @@ Ext.define('Ext.mixin.Progressable', {
         /**
          * @cfg {Boolean} dynamic
          *
-         * When false this indicator will only receive progressStart and progressEnd commands, no 
-         * progressUpdate commands will be sent.
+         * When false this indicator will only receive progressStart and progressEnd commands, no progressUpdate commands will be sent.
          *
          */
         dynamic: true,
@@ -48,8 +47,7 @@ Ext.define('Ext.mixin.Progressable', {
         /**
          * @cfg {String} state
          *
-         * Current state of the progressIndicator. Should be used for switching progress states 
-         * like download to upload.
+         * Current state of the progressIndicator. Should be used for switching progress states like download to upload.
          */
         state: null
     },
@@ -74,32 +72,15 @@ Ext.define('Ext.mixin.Progressable', {
     },
 
     updateProgress: function(value, state) {
-        var mappedValue;
+        if(state && state != this.getState()) this.setState(state);
+        if(value > this.getMaxProgressInput()) value = this.getMaxProgressInput();
+        if(value < this.getMinProgressInput()) value = this.getMinProgressInput();
 
-        if (state && state !== this.getState()) {
-            this.setState(state);
-        }
-
-        if (value > this.getMaxProgressInput()) {
-            value = this.getMaxProgressInput();
-        }
-
-        if (value < this.getMinProgressInput()) {
-            value = this.getMinProgressInput();
-        }
-
-        mappedValue = this.mapValues(
-            value,
-            this.getMinProgressInput(),
-            this.getMaxProgressInput(),
-            this.getMinProgressOutput(),
-            this.getMaxProgressOutput()
-        );
-
+        var mappedValue = this.mapValues(value, this.getMinProgressInput(), this.getMaxProgressInput(), this.getMinProgressOutput(), this.getMaxProgressOutput());
         this._progress = mappedValue;
         this._rawProgress = value;
 
-        if (this.getDynamic()) {
+        if(this.getDynamic()) {
             this.onUpdateProgress(mappedValue);
         }
     },
@@ -108,7 +89,7 @@ Ext.define('Ext.mixin.Progressable', {
         if (this._progressActive) {
             this._progressActive = false;
             this.updateProgress(this.getMaxProgressInput());
-            this.onEndProgress();
+            this.onEndProgress()
         }
     },
 
@@ -121,7 +102,7 @@ Ext.define('Ext.mixin.Progressable', {
     },
 
     getProgress: function() {
-        return this._progress;
+        return this._progress
     },
 
     getRawProgress: function() {

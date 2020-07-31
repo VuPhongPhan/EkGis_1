@@ -1,17 +1,17 @@
 /**
  * @class Ext.fx.Animator
  *
- * This class is used to run keyframe based animations, which follows the CSS3 based animation
- * structure. Keyframe animations differ from typical from/to animations in that they offer
- * the ability to specify values at various points throughout the animation.
+ * This class is used to run keyframe based animations, which follows the CSS3 based animation structure.
+ * Keyframe animations differ from typical from/to animations in that they offer the ability to specify values
+ * at various points throughout the animation.
  *
  * ## Using Keyframes
  *
- * The {@link #keyframes} option is the most important part of specifying an animation when using
- * this class. A key frame is a point in a particular animation. We represent this as a percentage
- * of the total animation duration. At each key frame, we can specify the target values at that
- * time. Note that you *must* specify the values at 0% and 100%, the start and ending values.
- * There is also a {@link #keyframe} event that fires after each key frame is reached.
+ * The {@link #keyframes} option is the most important part of specifying an animation when using this
+ * class. A key frame is a point in a particular animation. We represent this as a percentage of the
+ * total animation duration. At each key frame, we can specify the target values at that time. Note that
+ * you *must* specify the values at 0% and 100%, the start and ending values. There is also a {@link #keyframe}
+ * event that fires after each key frame is reached.
  *
  * ## Example
  *
@@ -56,11 +56,16 @@
  *     });
  */
 Ext.define('Ext.fx.Animator', {
+
+    /* Begin Definitions */
+
     mixins: {
         observable: 'Ext.util.Observable'
     },
 
     requires: ['Ext.fx.Manager'],
+
+    /* End Definitions */
 
     /**
      * @property {Boolean} isAnimator
@@ -85,16 +90,15 @@ Ext.define('Ext.fx.Animator', {
 
     /**
      * @cfg {Boolean} dynamic
-     * Currently only for Component Animation: Only set a component's outer element size bypassing
-     * layouts. Set to true to do full layouts for every frame of the animation. Defaults to false.
+     * Currently only for Component Animation: Only set a component's outer element size bypassing layouts.  Set to true to do full layouts for every frame of the animation.  Defaults to false.
      */
     dynamic: false,
 
     /**
      * @cfg {String} easing
      *
-     * This describes how the intermediate values used during a transition will be calculated.
-     * It allows for a transition to change speed over its duration.
+     * This describes how the intermediate values used during a transition will be calculated. It allows for a transition to change
+     * speed over its duration.
      *
      *  - backIn
      *  - backOut
@@ -108,10 +112,9 @@ Ext.define('Ext.fx.Animator', {
      *  - elasticOut
      *  - cubic-bezier(x1, y1, x2, y2)
      *
-     * Note that cubic-bezier will create a custom easing curve following the CSS3
-     * [transition-timing-function][0] specification.  The four values specify points P1 and P2
-     * of the curve as (x1, y1, x2, y2). All values must be in the range [0, 1] or the definition
-     * is invalid.
+     * Note that cubic-bezier will create a custom easing curve following the CSS3 [transition-timing-function][0]
+     * specification.  The four values specify points P1 and P2 of the curve as (x1, y1, x2, y2). All values must
+     * be in the range [0, 1] or the definition is invalid.
      *
      * [0]: http://www.w3.org/TR/css3-transitions/#transition-timing-function_tag
      */
@@ -164,8 +167,8 @@ Ext.define('Ext.fx.Animator', {
 
     /**
      * @cfg {Ext.fx.target.Target} target
-     * The Ext.fx.target to apply the animation to.  If not specified during initialization,
-     * this can be passed to the applyAnimator method to apply the same animation to many targets.
+     * The Ext.fx.target to apply the animation to.  If not specified during initialization, this can be passed to the applyAnimator
+     * method to apply the same animation to many targets.
      */
 
     /**
@@ -188,34 +191,32 @@ Ext.define('Ext.fx.Animator', {
      * @param {Date} startTime
      */
 
-    /**
-     * @cfg {Object} keyframes
-     * Animation keyframes follow the CSS3 Animation configuration pattern. 'from' is always
-     * considered '0%' and 'to' is considered '100%'.<b>Every keyframe declaration must have
-     * a keyframe rule for 0% and 100%, possibly defined using "from" or "to"</b>.
-     * A keyframe declaration without these keyframe selectors is invalid and will not be available
-     * for animation. The keyframe declaration for a keyframe rule consists of properties and
-     * values. Properties that are unable to be animated are ignored in these rules,
-     * with the exception of 'easing' which can be changed at each keyframe. For example:
-     * 
-     *        keyframes : {
-     *            '0%': {
-     *                left: 100
-     *            },
-     *            '40%': {
-     *                left: 150
-     *            },
-     *            '60%': {
-     *                left: 75
-     *            },
-     *            '100%': {
-     *                left: 100
-     *            }
-     *        }
-     */
+     /**
+      * @cfg {Object} keyframes
+      * Animation keyframes follow the CSS3 Animation configuration pattern. 'from' is always considered '0%' and 'to'
+      * is considered '100%'.<b>Every keyframe declaration must have a keyframe rule for 0% and 100%, possibly defined using
+      * "from" or "to"</b>.  A keyframe declaration without these keyframe selectors is invalid and will not be available for
+      * animation.  The keyframe declaration for a keyframe rule consists of properties and values. Properties that are unable to
+      * be animated are ignored in these rules, with the exception of 'easing' which can be changed at each keyframe. For example:
+ <pre><code>
+keyframes : {
+    '0%': {
+        left: 100
+    },
+    '40%': {
+        left: 150
+    },
+    '60%': {
+        left: 75
+    },
+    '100%': {
+        left: 100
+    }
+}
+ </code></pre>
+      */
     constructor: function(config) {
         var me = this;
-
         config = Ext.apply(me, config || {});
         me.config = config;
         me.id = Ext.id(null, 'ext-animator-');
@@ -223,7 +224,6 @@ Ext.define('Ext.fx.Animator', {
         me.mixins.observable.constructor.call(me, config);
         me.timeline = [];
         me.createTimeline(me.keyframes);
-
         if (me.target) {
             me.applyAnimator(me.target);
             Ext.fx.Manager.addAnim(me);
@@ -233,15 +233,14 @@ Ext.define('Ext.fx.Animator', {
     /**
      * @private
      */
-    sorter: function(a, b) {
+    sorter: function (a, b) {
         return a.pct - b.pct;
     },
 
     /**
      * @private
-     * Takes the given keyframe configuration object and converts it into an ordered array
-     * with the passed attributes per keyframe or applying the 'to' configuration to all keyframes.
-     * Also calculates the proper animation duration per keyframe.
+     * Takes the given keyframe configuration object and converts it into an ordered array with the passed attributes per keyframe
+     * or applying the 'to' configuration to all keyframes.  Also calculates the proper animation duration per keyframe.
      */
     createTimeline: function(keyframes) {
         var me = this,
@@ -252,8 +251,7 @@ Ext.define('Ext.fx.Animator', {
 
         for (pct in keyframes) {
             if (keyframes.hasOwnProperty(pct) && me.animKeyFramesRE.test(pct)) {
-                attr = { attrs: Ext.apply(keyframes[pct], to) };
-
+                attr = {attrs: Ext.apply(keyframes[pct], to)};
                 // CSS3 spec allow for from/to to be specified.
                 if (pct === "from") {
                     pct = 0;
@@ -261,22 +259,22 @@ Ext.define('Ext.fx.Animator', {
                 else if (pct === "to") {
                     pct = 100;
                 }
-
                 // convert % values into integers
                 attr.pct = parseInt(pct, 10);
                 attrs.push(attr);
             }
         }
-
         // Sort by pct property
         Ext.Array.sort(attrs, me.sorter);
+        // Only an end
+        //if (attrs[0].pct) {
+        //    attrs.unshift({pct: 0, attrs: element.attrs});
+        //}
 
         ln = attrs.length;
-
         for (i = 0; i < ln; i++) {
             prevMs = (attrs[i - 1]) ? duration * (attrs[i - 1].pct / 100) : 0;
             ms = duration * (attrs[i].pct / 100);
-
             me.timeline.push({
                 duration: ms - prevMs,
                 attrs: attrs[i].attrs
@@ -304,7 +302,6 @@ Ext.define('Ext.fx.Animator', {
                 damper = attrs.damper || me.damper;
                 delete attrs.easing;
                 delete attrs.damper;
-
                 anim = new Ext.fx.Anim({
                     target: target,
                     easing: easing,
@@ -313,26 +310,20 @@ Ext.define('Ext.fx.Animator', {
                     paused: true,
                     to: attrs
                 });
-
                 anims.push(anim);
             }
-
             me.animations = anims;
             me.target = anim.target;
-
             for (i = 0; i < ln - 1; i++) {
                 anim = anims[i];
                 anim.nextAnim = anims[i + 1];
-
                 anim.on('afteranimate', function() {
                     this.nextAnim.paused = false;
                 });
-
                 anim.on('afteranimate', function() {
                     this.fireEvent('keyframe', this, ++this.keyframeStep);
                 }, me);
             }
-
             anims[ln - 1].on('afteranimate', function() {
                 this.lastFrame();
             }, me);
@@ -348,16 +339,13 @@ Ext.define('Ext.fx.Animator', {
             delay = me.delay,
             delayStart = me.delayStart,
             delayDelta;
-
         if (delay) {
             if (!delayStart) {
                 me.delayStart = startTime;
-
                 return;
             }
             else {
                 delayDelta = startTime - delayStart;
-
                 if (delayDelta < delay) {
                     return;
                 }
@@ -367,7 +355,6 @@ Ext.define('Ext.fx.Animator', {
                 }
             }
         }
-
         if (me.fireEvent('beforeanimate', me) !== false) {
             me.startTime = startTime;
             me.running = true;
@@ -386,7 +373,6 @@ Ext.define('Ext.fx.Animator', {
             iterCount = me.currentIteration;
 
         iterCount++;
-
         if (iterCount < iter) {
             me.startTime = new Date();
             me.currentIteration = iterCount;
@@ -407,14 +393,13 @@ Ext.define('Ext.fx.Animator', {
      */
     end: function() {
         var me = this;
-
         me.fireEvent('afteranimate', me, me.startTime, new Date() - me.startTime);
     },
-
+    
     isReady: function() {
         return this.paused === false && this.running === false && this.iterations > 0;
     },
-
+    
     isRunning: function() {
         // Explicitly return false, we don't want to be run continuously by the manager
         return false;

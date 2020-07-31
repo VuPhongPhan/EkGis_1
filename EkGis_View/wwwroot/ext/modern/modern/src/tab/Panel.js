@@ -1,170 +1,68 @@
 /**
- * Tab Panels are a great way to allow the user to switch between several 
- * pages that are all full screen. Each
- * Component in the Tab Panel gets its own Tab, which shows the Component when tapped on. 
- * Tabs can be positioned at the top or the bottom of the Tab Panel, 
- * and can optionally accept title and icon configurations 
- * (see {@link Ext.Button#iconCls iconCls} for additional information).
+ * Tab Panels are a great way to allow the user to switch between several pages that are all full screen. Each
+ * Component in the Tab Panel gets its own Tab, which shows the Component when tapped on. Tabs can be positioned at
+ * the top or the bottom of the Tab Panel, and can optionally accept title and icon 
+ * configurations (see {@link Ext.Button#iconCls iconCls} for additional information).
  *
- * Here's how we can set up a simple Tab Panel with tabs at the bottom.
- * Use the controls at the top left of the example
- * to toggle between code mode and live preview mode 
- * (you can also edit the code and see your changes in the live
+ * Here's how we can set up a simple Tab Panel with tabs at the bottom. Use the controls at the top left of the example
+ * to toggle between code mode and live preview mode (you can also edit the code and see your changes in the live
  * preview):
  *
- * ```javascript
- * @example({ framework: 'extjs' })
- * Ext.create('Ext.TabPanel', {
- *     fullscreen: true,
- *     tabBarPosition: 'bottom',
+ *     @example miniphone preview
+ *     Ext.create('Ext.TabPanel', {
+ *         fullscreen: true,
+ *         tabBarPosition: 'bottom',
  *
- *     items: [
- *         {
- *             title: 'Home',
- *             iconCls: 'home',
- *             html: 'Home Screen'
+ *         defaults: {
+ *             styleHtmlContent: true
  *         },
- *         {
- *             title: 'Contact',
- *             iconCls: 'user',
- *             html: 'Contact Screen'
- *         }
- *     ]
- * });
- * ```
- * One tab was created for each of the {@link Ext.Panel panels} defined in the items array. 
- * Each tab automatically uses the title and icon defined on the item configuration, 
- * and switches to that item when tapped on. We can also position
+ *
+ *         items: [
+ *             {
+ *                 title: 'Home',
+ *                 iconCls: 'home',
+ *                 html: 'Home Screen'
+ *             },
+ *             {
+ *                 title: 'Contact',
+ *                 iconCls: 'user',
+ *                 html: 'Contact Screen'
+ *             }
+ *         ]
+ *     });
+ * One tab was created for each of the {@link Ext.Panel panels} defined in the items array. Each tab automatically uses
+ * the title and icon defined on the item configuration, and switches to that item when tapped on. We can also position
  * the tab bar at the top, which makes our Tab Panel look like this:
  *
- * ```javascript
- * @example({ framework: 'extjs' })
- * Ext.create('Ext.TabPanel', {
- *     fullscreen: true,
+ *     @example miniphone preview
+ *     Ext.create('Ext.TabPanel', {
+ *         fullscreen: true,
  *
- *     items: [
- *         {
- *             title: 'Home',
- *             html: 'Home Screen'
+ *         defaults: {
+ *             styleHtmlContent: true
  *         },
- *         {
- *             title: 'Contact',
- *             html: 'Contact Screen'
- *         }
- *     ]
- * });
- * ```
- * 
- * ```html
- * @example({framework: 'ext-web-components', packages:['ext-web-components'], tab: 1 })
- *  <ext-tabpanel
- *   flex="1"
- *   shadow="true"
- *   height="100%"
- *   defaults='{"cls": "card","layout": "center"}'
- *  >
- *      <ext-panel title="Tab 1" layout="center">
- *          <ext-container
- *              flex="1"
- *              html="By default, tabs are aligned to the top of a view."
- *          >
- *          </ext-container>
- *      </ext-panel>
- *      <ext-panel flex="1" title="Tab 2" layout="center">
- *          <ext-container
- *            flex="1"
- *            html=
- *              "A TabPanel can use different animations by setting <code>layout.animation.</code>"
- *          >
- *          </ext-container>
- *      </ext-panel>
- *      <ext-panel title="Tab 3" layout="center">
- *          <ext-container cls="action" html="User tapped Tab 3"></ext-container>
- *      </ext-panel>
- *  </ext-tabpanel>
- * ```
- * ```javascript
- * @example({framework: 'ext-web-components', tab: 2, packages: ['ext-web-components']})
- * import '@sencha/ext-web-components/dist/ext-container.component';
- * import '@sencha/ext-web-components/dist/ext-tabpanel.component';
- *  
- * export default class PanelComponent {}
- * ```
- * ```javascript
- * @example({framework: 'ext-react', packages:['ext-react']})
- * import React, { Component } from 'react'
- * import { ExtContainer, ExtTabPanel } from '@sencha/ext-react';
  *
- * export default class MyExample extends Component {
- *     render() {
- *         return (
- *             <ExtTabPanel>
- *                 <ExtContainer title="Tab 1">
- *                     This is content for Tab 1!
- *                 </ExtContainer>
- *                 <ExtContainer title="Tab 2">
- *                     This is content for Tab 2!
- *                 </ExtContainer>
- *                 <ExtContainer title="Tab 3">
- *                     This is content for Tab 3!
- *                 </ExtContainer>
- *             </ExtTabPanel>
- *         )
- *     }
- * }
- * ```
- *
- * ```javascript
- * @example({framework: 'ext-angular', packages:['ext-angular']})
- * import { Component } from '@angular/core'
- * declare var Ext: any;
- *
- * @Component({
- *     selector: 'app-root-1',
- *     styles: [`
- *             `],
- *     template: `
- *             <ExtTabPanel shadow="true">
- *                 <ExtContainer [title]="'Tab 1'">
- *                     This is content for Tab 1!
- *                 </ExtContainer>
- *                 <ExtContainer [title]="'Tab 2'">
- *                     This is content for Tab 2!
- *                 </ExtContainer>
- *                 <ExtContainer [title]="'Tab 3'">
- *                     This is content for Tab 3!
- *                 </ExtContainer>
- *             </ExtTabPanel>
- *             `
- * })
- * export class AppComponent {
- * }
- * ```
+ *         items: [
+ *             {
+ *                 title: 'Home',
+ *                 html: 'Home Screen'
+ *             },
+ *             {
+ *                 title: 'Contact',
+ *                 html: 'Contact Screen'
+ *             }
+ *         ]
+ *     });
  *
  */
 Ext.define('Ext.tab.Panel', {
     extend: 'Ext.Container',
-    xtype: 'tabpanel',
+    xtype : 'tabpanel',
     alternateClassName: 'Ext.TabPanel',
-    isTabPanel: true,
 
-    requires: [
-        'Ext.layout.Card',
-        'Ext.tab.Bar',
-        'Ext.tab.Tab'
-    ],
+    requires: ['Ext.tab.Bar'],
 
     config: {
-
-        /**
-         * @cfg {Boolean} autoOrientAnimation
-         * Determines whether the slide animation should be automatically oriented depending on the 
-         * TabBar position. When position is 'top' or 'bottom' it will slide left and when 
-         * position is 'left' or 'right' it will slide up
-         * @accessor
-         */
-        autoOrientAnimation: null,
-
         /**
          * @cfg {Object} tabBar
          * An Ext.tab.Bar configuration.
@@ -175,18 +73,10 @@ Ext.define('Ext.tab.Panel', {
         /**
          * @cfg {String} tabBarPosition
          * The docked position for the {@link #tabBar} instance.
-         * Possible values are 'top', 'bottom', 'left' and 'right'.
+         * Possible values are 'top' and 'bottom'.
          * @accessor
          */
         tabBarPosition: 'top',
-
-        /**
-         * @cfg {String} tabRotation
-         * Specifies tab rotation. Possible values are 'default', 'left',
-         * 'none', 'right'.
-         * @accessor
-         */
-        tabRotation: "default",
 
         /**
          * @cfg layout
@@ -195,7 +85,8 @@ Ext.define('Ext.tab.Panel', {
         layout: {
             type: 'card',
             animation: {
-                type: 'slide'
+                type: 'slide',
+                direction: 'left'
             }
         },
 
@@ -216,25 +107,19 @@ Ext.define('Ext.tab.Panel', {
          */
     },
 
-    defaults: {
-        allowHeader: false
-    },
-
     initialize: function() {
-        var me = this;
+        this.callParent();
 
-        me.callParent();
-
-        me.on({
+        this.on({
             beforeactivetabchange: 'doTabChange',
             delegate: '> tabbar',
-            scope: me
+            scope   : this
         });
 
-        me.on({
+        this.on({
             disabledchange: 'onItemDisabledChange',
             delegate: '> component',
-            scope: me
+            scope   : this
         });
     },
 
@@ -247,14 +132,6 @@ Ext.define('Ext.tab.Panel', {
         return false;
     },
 
-    updateTabRotation: function(rotation) {
-        var bar = this.getTabBar();
-
-        if (bar) {
-            bar.setTabRotation(rotation);
-        }
-    },
-
     /**
      * Updates the Ui for this component and the {@link #tabBar}.
      */
@@ -264,9 +141,8 @@ Ext.define('Ext.tab.Panel', {
         this.callParent([ui, oldUi]);
 
         bar = this.getTabBar();
-
         if (this.initialized && bar) {
-            bar.setUi(ui);
+            bar.setUi(newUi);
         }
     },
 
@@ -274,33 +150,34 @@ Ext.define('Ext.tab.Panel', {
      * @private
      */
     updateActiveItem: function(newActiveItem, oldActiveItem) {
-        var items, oldIndex, newIndex, tabBar,
-            oldTab, newTab;
+        if (newActiveItem) {
+            var items = this.getInnerItems(),
+                oldIndex = items.indexOf(oldActiveItem),
+                newIndex = items.indexOf(newActiveItem),
+                reverse = oldIndex > newIndex,
+                animation = this.getLayout().getAnimation(),
+                tabBar = this.getTabBar(),
+                oldTab = tabBar.parseActiveTab(oldIndex),
+                newTab = tabBar.parseActiveTab(newIndex);
 
-        if (!newActiveItem) {
-            return;
-        }
-
-        items = this.getInnerItems();
-        oldIndex = items.indexOf(oldActiveItem);
-        newIndex = items.indexOf(newActiveItem);
-        tabBar = this.getTabBar();
-        oldTab = tabBar.parseActiveTab(oldIndex);
-        newTab = tabBar.parseActiveTab(newIndex);
-
-        this.callParent(arguments);
-
-        if (newIndex !== -1) {
-            this.forcedChange = true;
-            tabBar.setActiveTab(newIndex);
-            this.forcedChange = false;
-
-            if (oldTab) {
-                oldTab.setActive(false);
+            if (animation && animation.setReverse) {
+                animation.setReverse(reverse);
             }
 
-            if (newTab) {
-                newTab.setActive(true);
+            this.callParent(arguments);
+
+            if (newIndex != -1) {
+                this.forcedChange = true;
+                tabBar.setActiveTab(newIndex);
+                this.forcedChange = false;
+
+                if (oldTab) {
+                    oldTab.setActive(false);
+                }
+
+                if (newTab) {
+                    newTab.setActive(true);
+                }
             }
         }
     },
@@ -311,13 +188,12 @@ Ext.define('Ext.tab.Panel', {
      * @param {Object} newTab
      * @return {Boolean}
      */
-    doTabChange: function(tabBar, newTab) {
+    doTabChange: function (tabBar, newTab) {
         var oldActiveItem = this.getActiveItem(),
             newActiveItem;
 
         this.setActiveItem(tabBar.indexOf(newTab));
         newActiveItem = this.getActiveItem();
-
         return this.forcedChange || oldActiveItem !== newActiveItem;
     },
 
@@ -328,17 +204,6 @@ Ext.define('Ext.tab.Panel', {
      * @private
      */
     applyTabBar: function(config) {
-        var innerItems,
-            activeItem;
-
-        if (this.isConfiguring) {
-            activeItem = this.initialConfig.activeItem || 0;
-        }
-        else {
-            innerItems = this.getInnerItems();
-            activeItem = innerItems.indexOf(this._activeItem);
-        }
-
         if (config === true) {
             config = {};
         }
@@ -346,14 +211,11 @@ Ext.define('Ext.tab.Panel', {
         if (config) {
             Ext.applyIf(config, {
                 ui: this.getUi(),
-                docked: this.getTabBarPosition(),
-                activeItem: activeItem
+                docked: this.getTabBarPosition()
             });
-
-            return Ext.factory(config, Ext.tab.Bar, this.getTabBar());
         }
 
-        return null;
+        return Ext.factory(config, Ext.tab.Bar, this.getTabBar());
     },
 
     /**
@@ -373,88 +235,46 @@ Ext.define('Ext.tab.Panel', {
         }
     },
 
-    doAutoOrientAnimation: function() {
-        var position = this.getTabBarPosition(),
-            layout = this.getLayout(),
-            direction = position === 'left' || position === 'right' ? 'top' : 'left';
-
-        layout.setAnimation({ type: 'slide', direction: direction });
-    },
-
-    updateAutoOrientAnimation: function(value) {
-        var layout = this.getLayout(),
-            initialLayout = this.getInitialConfig('layout');
-
-        if (value) {
-            this.doAutoOrientAnimation();
-        }
-        else {
-            layout.setAnimation(initialLayout.animation);
-        }
-    },
-
     /**
      * Updates the docked position of the {@link #tabBar}.
      * @private
      */
     updateTabBarPosition: function(position) {
-        var tabBar = this.getTabBar(),
-            autoOrientAnimation = this.getAutoOrientAnimation();
-
+        var tabBar = this.getTabBar();
         if (tabBar) {
             tabBar.setDocked(position);
-
-            if (autoOrientAnimation) {
-                this.doAutoOrientAnimation();
-            }
         }
     },
 
-    onItemAdd: function(card, itemIndex) {
+    onItemAdd: function(card) {
         var me = this;
 
         if (!card.isInnerItem()) {
-            return me.callParent([card, itemIndex]);
+            return me.callParent(arguments);
         }
 
-        // eslint-disable-next-line vars-on-top
         var tabBar = me.getTabBar(),
             initialConfig = card.getInitialConfig(),
             tabConfig = initialConfig.tab || {},
             tabTitle = (card.getTitle) ? card.getTitle() : initialConfig.title,
-            tabClosable = (card.getClosable) ? card.getClosable() : initialConfig.closable,
-            tabIconAlign = (card.getIconAlign) ? card.getIconAlign() : initialConfig.iconAlign,
             tabIconCls = (card.getIconCls) ? card.getIconCls() : initialConfig.iconCls,
-            tabIcon = (card.getIcon) ? card.getIcon() : initialConfig.icon,
             tabHidden = (card.getHidden) ? card.getHidden() : initialConfig.hidden,
             tabDisabled = (card.getDisabled) ? card.getDisabled() : initialConfig.disabled,
             tabBadgeText = (card.getBadgeText) ? card.getBadgeText() : initialConfig.badgeText,
             innerItems = me.getInnerItems(),
             index = innerItems.indexOf(card),
-            tabs = tabBar.query('> tab'),
+            tabs = tabBar.getItems(),
             activeTab = tabBar.getActiveTab(),
-            currentTabInstance = (tabs.length >= innerItems.length) && tabs[index],
-            header = card.getConfig('header', false, true),
+            currentTabInstance = (tabs.length >= innerItems.length) && tabs.getAt(index),
+            header = card.isPanel && card.getHeader(),
             tabInstance;
 
         if (tabTitle && !tabConfig.title) {
             tabConfig.title = tabTitle;
         }
 
-        if (tabClosable && !tabConfig.closable) {
-            tabConfig.closable = tabClosable;
-        }
-
-        if (tabIconAlign && !tabConfig.iconAlign) {
-            tabConfig.iconAlign = tabIconAlign;
-        }
-
         if (tabIconCls && !tabConfig.iconCls) {
             tabConfig.iconCls = tabIconCls;
-        }
-
-        if (tabIcon && !tabConfig.icon) {
-            tabConfig.icon = tabIcon;
         }
 
         if (tabHidden && !tabConfig.hidden) {
@@ -472,8 +292,7 @@ Ext.define('Ext.tab.Panel', {
         //<debug>
         if (!currentTabInstance && !tabConfig.title && !tabConfig.iconCls) {
             if (!tabConfig.title && !tabConfig.iconCls) {
-                Ext.Logger.error('Adding a card to a tab container' +
-                                 'without specifying any tab configuration');
+                Ext.Logger.error('Adding a card to a tab container without specifying any tab configuration');
             }
         }
         //</debug>
@@ -485,18 +304,14 @@ Ext.define('Ext.tab.Panel', {
         }
 
         card.tab = tabInstance;
-        tabInstance.card = card;
-
-        // If there is an instantiated header, then hide it.
-        // Otherwise, ensure there won't be a header.
         if (header) {
             header.setHidden(true);
         }
 
-        me.callParent([card, index]);
+        me.callParent(arguments);
 
         if (!activeTab && activeTab !== 0) {
-            tabBar.setActiveTab(tabInstance);
+            tabBar.setActiveTab(tabBar.getActiveItem());
         }
     },
 
@@ -513,18 +328,13 @@ Ext.define('Ext.tab.Panel', {
     // @private
     onItemRemove: function(item, index, destroying) {
         var me = this,
-            meDestroying = me.destroying,
-            clearBar, tabBar;
+            tabBar = me.getTabBar(),
+            clearBar;
 
-        if (!meDestroying) {
-            tabBar = me.getTabBar();
-
-            if (item === tabBar) {
-                clearBar = me.removingTabBar === undefined;
-            }
-            else if (tabBar) {
-                tabBar.remove(item.tab, true);
-            }
+        if (item === tabBar) {
+            clearBar = me.removingTabBar === undefined;
+        } else if (tabBar) {
+            tabBar.remove(item.tab, true);
         }
 
         me.callParent([item, index, destroying]);

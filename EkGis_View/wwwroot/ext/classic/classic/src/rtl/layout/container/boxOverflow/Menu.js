@@ -4,8 +4,7 @@ Ext.define('Ext.rtl.layout.container.boxOverflow.Menu', {
     getPrefixConfig: function(isFromRTL) {
         if (isFromRTL || !this.layout.owner.getInherited().rtl) {
             return this.callParent();
-        }
-        else {
+        } else {
             return this.getSuffixConfig(true);
         }
     },
@@ -13,8 +12,7 @@ Ext.define('Ext.rtl.layout.container.boxOverflow.Menu', {
     getSuffixConfig: function(isFromRTL) {
         if (isFromRTL || !this.layout.owner.getInherited().rtl) {
             return this.callParent();
-        }
-        else {
+        } else {
             return this.getPrefixConfig(true);
         }
     }

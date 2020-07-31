@@ -1,4 +1,5 @@
-topSuite("Ext.view.NavigationModel", ['Ext.data.ArrayStore', 'Ext.view.View'], function() {
+describe("Ext.view.NavigationModel", function() {
+
     var view, navModel, store;
 
     var Model = Ext.define(null, {
@@ -8,14 +9,12 @@ topSuite("Ext.view.NavigationModel", ['Ext.data.ArrayStore', 'Ext.view.View'], f
 
     function makeData(len) {
         var data = [];
-
         for (var i = 1; i <= len; ++i) {
             data.push({
                 id: i,
                 name: 'Item' + i
             });
         }
-
         return data;
     }
 
@@ -24,8 +23,7 @@ topSuite("Ext.view.NavigationModel", ['Ext.data.ArrayStore', 'Ext.view.View'], f
             if (typeof data === 'number') {
                 makeData(data);
             }
-        }
-        else {
+        } else {
             data = makeData(20);
         }
 
@@ -58,7 +56,6 @@ topSuite("Ext.view.NavigationModel", ['Ext.data.ArrayStore', 'Ext.view.View'], f
             });
 
             var node = view.getNode(rec);
-
             expect(Ext.dom.Element.getActiveElement()).toBe(node);
             expect(node).toHaveCls(navModel.focusCls);
             expect(navModel.getPosition()).toBe(4);
@@ -77,10 +74,10 @@ topSuite("Ext.view.NavigationModel", ['Ext.data.ArrayStore', 'Ext.view.View'], f
             store.getFilters().removeAll();
 
             var node = view.getNode(rec);
-
             expect(Ext.dom.Element.getActiveElement()).toBe(node);
             expect(node).toHaveCls(navModel.focusCls);
             expect(navModel.getPosition()).toBe(9);
         });
     });
+
 });

@@ -20,7 +20,7 @@
  * @private
  */
 Ext.define('Ext.layout.SizeModel', {
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this,
             SizeModel = me.self,
             sizeModelsArray = SizeModel.sizeModelsArray,
@@ -153,7 +153,8 @@ Ext.define('Ext.layout.SizeModel', {
      * @readonly
      */
     names: null
-}, function() {
+},
+function () {
     var SizeModel = this,
         sizeModelsArray = SizeModel.sizeModelsArray,
         i, j, n, pairs, sizeModel;
@@ -161,20 +162,20 @@ Ext.define('Ext.layout.SizeModel', {
     //-------------------------------------------------------------------------------
     // These are the 4 fundamental size models.
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'calculated'
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'configured',
         names: { width: 'width', height: 'height' }
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'natural'
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'shrinkWrap'
     });
 
@@ -182,40 +183,40 @@ Ext.define('Ext.layout.SizeModel', {
     // These are the size models are flavors of the above but with some extra detail
     // about their dynamic use.
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'calculatedFromConfigured',
         configured: true,
         calculatedFrom: true,
         names: { width: 'width', height: 'height' }
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'calculatedFromNatural',
         natural: true,
         calculatedFrom: true
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'calculatedFromShrinkWrap',
         shrinkWrap: true,
         calculatedFrom: true
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'constrainedMax',
         configured: true,
         constrained: true,
         names: { width: 'maxWidth', height: 'maxHeight' }
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'constrainedMin',
         configured: true,
         constrained: true,
         names: { width: 'minWidth', height: 'minHeight' }
     });
 
-    new SizeModel({
+    new SizeModel({ // jshint ignore:line
         name: 'constrainedDock',
         configured: true,
         constrained: true,
@@ -227,7 +228,6 @@ Ext.define('Ext.layout.SizeModel', {
         sizeModel = sizeModelsArray[i];
 
         /**
-         * @member Ext.layout.SizeModel
          * An array of objects indexed by the {@link #ordinal} of a height `SizeModel` on
          * a width `SizeModel` to yield an object describing both height and width size
          * models.
@@ -254,8 +254,7 @@ Ext.define('Ext.layout.SizeModel', {
         for (j = 0; j < n; ++j) {
             pairs.push({
                 width: sizeModel,
-                height: sizeModelsArray[j],
-                ordinal: j
+                height: sizeModelsArray[j]
             });
         }
     }

@@ -5,10 +5,8 @@ Ext.define('Ext.rtl.grid.CellEditor', {
         var offset = this.callParent(arguments);
 
         if (this.editingPlugin.grid.isOppositeRootDirection()) {
-            offset = -(innerCell.getWidth() - offset -
-                       innerCell.child(this.treeNodeSelector).getWidth());
+            offset = -(innerCell.getWidth() - offset - innerCell.child(this.treeNodeSelector).getWidth());
         }
-
         return offset;
     }
 });

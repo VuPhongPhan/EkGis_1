@@ -1,6 +1,5 @@
 /**
- * A Column definition class which renders a numeric data field according to a
- * {@link #format} string.
+ * A Column definition class which renders a numeric data field according to a {@link #format} string.
  *
  *     @example
  *     Ext.create('Ext.data.Store', {
@@ -23,10 +22,10 @@
  *         title: 'Number Column Demo',
  *         store: Ext.data.StoreManager.lookup('sampleStore'),
  *         columns: [
- *             { text: 'Symbol', dataIndex: 'symbol', flex: 1 },
- *             { text: 'Current Price', dataIndex: 'price',  renderer: Ext.util.Format.usMoney },
- *             { text: 'Change', dataIndex: 'change', xtype: 'numbercolumn', format:'0.00' },
- *             { text: 'Volume', dataIndex: 'volume', xtype: 'numbercolumn', format:'0,000' }
+ *             { text: 'Symbol',         dataIndex: 'symbol', flex: 1 },
+ *             { text: 'Current Price',  dataIndex: 'price',  renderer: Ext.util.Format.usMoney },
+ *             { text: 'Change',         dataIndex: 'change', xtype: 'numbercolumn', format:'0.00' },
+ *             { text: 'Volume',         dataIndex: 'volume', xtype: 'numbercolumn', format:'0,000' }
  *         ],
  *         height: 200,
  *         width: 400,
@@ -36,19 +35,19 @@
 Ext.define('Ext.grid.column.Number', {
     extend: 'Ext.grid.column.Column',
     alias: ['widget.numbercolumn'],
-    alternateClassName: 'Ext.grid.NumberColumn',
 
     requires: ['Ext.util.Format'],
+    alternateClassName: 'Ext.grid.NumberColumn',
 
     defaultFilterType: 'number',
 
+    //<locale>
     /**
      * @cfg {String} format
-     * A formatting string as used by {@link Ext.util.Format#number} to format a numeric
-     * value for this Column.
-     * @locale
+     * A formatting string as used by {@link Ext.util.Format#number} to format a numeric value for this Column.
      */
-    format: '0,000.00',
+    format : '0,000.00',
+    //</locale>
 
     /**
      * @cfg {Object} renderer
@@ -61,7 +60,7 @@ Ext.define('Ext.grid.column.Number', {
      */
 
     /**
-     * @cfg producesHTML
+     * @cfg {Boolean} producesHTML
      * @inheritdoc
      */
     producesHTML: false,
@@ -71,7 +70,6 @@ Ext.define('Ext.grid.column.Number', {
     },
 
     updater: function(cell, value) {
-        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML =
-            Ext.grid.column.Number.prototype.defaultRenderer.call(this, value);
+        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML = Ext.grid.column.Number.prototype.defaultRenderer.call(this, value);
     }
 });

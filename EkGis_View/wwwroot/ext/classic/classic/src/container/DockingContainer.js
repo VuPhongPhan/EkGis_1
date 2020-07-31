@@ -2,10 +2,15 @@
  *
  */
 Ext.define('Ext.container.DockingContainer', {
+
+    /* Begin Definitions */
+
     requires: ['Ext.util.MixedCollection', 'Ext.Element' ],
 
-    isDockingContainer: true,
+    /* End Definitions */
 
+    isDockingContainer: true,
+    
     /**
      * @event dockedadd
      * Fires when any {@link Ext.Component} is added or inserted as a docked item.
@@ -13,7 +18,7 @@ Ext.define('Ext.container.DockingContainer', {
      * @param {Ext.Component} component The component being added
      * @param {Number} index The index at which the component will be added docked items collection
      */
-
+    
     /**
      * @event dockedremove
      * Fires when any {@link Ext.Component} is removed from the docked items.
@@ -23,9 +28,9 @@ Ext.define('Ext.container.DockingContainer', {
 
     /**
      * @cfg {Object} defaultDockWeights
-     * This object holds the default weights applied to dockedItems that have no weight.
-     * These start with a weight of 1, to allow negative weights to insert before top items
-     * and are odd numbers so that even weights can be used to get between different dock orders.
+     * This object holds the default weights applied to dockedItems that have no weight. These start with a
+     * weight of 1, to allow negative weights to insert before top items and are odd numbers
+     * so that even weights can be used to get between different dock orders.
      *
      * To make default docking order match border layout, do this:
      *
@@ -34,7 +39,7 @@ Ext.define('Ext.container.DockingContainer', {
      * Changing these defaults as above or individually on this object will effect all Panels.
      * To change the defaults on a single panel, you should replace the entire object:
      *
-     *      initComponent: function() {
+     *      initComponent: function () {
      *          // NOTE: Don't change members of defaultDockWeights since the object is shared.
      *          this.defaultDockWeights = { top: 1, bottom: 3, left: 5, right: 7 };
      *
@@ -43,7 +48,7 @@ Ext.define('Ext.container.DockingContainer', {
      *
      * To change only one of the default values, you do this:
      *
-     *      initComponent: function() {
+     *      initComponent: function () {
      *          // NOTE: Don't change members of defaultDockWeights since the object is shared.
      *          this.defaultDockWeights = Ext.applyIf({ top: 10 }, this.defaultDockWeights);
      * 
@@ -51,9 +56,9 @@ Ext.define('Ext.container.DockingContainer', {
      *      }
      */
     defaultDockWeights: {
-        top: { render: 1, visual: 1 },
-        left: { render: 3, visual: 5 },
-        right: { render: 5, visual: 7 },
+        top:    { render: 1, visual: 1 },
+        left:   { render: 3, visual: 5 },
+        right:  { render: 5, visual: 7 },
         bottom: { render: 7, visual: 3 }
     },
 
@@ -85,7 +90,7 @@ Ext.define('Ext.container.DockingContainer', {
      * @param {Number} [pos] The index at which the Component will be added
      * @return {Ext.Component[]} The added components.
      */
-    addDocked: function(items, pos) {
+    addDocked : function(items, pos) {
         var me = this,
             rendered = me.rendered,
             i = 0,
@@ -103,47 +108,37 @@ Ext.define('Ext.container.DockingContainer', {
 
         if (pos === undefined) {
             pos = lastIndex;
-        }
-        else {
+        } else {
             pos = Math.min(pos, lastIndex);
         }
 
         for (; i < length; i++) {
             item = items[i];
-
-            if (item.isDetached) {
-                item.reattachToBody();
-            }
-
             item.dock = item.dock || 'top';
-
             if (item.dock === 'left' || item.dock === 'right') {
                 me.horizontalDocks++;
             }
 
             index = pos + i;
             dockedItems.insert(index, item);
-
+            
             instanced = !!item.instancedCmp;
             delete item.instancedCmp;
-
             item.onAdded(me, index, instanced);
             delete item.$initParent;
-
             if (me.onDockedAdd !== Ext.emptyFn) {
                 me.onDockedAdd(item);
             }
-
             if (me.hasListeners.dockedadd) {
                 me.fireEvent('dockedadd', me, item, index);
             }
         }
 
+        
         if (me.rendered) {
             me.updateLayout();
             Ext.resumeLayouts(true);
         }
-
         return items;
     },
 
@@ -153,21 +148,18 @@ Ext.define('Ext.container.DockingContainer', {
 
         if (dockedItems) {
             while ((c = dockedItems.first())) {
-                this.removeDocked(c, {
-                    destroy: true
-                });
+                this.removeDocked(c, true);
             }
         }
     },
 
-    doRenderDockedItems: function(out, renderData, after) {
+    doRenderDockedItems: function (out, renderData, after) {
         // Careful! This method is bolted on to the frameTpl and renderTpl so all we get for
         // context is the renderData! The "this" pointer is either the frameTpl or the
         // renderTpl instance!
 
         var me = renderData.$comp,
             layout = me.componentLayout,
-            // eslint-disable-next-line no-unused-vars
             tabGuard = me.tabGuard && me.lookupTpl('tabGuardTpl'),
             items, tree;
 
@@ -183,15 +175,13 @@ Ext.define('Ext.container.DockingContainer', {
 
     /**
      * Finds a docked component by id, itemId or position. Also see {@link #getDockedItems}
-     * @param {String/Number} comp The id, itemId or position of the docked component
-     * (see {@link Ext.container.Container#getComponent getComponent} for details)
+     * @param {String/Number} comp The id, itemId or position of the docked component (see {@link Ext.container.Container#getComponent getComponent} for details)
      * @return {Ext.Component} The docked component (if found)
      */
     getDockedComponent: function(comp) {
         if (Ext.isObject(comp)) {
             comp = comp.getItemId();
         }
-
         return this.dockedItems.get(comp);
     },
 
@@ -202,13 +192,13 @@ Ext.define('Ext.container.DockingContainer', {
      *
      *     panel.getDockedItems('toolbar[dock="top"]');
      *
-     * @param {String} selector A {@link Ext.ComponentQuery ComponentQuery} selector string
-     * to filter the returned items.
+     * @param {String} selector A {@link Ext.ComponentQuery ComponentQuery} selector string to filter the returned items.
      * @param {Boolean} beforeBody An optional flag to limit the set of items to only those
-     * before the body (true) or after the body (false). All components are returned by default.
+     *  before the body (true) or after the body (false). All components are returned by
+     *  default.
      * @return {Ext.Component[]} The array of docked components meeting the specified criteria.
      */
-    getDockedItems: function(selector, beforeBody) {
+    getDockedItems : function(selector, beforeBody) {
         var dockedItems = this.getComponentLayout().getDockedItems('render', beforeBody);
 
         if (selector && dockedItems.length) {
@@ -235,18 +225,12 @@ Ext.define('Ext.container.DockingContainer', {
         return dockedItems;
     },
 
-    /**
-     * @protected
-     * Initializes an Item Collection for docked items to be inserted into.  If items
-     * already exist, they will be added to the new collection.
-     */
     initDockingItems: function() {
         var me = this,
             items = me.dockedItems;
 
         if (!items || !items.isMixedCollection) {
             me.dockedItems = new Ext.util.ItemCollection();
-
             if (items) {
                 me.addDocked(items);
             }
@@ -257,10 +241,10 @@ Ext.define('Ext.container.DockingContainer', {
      * Inserts docked item(s) to the panel at the indicated position.
      * @param {Number} pos The index at which the Component will be inserted
      * @param {Object/Object[]} items The Component or array of components to add. The components
-     * must include a 'dock' paramater on each component to indicate where it should be docked
-     * ('top', 'right', 'bottom', 'left').
+     * must include a 'dock' paramater on each component to indicate where it should be docked ('top', 'right',
+     * 'bottom', 'left').
      */
-    insertDocked: function(pos, items) {
+    insertDocked : function(pos, items) {
         this.addDocked(items, pos);
     },
 
@@ -272,7 +256,7 @@ Ext.define('Ext.container.DockingContainer', {
      * @template
      * @protected
      */
-    onDockedAdd: Ext.emptyFn,
+    onDockedAdd : Ext.emptyFn,
     /**
      * @method
      * Invoked after a docked item is removed from the Panel.
@@ -280,38 +264,22 @@ Ext.define('Ext.container.DockingContainer', {
      * @template
      * @protected
      */
-    onDockedRemove: Ext.emptyFn,
+    onDockedRemove : Ext.emptyFn,
 
     /**
      * Removes the docked item from the panel.
      * @param {Ext.Component} item The Component to remove.
-     * @param {Boolean/Object} [flags] Pass `true` to destroy the item or an
-     * object with multiple options. If not passed, {@link #cfg!autoDestroy} will
-     * determine if the item is destroyed.
-     * @param {Boolean} [flags.destroy] Pass `true` to destroy the item.
-     * @param {Boolean} [flags.detach] Pass `true` to put the item in the
-     * {@link Ext#getDetachedBody detachedBody element}.
+     * @param {Boolean} autoDestroy (optional) Destroy the component after removal.
      */
-    removeDocked: function(item, flags) {
+    removeDocked: function(item, autoDestroy) {
         var me = this,
-            layout, hasLayout, doDestroy, doDetach;
+            layout,
+            hasLayout;
 
+        autoDestroy = autoDestroy === true || (autoDestroy !== false && me.autoDestroy);
         if (!me.dockedItems.contains(item)) {
             return item;
         }
-
-        // Ensure the flags are set correctly 
-        if (flags == null) {
-            doDestroy = me.autoDestroy;
-        }
-        else if (typeof flags === 'boolean') {
-            doDestroy = flags;
-        }
-        else {
-            doDestroy = ('destroy' in flags) && flags.destroy;
-            doDetach = ('detach' in flags) && flags.detach;
-        }
-
         if (item.dock === 'left' || item.dock === 'right') {
             me.horizontalDocks--;
         }
@@ -324,29 +292,17 @@ Ext.define('Ext.container.DockingContainer', {
         }
 
         me.dockedItems.remove(item);
-
-        // destroying flag is true if the removal is taking place as part of destruction,
-        // OR if removal is intended to *cause* destruction
-        if (!item.destroyed) {
-            item.onRemoved(item.destroying || doDestroy);
-        }
-
+        // destroying flag is true if the removal is taking place as part of destruction, OR if removal is intended to *cause* destruction
+        item.onRemoved(item.destroying || autoDestroy);
         me.onDockedRemove(item);
 
-        if (doDestroy) {
+        if (autoDestroy) {
             item.destroy();
+        } else if (hasLayout) {
+            // not destroying, make any layout related removals
+            layout.afterRemove(item);
         }
-        else if (!me.destroyed) {
-            if (hasLayout) {
-                // not destroying, make any layout related removals
-                layout.afterRemove(item);
-            }
-
-            if (doDetach && item.rendered) {
-                item.detachFromBody();
-            }
-        }
-
+        
         if (me.hasListeners.dockedremove) {
             me.fireEvent('dockedremove', me, item);
         }
@@ -371,24 +327,23 @@ Ext.define('Ext.container.DockingContainer', {
             Ext.suspendLayouts();
         }
 
-        me.removeDocked(item, {
-            destroy: false,
-            detach: true
-        });
-
+        me.removeDocked(item, false);
         item.dock = side;
         me.addDocked(item);
 
         if (me.rendered) {
             if (item.frame) {
+                // temporarily append the item to the detached body while updating framing
+                // elements.  This is so the framing els won't get detected as garbage
+                // by element.getById
+                Ext.getDetachedBody().appendChild(item.el);
                 item.updateFrame();
             }
-
             Ext.resumeLayouts(true);
         }
     },
 
-    setupDockingRenderTpl: function(renderTpl) {
+    setupDockingRenderTpl: function (renderTpl) {
         renderTpl.renderDockedItems = this.doRenderDockedItems;
     }
 });

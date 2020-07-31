@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /**
  * A Column definition class which renders a passed date according to the default locale, or a configured
  * {@link #format}.
@@ -37,12 +36,10 @@
  *     });
  */
 Ext.define('Ext.grid.column.Date', {
-    /* eslint-enable max-len */
     extend: 'Ext.grid.column.Column',
     alias: ['widget.datecolumn'],
-    alternateClassName: 'Ext.grid.DateColumn',
-
     requires: ['Ext.Date'],
+    alternateClassName: 'Ext.grid.DateColumn',
 
     isDateColumn: true,
 
@@ -52,8 +49,8 @@ Ext.define('Ext.grid.column.Date', {
      * @cfg {String} format
      * A formatting string as used by {@link Ext.Date#format} to format a Date for this Column.
      *
-     * Defaults to the default date from {@link Ext.Date#defaultFormat} which itself
-     * my be overridden in a locale file.
+     * Defaults to the default date from {@link Ext.Date#defaultFormat} which itself my be overridden
+     * in a locale file.
      */
 
     /**
@@ -67,12 +64,12 @@ Ext.define('Ext.grid.column.Date', {
      */
 
     /**
-     * @cfg producesHTML
+     * @cfg {Boolean} producesHTML
      * @inheritdoc
      */
     producesHTML: false,
 
-    initComponent: function() {
+    initComponent: function(){
         if (!this.format) {
             this.format = Ext.Date.defaultFormat;
         }
@@ -80,12 +77,11 @@ Ext.define('Ext.grid.column.Date', {
         this.callParent(arguments);
     },
 
-    defaultRenderer: function(value) {
+    defaultRenderer: function(value){
         return Ext.util.Format.date(value, this.format);
     },
 
     updater: function(cell, value) {
-        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML =
-            Ext.grid.column.Date.prototype.defaultRenderer.call(this, value);
+        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML = Ext.grid.column.Date.prototype.defaultRenderer.call(this, value);
     }
 });

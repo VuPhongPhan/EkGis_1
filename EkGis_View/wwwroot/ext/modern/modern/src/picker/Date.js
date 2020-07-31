@@ -1,129 +1,43 @@
 /**
- * A date picker component which shows a Date Picker on the screen. This class extends from
- * {@link Ext.picker.Picker} and {@link Ext.Sheet} so it is a popup.
+ * A date picker component which shows a Date Picker on the screen. This class extends from {@link Ext.picker.Picker}
+ * and {@link Ext.Sheet} so it is a popup.
  *
  * This component has no required configurations.
  *
  * ## Examples
  *
- * ```javascript
- * @example({ framework: 'extjs' })
+ *     @example miniphone preview
  *     var datePicker = Ext.create('Ext.picker.Date');
  *     Ext.Viewport.add(datePicker);
  *     datePicker.show();
- * ```
  *
  * You may want to adjust the {@link #yearFrom} and {@link #yearTo} properties:
  *
- * ```javascript
- * @example({ framework: 'extjs' })
+ *     @example miniphone preview
  *     var datePicker = Ext.create('Ext.picker.Date', {
  *         yearFrom: 2000,
  *         yearTo  : 2015
  *     });
  *     Ext.Viewport.add(datePicker);
  *     datePicker.show();
- * ```
  *
  * You can set the value of the {@link Ext.picker.Date} to the current date using `new Date()`:
  *
- * ```javascript
- * @example({ framework: 'extjs' })
+ *     @example miniphone preview
  *     var datePicker = Ext.create('Ext.picker.Date', {
  *         value: new Date()
  *     });
  *     Ext.Viewport.add(datePicker);
  *     datePicker.show();
- * ```
  *
  * And you can hide the titles from each of the slots by using the {@link #useTitles} configuration:
  *
- * ```javascript
- * @example({ framework: 'extjs' })
+ *     @example miniphone preview
  *     var datePicker = Ext.create('Ext.picker.Date', {
  *         useTitles: false
  *     });
  *     Ext.Viewport.add(datePicker);
  *     datePicker.show();
- * ```
- * ```javascript
- * @example({framework: 'ext-react', packages:['ext-react']})
- * import React, { Component } from 'react';
- * import { ExtContainer, ExtDatePicker, ExtButton } from '@sencha/ext-react';
- *
- * export default class MyExample extends Component {
- *     showPicker = () => this.picker.show();
- *     render() {
- *         return (
- *             <ExtContainer>
- *                 <ExtButton ui="action" handler={this.showPicker} text="Show Picker"/>
- *                 <ExtDatePicker
- *                     ref={picker => this.picker = picker}
- *                 />
- *             </ExtContainer>
- *         )
- *     }
- * }
- * ```
- * ```javascript
- * @example({framework: 'ext-angular', packages:['ext-angular']})
- * import { Component } from '@angular/core'
- * declare var Ext: any;
- *
- * @Component({
- *     selector: 'app-root-1',
- *     styles: [``],
- *     template: `
- *         <ExtContainer>
- *             <ExtButton ui="action" [handler]="this.showPicker"
- *                   text="Show Picker"></ExtButton>
- *             <ExtDatePicker
- *                 (ready)="onPickerReady($event)"
- *             ></ExtDatePicker>
- *         </ExtContainer>
- *     `
- * })
- * export class AppComponent {
- *    pickerComp;
- *
- *    onPickerReady = (event) => {
- *        this.pickerComp = event.detail.cmp;
- *    }
- *
- *    showPicker = () => {
- *        this.pickerComp.show();
- *    }
- * }
- * ```
- * ```html
- * @example({framework: 'ext-web-components', packages:['ext-web-components'], tab: 1 })
- * <ext-container>
- *     <ext-button ui="action" ontap="date.showPicker" text="Show Picker"></ext-button>
- *     <ext-datepicker
- *         onready="datepickerCmp.datepickerReady"
- *     >
- *     </ext-datepicker>
- * </ext-container>
- * ```
- * ```javascript
- * @example({framework: 'ext-web-components', packages:['ext-web-components'], tab: 2 })
- *
- * import '@sencha/ext-web-components/dist/ext-container.component';
- * import '@sencha/ext-web-components/dist/ext-datepicker.component';
- * import '@sencha/ext-web-components/dist/ext-button.component';
- *
- * export default class DatePickerComponent {
- *     datepickerReady = (event) => {
- *         this.pickerCmp = event.detail.cmp;
- *     }
- *
- *     showPicker = () => {
- *         this.pickerCmp.show();
- *     }
- * }
- * window.datepickerCmp = new DatePickerComponent();
- *```
- *
  */
 Ext.define('Ext.picker.Date', {
     extend: 'Ext.picker.Picker',
@@ -185,9 +99,8 @@ Ext.define('Ext.picker.Date', {
 
         /**
          * @cfg {Object/Date} value
-         * Default value for the field and the internal {@link Ext.picker.Date} component. Accepts
-         * an object of 'year', 'month' and 'day' values, all of which should be numbers, or a
-         * {@link Date}.
+         * Default value for the field and the internal {@link Ext.picker.Date} component. Accepts an object of 'year',
+         * 'month' and 'day' values, all of which should be numbers, or a {@link Date}.
          *
          * Examples:
          *
@@ -215,35 +128,31 @@ Ext.define('Ext.picker.Date', {
     },
 
     initialize: function() {
-        var me = this;
+        this.callParent();
 
-        me.callParent();
-
-        me.on({
-            scope: me,
+        this.on({
+            scope: this,
             delegate: '> slot',
-            slotpick: me.onSlotPick
+            slotpick: this.onSlotPick
+        });
+
+        this.on({
+            scope: this,
+            show: this.onSlotPick
         });
     },
 
     setValue: function(value, animated) {
-        var me = this;
-
         if (Ext.isDate(value)) {
             value = {
-                day: value.getDate(),
+                day  : value.getDate(),
                 month: value.getMonth() + 1,
-                year: value.getFullYear()
+                year : value.getFullYear()
             };
         }
 
-        me.callParent([value, animated]);
-
-        if (me.rendered) {
-            me.onSlotPick();
-        }
-
-        return me;
+        this.callParent([value, animated]);
+        this.onSlotPick();
     },
 
     getValue: function(useDom) {
@@ -254,13 +163,12 @@ Ext.define('Ext.picker.Date', {
 
         for (i = 0; i < ln; i++) {
             item = items[i];
-
-            if (item.isSlot) {
+            if (item instanceof Ext.picker.Slot) {
                 values[item.getName()] = item.getValue(useDom);
             }
         }
 
-        // if all the slots return null, we should not return a date
+        //if all the slots return null, we should not return a date
         if (values.year === null && values.month === null && values.day === null) {
             return null;
         }
@@ -272,8 +180,7 @@ Ext.define('Ext.picker.Date', {
         if (month && year && month && day) {
             daysInMonth = this.getDaysInMonth(month, year);
         }
-
-        day = (daysInMonth) ? Math.min(day, daysInMonth) : day;
+        day = (daysInMonth) ? Math.min(day, daysInMonth): day;
 
         return new Date(year, month - 1, day);
     },
@@ -304,13 +211,12 @@ Ext.define('Ext.picker.Date', {
             ln = innerItems.length,
             item, i;
 
-        // loop through each of the current items and set the title on the correct slice
+        //loop through each of the current items and set the title on the correct slice
         if (this.initialized) {
             for (i = 0; i < ln; i++) {
                 item = innerItems[i];
 
-                if ((typeof item.title === "string" && item.title === oldMonthText) ||
-                    (item.title.html === oldMonthText)) {
+                if ((typeof item.title == "string" && item.title == oldMonthText) || (item.title.html == oldMonthText)) {
                     item.setTitle(newMonthText);
                 }
             }
@@ -325,13 +231,12 @@ Ext.define('Ext.picker.Date', {
             ln = innerItems.length,
             item, i;
 
-        // loop through each of the current items and set the title on the correct slice
+        //loop through each of the current items and set the title on the correct slice
         if (this.initialized) {
             for (i = 0; i < ln; i++) {
                 item = innerItems[i];
 
-                if ((typeof item.title === "string" && item.title === oldDayText) ||
-                    (item.title.html === oldDayText)) {
+                if ((typeof item.title == "string" && item.title == oldDayText) || (item.title.html == oldDayText)) {
                     item.setTitle(newDayText);
                 }
             }
@@ -346,12 +251,12 @@ Ext.define('Ext.picker.Date', {
             ln = innerItems.length,
             item, i;
 
-        // loop through each of the current items and set the title on the correct slice
+        //loop through each of the current items and set the title on the correct slice
         if (this.initialized) {
             for (i = 0; i < ln; i++) {
                 item = innerItems[i];
 
-                if (item.title === this.yearText) {
+                if (item.title == this.yearText) {
                     item.setTitle(yearText);
                 }
             }
@@ -367,26 +272,24 @@ Ext.define('Ext.picker.Date', {
     },
 
     /**
-     * Generates all slots for all years specified by this component, and then sets them on the
-     * component.
+     * Generates all slots for all years specified by this component, and then sets them on the component
      * @private
      */
     createSlots: function() {
-        var me = this,
+        var me        = this,
             slotOrder = me.getSlotOrder(),
             yearsFrom = me.getYearFrom(),
-            yearsTo = me.getYearTo(),
-            years = [],
-            days = [],
-            months = [],
-            slots = [],
-            reverse = yearsFrom > yearsTo,
+            yearsTo   = me.getYearTo(),
+            years     = [],
+            days      = [],
+            months    = [],
+            reverse   = yearsFrom > yearsTo,
             ln, i, daysInMonth;
 
         while (yearsFrom) {
             years.push({
-                text: yearsFrom,
-                value: yearsFrom
+                text  : yearsFrom,
+                value : yearsFrom
             });
 
             if (yearsFrom === yearsTo) {
@@ -395,8 +298,7 @@ Ext.define('Ext.picker.Date', {
 
             if (reverse) {
                 yearsFrom--;
-            }
-            else {
+            } else {
                 yearsFrom++;
             }
         }
@@ -405,19 +307,21 @@ Ext.define('Ext.picker.Date', {
 
         for (i = 0; i < daysInMonth; i++) {
             days.push({
-                text: i + 1,
-                value: i + 1
+                text  : i + 1,
+                value : i + 1
             });
         }
 
         for (i = 0, ln = Ext.Date.monthNames.length; i < ln; i++) {
             months.push({
-                text: Ext.Date.monthNames[i],
-                value: i + 1
+                text  : Ext.Date.monthNames[i],
+                value : i + 1
             });
         }
 
-        slotOrder.forEach(function(item) {
+        var slots = [];
+
+        slotOrder.forEach(function (item) {
             slots.push(me.createSlot(item, days, months, years));
         });
 
@@ -429,109 +333,80 @@ Ext.define('Ext.picker.Date', {
      * @private
      */
     createSlot: function(name, days, months, years) {
-        var me = this,
-            result;
-
         switch (name) {
             case 'year':
-                result = {
+                return {
                     name: 'year',
                     align: 'center',
                     data: years,
-                    title: me.getYearText(),
+                    title: this.getYearText(),
                     flex: 3
                 };
-                break;
-
             case 'month':
-                result = {
+                return {
                     name: name,
                     align: 'right',
                     data: months,
-                    title: me.getMonthText(),
+                    title: this.getMonthText(),
                     flex: 4
                 };
-                break;
-
             case 'day':
-                result = {
+                return {
                     name: 'day',
                     align: 'center',
                     data: days,
-                    title: me.getDayText(),
+                    title: this.getDayText(),
                     flex: 2
                 };
         }
-
-        if (me._value) {
-            result.value = me._value[name];
-        }
-
-        return result;
     },
 
     onSlotPick: function() {
-        var me = this,
-            addDays = [],
-            value, daySlot, valueField, dayStore, dayData,
-            daysInMonth, slotCount, year, month, i, spliceArgs;
+        var value = this.getValue(true),
+            slot = this.getDaySlot(),
+            year = value.getFullYear(),
+            month = value.getMonth(),
+            days = [],
+            daysInMonth, i;
 
-        if (me.isConfiguring) {
+        if (!value || !Ext.isDate(value) || !slot) {
             return;
         }
 
-        value = me.getValue(true);
-        daySlot = me.getDaySlot();
+        this.callParent(arguments);
 
-        me.callParent(arguments);
-
-        // This method only deals with number of days adjustments
-        // if we have no daySlot there is nothing to be done.
-        if (!daySlot) {
-            return;
+        //get the new days of the month for this new date
+        daysInMonth = this.getDaysInMonth(month + 1, year);
+        for (i = 0; i < daysInMonth; i++) {
+            days.push({
+                text: i + 1,
+                value: i + 1
+            });
         }
-
-        valueField = daySlot.getValueField();
-        dayStore = daySlot.getStore();
-        dayData = dayStore.getData();
-        slotCount = dayStore.getCount();
-        year = value.getFullYear();
-        month = value.getMonth();
-
-        // Get the new days of the month for this new date
-        daysInMonth = me.getDaysInMonth(month + 1, year);
 
         // We don't need to update the slot days unless it has changed
-        if (slotCount === daysInMonth) {
+        if (slot.getStore().getCount() == days.length) {
             return;
         }
 
-        // Need a few more days, eg, we've gone from Feb to Mar
-        // We need to create 29, 30 and 31
-        if (daysInMonth > slotCount) {
-            for (i = slotCount; i < daysInMonth; i++) {
-                addDays.push(dayStore.createModel({
-                    text: i + 1,
-                    value: i + 1
-                }));
-            }
-
-            spliceArgs = [slotCount, 0, addDays];
-        }
-        else {
-            spliceArgs = [daysInMonth, 5];
-        }
-
-        // Splice day store to correct length
-        dayData.splice.apply(dayData, spliceArgs);
+        slot.getStore().setData(days);
 
         // Now we have the correct amount of days for the day slot, lets update it
-        i = dayStore.find(valueField, value.getDate());
+        var store = slot.getStore(),
+            viewItems = slot.getViewItems(),
+            valueField = slot.getValueField(),
+            index, item;
 
-        if (i > -1) {
-            daySlot.navigateToItem(daySlot.mapToItem(i));
-            daySlot.setValue(daySlot.getValue(true));
+        index = store.find(valueField, value.getDate());
+        if (index == -1) {
+            return;
         }
+
+        item = Ext.get(viewItems[index]);
+
+        slot.selectedIndex = index;
+        slot.scrollToItem(item);
+        slot.setValue(slot.getValue(true));
     },
 
     getDaySlot: function() {
@@ -545,10 +420,8 @@ Ext.define('Ext.picker.Date', {
 
         for (i = 0; i < ln; i++) {
             slot = innerItems[i];
-
-            if (slot.isSlot && slot.getName() === "day") {
+            if (slot.isSlot && slot.getName() == "day") {
                 this.daySlot = slot;
-
                 return slot;
             }
         }
@@ -561,8 +434,7 @@ Ext.define('Ext.picker.Date', {
      */
     getDaysInMonth: function(month, year) {
         var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-        return month === 2 && this.isLeapYear(year) ? 29 : daysInMonth[month - 1];
+        return month == 2 && this.isLeapYear(year) ? 29 : daysInMonth[month-1];
     },
 
     /**
@@ -573,30 +445,22 @@ Ext.define('Ext.picker.Date', {
     },
 
     onDoneButtonTap: function() {
-        var me = this,
-            oldValue = me._value,
-            newValue = me.getValue(true),
-            ownerField = me.ownerField,
+        var oldValue = this._value,
+            newValue = this.getValue(true),
             testValue = newValue;
 
         if (Ext.isDate(newValue)) {
             testValue = newValue.toDateString();
         }
-
         if (Ext.isDate(oldValue)) {
             oldValue = oldValue.toDateString();
         }
 
-        if (testValue !== oldValue) {
-            if (ownerField) {
-                ownerField.onPickerChange(me, newValue);
-            }
-
-            me.fireEvent('change', me, newValue);
+        if (testValue != oldValue) {
+            this.fireEvent('change', this, newValue);
         }
 
-        me.hide();
-
+        this.hide();
         Ext.util.InputBlocker.unblockInputs();
     }
 });

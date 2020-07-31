@@ -30,8 +30,7 @@
  *                 arrowAlign:'bottom',
  *                 menu: [{ text: 'Menu Item 1' }]
  *             },{
- *                 xtype:'splitbutton', text: 'Cut', iconCls: 'add16',
- *                 menu: [{ text: 'Cut Menu Item' }]
+ *                 xtype:'splitbutton', text: 'Cut', iconCls: 'add16', menu: [{text: 'Cut Menu Item'}]
  *             },{
  *                 text: 'Copy', iconCls: 'add16'
  *             },{
@@ -45,11 +44,15 @@ Ext.define('Ext.container.ButtonGroup', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.buttongroup',
     alternateClassName: 'Ext.ButtonGroup',
-
+    
     requires: [
         'Ext.layout.container.Table'
     ],
 
+    mixins: [
+        'Ext.util.FocusableContainer'
+    ],
+    
     /**
      * @cfg {Number} columns
      * The `columns` configuration property passed to the {@link #layout configured layout manager}.
@@ -57,27 +60,23 @@ Ext.define('Ext.container.ButtonGroup', {
      */
 
     /**
-     * @cfg baseCls
+     * @cfg {String} baseCls
      * @inheritdoc
      */
     baseCls: Ext.baseCSSPrefix + 'btn-group',
 
     /**
-     * @cfg layout
+     * @cfg {Ext.enums.Layout/Object} layout
      * @inheritdoc
      */
     layout: {
         type: 'table'
     },
 
-    /**
-     * @cfg defaultType
-     * @inheritdoc
-     */
     defaultType: 'button',
 
     /**
-     * @cfg frame
+     * @cfg {Boolean} frame
      * @inheritdoc
      */
     frame: true,
@@ -87,10 +86,6 @@ Ext.define('Ext.container.ButtonGroup', {
      * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items
      */
 
-    /**
-     * @cfg frameHeader
-     * @inheritdoc
-     */
     frameHeader: false,
 
     /**
@@ -100,20 +95,9 @@ Ext.define('Ext.container.ButtonGroup', {
     titleAlign: 'center',
 
     noTitleCls: 'notitle',
-
+    
     bodyAriaRole: 'toolbar',
-
-    /**
-     * @property focusableContainerEl
-     * @inheritdoc
-     */
     focusableContainerEl: 'body',
-
-    /**
-     * @cfg focusableContainer
-     * @inheritdoc
-     */
-    focusableContainer: true,
 
     initComponent: function() {
         // Copy the component's columns config to the layout if specified
@@ -121,13 +105,13 @@ Ext.define('Ext.container.ButtonGroup', {
             cols = me.columns;
 
         if (cols) {
-            me.layout = Ext.apply({ columns: cols }, me.layout);
+            me.layout = Ext.apply({}, {columns: cols}, me.layout);
         }
 
         if (!me.title) {
             me.addClsWithUI(me.noTitleCls);
         }
-
+        
         me.callParent();
     },
 
@@ -139,37 +123,35 @@ Ext.define('Ext.container.ButtonGroup', {
             if (this.defaultButtonUI && component.ui === 'default' &&
                 !component.hasOwnProperty('ui')) {
                 component.ui = this.defaultButtonUI;
-            }
-            else {
+            } else {
                 component.ui = component.ui + '-toolbar';
             }
         }
-
         this.callParent(arguments);
     },
-
+    
     beforeRender: function() {
         var me = this,
             ariaAttr;
-
+        
         me.callParent();
-
+        
         // If header is off we need to set aria-label
         if (me.afterHeaderInit && !me.header && me.title) {
             ariaAttr = me.bodyAriaRenderAttributes || (me.bodyAriaRenderAttributes = {});
             ariaAttr['aria-label'] = me.title;
         }
     },
-
+    
     updateHeader: function(force) {
         var me = this,
             bodyEl = me.body,
             header, ariaAttr;
-
+        
         me.callParent([force]);
-
+        
         header = me.header;
-
+        
         if (header) {
             if (bodyEl) {
                 bodyEl.dom.setAttribute('aria-labelledby', header.id + '-title-textEl');
@@ -195,11 +177,10 @@ Ext.define('Ext.container.ButtonGroup', {
     },
 
     privates: {
-        applyDefaults: function(c) {
+        applyDefaults: function (c) {
             if (!Ext.isString(c)) {
                 c = this.callParent(arguments);
             }
-
             return c;
         }
     }

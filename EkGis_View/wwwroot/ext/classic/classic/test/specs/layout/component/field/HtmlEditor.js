@@ -1,6 +1,5 @@
-topSuite("Ext.layout.component.field.HtmlEditor",
-    ['Ext.form.Panel', 'Ext.form.field.HtmlEditor'],
-function() {
+describe("Ext.layout.component.field.HtmlEditor", function() {
+
     var htmlEditor;
 
     afterEach(function() {
@@ -73,7 +72,6 @@ function() {
         function getHeightOffset() {
             return htmlEditor.getToolbar().getHeight() + htmlEditor.inputCmp.getEl().getBorderWidth('tb');
         }
-
         it("should stretch the iframe height when shrink wrapping height", function() {
             htmlEditor = new Ext.form.field.HtmlEditor({
                 renderTo: Ext.getBody()

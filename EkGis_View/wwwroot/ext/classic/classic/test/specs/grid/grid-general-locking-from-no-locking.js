@@ -1,18 +1,14 @@
-topSuite("grid-general-locking-from-no-locking", [
-    false,
-    'Ext.grid.Panel',
-    'Ext.data.ArrayStore'
-], function() {
+/* global Ext, expect, spyOn, jasmine, xit, MockAjaxManager, it */
+
+describe("grid-generallocking-from-no-locking", function() {
     var grid, store,
         synchronousLoad = true,
         proxyStoreLoad = Ext.data.ProxyStore.prototype.load,
         loadStore = function() {
             proxyStoreLoad.apply(this, arguments);
-
             if (synchronousLoad) {
                 this.flushLoad.apply(this, arguments);
             }
-
             return this;
         };
 
@@ -36,19 +32,17 @@ topSuite("grid-general-locking-from-no-locking", [
         // affects the presence of a scrollbar in the other dimension.
         visibleScrollbarsIt = scrollbarsTakeSpace ? it : xit;
 
-    function getViewTop(el) {
-        var dom = Ext.getDom(el),
-            transform;
+        function getViewTop(el) {
+            var dom = Ext.getDom(el),
+                transform;
 
-        if (Ext.supports.CssTransforms && !Ext.isIE9m) {
-            transform = dom.style[transformStyleName];
-
-            return transform ? parseInt(transform.split(',')[1], 10) : 0;
+            if (Ext.supports.CssTransforms && !Ext.isIE9m) {
+                transform = dom.style[transformStyleName];
+                return transform ? parseInt(transform.split(',')[1], 10) : 0;
+            } else {
+                return parseInt(dom.style.top || '0', 10);
+            }
         }
-        else {
-            return parseInt(dom.style.top || '0', 10);
-        }
-    }
 
     describe('Locking a column when grid configured with enableLocking, but no locked columns', function() {
         var scrollY,
@@ -82,16 +76,13 @@ topSuite("grid-general-locking-from-no-locking", [
                     }],
                     data: (function() {
                         var data = [];
-
                         var len = 44; // <-- 43 records does not trigger error
-
                         while (len--) {
                             data.unshift({
                                 name: 'User ' + len,
                                 age: Ext.Number.randomInt(0, 100)
                             });
                         }
-
                         return data;
                     })()
                 },
@@ -119,24 +110,7 @@ topSuite("grid-general-locking-from-no-locking", [
                 expect(grid.lockedScrollbar.isVisible()).toBe(false);
             });
         }
-
-        it('should display the locked side if all columns are locked', function() {
-            var width;
-
-            grid.reconfigure([
-                {
-                    text: 'Locked',
-                    dataIndex: 'name',
-                    locked: true
-                }
-            ]);
-
-            width = grid.lockedGrid.view.getWidth();
-
-            expect(width).not.toBe(0);
-            expect(grid.normalGrid.view.getX()).toBeGreaterThan(width);
-        });
-
+        
         describe('scrolling with no locked columns', function() {
             var oldOnError = window.onerror;
 
@@ -153,7 +127,7 @@ topSuite("grid-general-locking-from-no-locking", [
                         oldOnError();
                     }
                 });
-
+                
                 scroller.on({
                     scrollend: function() {
                         scrollFinished = true;
@@ -161,7 +135,7 @@ topSuite("grid-general-locking-from-no-locking", [
                 });
 
                 scroller.scrollBy(0, 100);
-
+                
                 waitsFor(function() {
                     return scrollFinished;
                 }, 'scroll to be handled', 500);
@@ -174,9 +148,6 @@ topSuite("grid-general-locking-from-no-locking", [
         it('should not throw an error, and should maintain scroll position', function() {
             // Scroll to end (ensureVisible sanitizes the inputs)
             grid.ensureVisible(100);
-
-            // Scroll must have worked.
-            expect(grid.view.normalView.bufferedRenderer.getLastVisibleRowIndex()).toBe(grid.store.getCount() - 1);
 
             // Locked grid is hidden because there are no locked columns
             expect(grid.lockedGrid.isVisible()).toBe(false);

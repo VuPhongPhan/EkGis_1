@@ -1,9 +1,11 @@
-Ext.define('MRequest.store.Personnel', {
+Ext.define('LoaiYeuCau.store.Personnel', {
     extend: 'Ext.data.Store',
 
     alias: 'store.personnel',
 
-    model: 'MRequest.model.Personnel',
+    fields: [
+        'name', 'email', 'phone'
+    ],
 
     data: { items: [
         { name: 'Jean Luc', email: "jeanluc.picard@enterprise.com", phone: "555-111-1111" },

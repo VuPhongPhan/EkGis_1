@@ -40,7 +40,6 @@ Ext.onReady(function() {
             return Ext.Date.dayNames[day].substring(0, 3);
         };
     }
-
     if (Ext.util && Ext.util.Format) {
         Ext.apply(Ext.util.Format, {
             thousandSeparator: '.',
@@ -155,6 +154,7 @@ Ext.define("Ext.locale.hu.form.field.VTypes", {
     alphaText: 'A mező csak betűket és aláhúzást (_) tartalmazhat',
     alphanumText: 'A mező csak betűket, számokat és aláhúzást (_) tartalmazhat'
 });
+    
 
 Ext.define("Ext.locale.hu.form.field.HtmlEditor", {
     override: "Ext.form.field.HtmlEditor",
@@ -266,10 +266,10 @@ Ext.define("Ext.locale.hu.window.MessageBox", {
         cancel: "Mégsem",
         yes: "Igen",
         no: "Nem"
-    }
+    }    
 });
 
 // This is needed until we can refactor all of the locales into individual files
-Ext.define("Ext.locale.hu.Component", {
+Ext.define("Ext.locale.hu.Component", {	
     override: "Ext.Component"
 });

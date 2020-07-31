@@ -39,8 +39,7 @@ Ext.define('Ext.rtl.scroll.Scroller', {
             if (this.getRtl()) {
                 this.getSpacer().dom.style.right = (x - 1) + 'px';
                 this.callParent([null, y]);
-            }
-            else {
+            } else {
                 this.callParent([x, y]);
             }
         }

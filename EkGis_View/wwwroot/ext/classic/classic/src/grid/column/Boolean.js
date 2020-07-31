@@ -1,7 +1,6 @@
 /**
- * A Column definition class which renders boolean data fields.
- * See the {@link Ext.grid.column.Column#xtype xtype} config option of
- * {@link Ext.grid.column.Column} for more details.
+ * A Column definition class which renders boolean data fields.  See the {@link Ext.grid.column.Column#xtype xtype}
+ * config option of {@link Ext.grid.column.Column} for more details.
  *
  *     @example
  *     var store = Ext.create('Ext.data.Store', {
@@ -39,25 +38,27 @@ Ext.define('Ext.grid.column.Boolean', {
     alias: ['widget.booleancolumn'],
     alternateClassName: 'Ext.grid.BooleanColumn',
 
+    //<locale>
     /**
      * @cfg {String} trueText
      * The string returned by the renderer when the column value is not falsey.
-     * @locale
      */
     trueText: 'true',
+    //</locale>
 
+    //<locale>
     /**
      * @cfg {String} falseText
      * The string returned by the renderer when the column value is falsey (but not undefined).
-     * @locale
      */
     falseText: 'false',
+    //</locale>
 
     /**
      * @cfg {String} undefinedText
      * The string returned by the renderer when the column value is undefined.
      */
-    undefinedText: '\u00a0',
+    undefinedText: '&#160;',
 
     defaultFilterType: 'boolean',
 
@@ -71,13 +72,13 @@ Ext.define('Ext.grid.column.Boolean', {
      * @hide
      */
 
-    /**
-     * @cfg producesHTML
+     /**
+     * @cfg {Boolean} producesHTML
      * @inheritdoc
      */
     producesHTML: false,
 
-    defaultRenderer: function(value) {
+    defaultRenderer: function(value){
         if (value === undefined) {
             return this.undefinedText;
         }
@@ -85,12 +86,10 @@ Ext.define('Ext.grid.column.Boolean', {
         if (!value || value === 'false') {
             return this.falseText;
         }
-
         return this.trueText;
     },
 
     updater: function(cell, value) {
-        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML =
-            Ext.grid.column.Boolean.prototype.defaultRenderer.call(this, value);
+        Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML = Ext.grid.column.Boolean.prototype.defaultRenderer.call(this, value);
     }
 });

@@ -1,7 +1,6 @@
-topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
-    var itNotTouch = jasmine.supportsTouch ? xit : it,
-        menu;
-
+describe('Ext.menu.KeyNav', function () {
+    var menu;
+    
     function makeMenu(cfg) {
         menu = new Ext.menu.Menu(Ext.apply({
             text: 'Main Menu',
@@ -18,9 +17,9 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
                 menu: {
                     items: [{
                         text: 'Next Level'
-                    }, {
+                    },{
                         text: 'Next Level'
-                    }, {
+                    },{
                         text: 'Next Level'
                     }]
                 }
@@ -31,25 +30,25 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
             }]
         }, cfg));
     }
-
-    afterEach(function() {
+    
+    afterEach(function () {
         menu.hide();
         Ext.destroy(menu);
         menu = null;
     });
-
-    xdescribe('enter key nav', function() {
-        describe('href property', function() {
+    
+    describe('enter key nav', function () {
+        describe('href property', function () {
             // Note that the specs were failing in FF 24 without the waitsFor().
             // Note that it's necessary to set the activeItem and focusedItem to test the API!
             var menuItem;
 
-            afterEach(function() {
+            afterEach(function () {
                 menuItem = null;
-                window.location.hash = '';
+                location.hash = '';
             });
 
-            it('should follow the target', function() {
+            it('should follow the target', function () {
                 makeMenu({
                     items: [{
                         text: 'menu item one',
@@ -63,24 +62,24 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
                 menu.activeItem = menu.focusedItem = menuItem;
                 jasmine.fireKeyEvent(menuItem.itemEl.dom, 'keydown', 13);
 
-                waitsFor(function() {
+                waitsFor(function () {
                     return location.hash === '#ledzep';
-                }, 'hash to change', 1000);
+                }, 'timed out waiting for hash to change', 1000);
 
-                runs(function() {
+                runs(function () {
                     expect(location.hash).toBe('#ledzep');
                 });
             });
 
-            it('should not follow the target if the click listener stops the event', function() {
-                var hashValue = '';
+            it('should not follow the target if the click listener stops the event', function () {
+                var hashValue = Ext.isIE ? '#' : '';
 
                 makeMenu({
                     items: [{
                         text: 'menu item one',
                         href: '#motley',
                         listeners: {
-                            click: function(cmp, e) {
+                            click: function (cmp, e) {
                                 e.preventDefault();
                             }
                         }
@@ -93,29 +92,29 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
                 menu.activeItem = menu.focusedItem = menuItem;
                 jasmine.fireKeyEvent(menuItem.itemEl.dom, 'keydown', 13);
 
-                waitsFor(function() {
+                waitsFor(function () {
                     return location.hash === hashValue;
                 }, 'timed out waiting for hash to change', 1000);
 
-                runs(function() {
+                runs(function () {
                     expect(location.hash).toBe(hashValue);
                 });
             });
         });
     });
 
-    describe('left key nav', function() {
+    describe('left key nav', function () {
         var node, childMenu;
 
-        beforeEach(function() {
+        beforeEach(function () {
             makeMenu();
         });
 
-        afterEach(function() {
+        afterEach(function () {
             node = childMenu = null;
         });
 
-        itNotTouch('should only hide child menus', function() {
+        it('should only hide child menus', function () {
             // Activate the menu item and expand its menu.
             node = menu.down('[text="Menu Two"]').el.dom;
             jasmine.fireMouseEvent(node, 'mouseover');
@@ -128,16 +127,15 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
             });
 
             runs(function() {
-                pressKey(childMenu.down('menuitem'), 'left');
-            });
+                node = childMenu.el.down('.x-menu-item-link', true);
+                jasmine.fireKeyEvent(node, 'keydown', 37);
 
-            runs(function() {
                 expect(childMenu.hidden).toBe(true);
             });
         });
 
-        describe('parent menu', function() {
-            it('should not hide', function() {
+        describe('parent menu', function () {
+            it('should not hide', function () {
                 // Test the parent menu.
                 node = menu.el.down('.x-menu-item-link', true);
                 jasmine.fireKeyEvent(node, 'keydown', 37);
@@ -145,7 +143,7 @@ topSuite("Ext.menu.KeyNav", [false, 'Ext.menu.Menu'], function() {
                 expect(menu.hidden).toBe(false);
             });
 
-            itNotTouch('should not hide (tests hiding child menu first)', function() {
+            it('should not hide (tests hiding child menu first)', function () {
                 // Activate the menu item and expand its menu.
                 node = menu.down('[text="Menu Two"]').el.dom;
                 jasmine.fireMouseEvent(node, 'mouseover');

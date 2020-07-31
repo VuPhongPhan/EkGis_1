@@ -1,6 +1,6 @@
 /* global expect, spyOn, Ext, jasmine */
 
-topSuite("Ext.form.field.Spinner", function() {
+describe("Ext.form.field.Spinner", function() {
     var component, makeComponent;
 
     beforeEach(function() {
@@ -19,9 +19,10 @@ topSuite("Ext.form.field.Spinner", function() {
         if (component) {
             component.destroy();
         }
-
         component = makeComponent = null;
     });
+
+
 
     describe("defaults", function() {
         beforeEach(function() {
@@ -37,6 +38,7 @@ topSuite("Ext.form.field.Spinner", function() {
             expect(component.keyNavEnabled).toBe(true);
         });
     });
+
 
     describe("rendering", function() {
         beforeEach(function() {
@@ -58,6 +60,7 @@ topSuite("Ext.form.field.Spinner", function() {
             expect(component.spinDownEl.hasCls('x-form-spinner-down')).toBe(true);
         });
     });
+
 
     describe("trigger click", function() {
         function fireClick(el) {
@@ -95,6 +98,7 @@ topSuite("Ext.form.field.Spinner", function() {
             expect(component.onSpinDown).not.toHaveBeenCalled();
         });
     });
+
 
     describe("setSpinUpEnabled", function() {
         describe("false", function() {
@@ -172,6 +176,7 @@ topSuite("Ext.form.field.Spinner", function() {
         });
     });
 
+
     describe("key nav", function() {
         function fireKey(key) {
             jasmine.fireKeyEvent(component.inputEl, 'keydown', key);
@@ -231,6 +236,7 @@ topSuite("Ext.form.field.Spinner", function() {
         });
     });
 
+
     describe("spin events", function() {
         describe("spinning up", function() {
             beforeEach(function() {
@@ -240,11 +246,11 @@ topSuite("Ext.form.field.Spinner", function() {
                 spyOn(component, "fireEvent").andCallThrough();
                 component.spinUp();
             });
-
+            
             it("should fire the 'spin' event with the 'up' direction parameter", function() {
                 expect(component.fireEvent).toHaveBeenCalledWith("spin", component, "up");
             });
-
+            
             it("should fire the 'spinup' event", function() {
                 expect(component.fireEvent).toHaveBeenCalledWith("spinup", component);
             });
@@ -258,7 +264,7 @@ topSuite("Ext.form.field.Spinner", function() {
                 spyOn(component, "fireEvent").andCallThrough();
                 component.spinDown();
             });
-
+            
             it("should fire the 'spin' event with the 'down' direction parameter", function() {
                expect(component.fireEvent).toHaveBeenCalledWith("spin", component, "down");
             });
@@ -267,12 +273,10 @@ topSuite("Ext.form.field.Spinner", function() {
                 expect(component.fireEvent).toHaveBeenCalledWith("spindown", component);
             });
         });
-
+        
         describe('spinend', function() {
-            var spinUpsToDo = Ext.isIE8 ? 20 : 100,
-                spinUpCount = 0,
-                spinEndCount = 0,
-                idleSpy, spinEndSpy;
+            var spinUpCount = 0,
+                spinEndCount = 0;
 
             beforeEach(function() {
                 component = new Ext.form.field.Spinner({
@@ -287,38 +291,24 @@ topSuite("Ext.form.field.Spinner", function() {
                         }
                     }
                 });
-
-                idleSpy = jasmine.createSpy('idle listener');
-                spinEndSpy = jasmine.createSpy('spinEnd listener');
-            });
-
-            afterEach(function() {
-                Ext.GlobalEvents.un('idle', idleSpy);
-                idleSpy = spinEndSpy = null;
             });
 
             it('should fire a spinend event when the spin stops', function() {
                 waitsFor(function() {
-                    if (spinUpCount === spinUpsToDo) {
+                    if (spinUpCount === 100) {
                         jasmine.fireKeyEvent(component.inputEl, 'keyup', Ext.event.Event.UP);
-
                         return true;
                     }
-
                     jasmine.fireKeyEvent(component.inputEl, 'keydown', Ext.event.Event.UP);
-                }, 'Spinner to fire all events', 5000);
+                });
 
                 // The firing of spinend is buffered because of the repeating, so it will fire soon.
                 runs(function() {
                     expect(spinEndCount).toBe(0);
-                    component.on('spinend', spinEndSpy);
-                    Ext.GlobalEvents.on('idle', idleSpy);
                 });
 
-                waitForSpy(spinEndSpy);
-
                 // Only one spinend event must fire, so wait for any extraneous ones.
-                waitForSpy(idleSpy);
+                waits(500);
 
                 runs(function() {
                     expect(spinEndCount).toBe(1);

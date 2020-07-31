@@ -9,10 +9,13 @@
  *         }
  *     });
  *
- * In general this class will not be instanced directly, rather the
- * {@link Ext.dom.Element#method-load} method will be used.
+ * In general this class will not be instanced directly, rather the {@link Ext.dom.Element#method-load} method
+ * will be used.
  */
 Ext.define('Ext.ElementLoader', {
+
+    /* Begin Definitions */
+
     mixins: [
         'Ext.util.Observable'
     ],
@@ -24,16 +27,14 @@ Ext.define('Ext.ElementLoader', {
 
     statics: {
         Renderer: {
-            Html: function(loader, response, active) {
-                loader.getTarget().setHtml(
-                    response.responseText, active.scripts === true, active.callback,
-                    active.rendererScope
-                );
-
+            Html: function(loader, response, active){
+                loader.getTarget().setHtml(response.responseText, active.scripts === true, active.rendererScope);
                 return true;
             }
         }
     },
+
+    /* End Definitions */
 
     /**
      * @cfg {String} url (required)
@@ -57,15 +58,13 @@ Ext.define('Ext.ElementLoader', {
     /**
      * @cfg {Boolean/Object} autoLoad
      * `true` to have the loader make a request as soon as it is created.
-     * This argument can also be a set of options that will be passed to {@link #method-load}
-     * when it is called.
+     * This argument can also be a set of options that will be passed to {@link #method-load} when it is called.
      */
     autoLoad: false,
 
     /**
      * @cfg {HTMLElement/Ext.dom.Element/String} target
-     * The target element for the loader. It can be the DOM element, the id or an
-     * {@link Ext.dom.Element}.
+     * The target element for the loader. It can be the DOM element, the id or an {@link Ext.dom.Element}.
      */
     target: null,
 
@@ -136,7 +135,7 @@ Ext.define('Ext.ElementLoader', {
      * - The response
      * - The active request
      */
-
+    
     /**
      * @cfg {Object} rendererScope
      * The scope to execute the {@link #renderer} function in.
@@ -144,8 +143,7 @@ Ext.define('Ext.ElementLoader', {
 
     /**
      * @property {Boolean} isLoader
-     * `true` in this class to identify an object as an instantiated ElementLoader,
-     * or subclass thereof.
+     * `true` in this class to identify an object as an instantiated ElementLoader, or subclass thereof.
      */
     isLoader: true,
 
@@ -178,21 +176,16 @@ Ext.define('Ext.ElementLoader', {
         var me = this,
             autoLoad;
 
-        //<debug>
-        me.callParent([config]);
-        //</debug>
-
         me.mixins.observable.constructor.call(me, config);
 
         me.setTarget(me.target);
 
+
         if (me.autoLoad) {
             autoLoad = me.autoLoad;
-
             if (autoLoad === true) {
                 autoLoad = null;
             }
-
             me.load(autoLoad);
         }
     },
@@ -202,7 +195,7 @@ Ext.define('Ext.ElementLoader', {
      * Note that if the target is changed, any active requests will be aborted.
      * @param {String/HTMLElement/Ext.dom.Element} target The element or its ID.
      */
-    setTarget: function(target) {
+    setTarget: function (target) {
         var me = this;
 
         target = Ext.get(target);
@@ -218,23 +211,20 @@ Ext.define('Ext.ElementLoader', {
      * Returns the target of this loader.
      * @return {Ext.Component} The target or null if none exists.
      */
-    getTarget: function() {
+    getTarget: function(){
         return this.target || null;
     },
 
     /**
      * Aborts the active load request
      */
-    abort: function() {
+    abort: function(){
         var active = this.active;
-
         if (active !== undefined) {
             Ext.Ajax.abort(active.request);
-
             if (active.mask) {
                 this.removeMask();
             }
-
             delete this.active;
         }
     },
@@ -243,7 +233,7 @@ Ext.define('Ext.ElementLoader', {
      * Removes the mask on the target
      * @private
      */
-    removeMask: function() {
+    removeMask: function(){
         this.target.unmask();
     },
 
@@ -252,30 +242,25 @@ Ext.define('Ext.ElementLoader', {
      * @private
      * @param {Boolean/Object} mask The mask configuration
      */
-    addMask: function(mask) {
+    addMask: function(mask){
         this.target.mask(mask === true ? null : mask);
     },
 
     /**
      * Loads new data from the server.
-     * @param {Object} options The options for the request. They can be any configuration option
-     * that can be specified for the class, with the exception of the target option. Note that any
-     * options passed to the method will override any class defaults.
+     * @param {Object} options The options for the request. They can be any configuration option that can be specified for
+     * the class, with the exception of the target option. Note that any options passed to the method will override any
+     * class defaults.
      */
     load: function(options) {
-        if (this.destroying || this.destroyed) {
-            return;
-        }
-
         //<debug>
         if (!this.target) {
-            Ext.raise('A valid target is required when loading content for ' + this.id);
+            Ext.raise('A valid target is required when loading content');
         }
         //</debug>
 
         options = Ext.apply({}, options);
 
-        // eslint-disable-next-line vars-on-top
         var me = this,
             mask = Ext.isDefined(options.loadMask) ? options.loadMask : me.loadMask,
             params = Ext.apply({}, options.params),
@@ -323,7 +308,6 @@ Ext.define('Ext.ElementLoader', {
             renderer: options.renderer || me.renderer,
             scripts: Ext.isDefined(options.scripts) ? options.scripts : me.scripts
         };
-
         me.active.request = Ext.Ajax.request(options);
         me.setOptions(me.active, options);
     },
@@ -355,23 +339,18 @@ Ext.define('Ext.ElementLoader', {
         if (active) {
             scope = active.scope;
             rendererScope = active.rendererScope;
-
             if (success) {
-                // eslint-disable-next-line max-len
                 success = me.getRenderer(active.renderer).call(rendererScope, me, response, active) !== false;
             }
 
             if (success) {
                 Ext.callback(active.success, scope, [me, response, options]);
                 me.fireEvent('load', me, response, options);
-            }
-            else {
+            } else {
                 Ext.callback(active.failure, scope, [me, response, options]);
                 me.fireEvent('exception', me, response, options);
             }
-
             Ext.callback(active.callback, scope, [me, success, response, options]);
-
             if (active.mask) {
                 me.removeMask();
             }
@@ -386,26 +365,22 @@ Ext.define('Ext.ElementLoader', {
      * @param {String/Function} renderer The renderer to use
      * @return {Function} A rendering function to use.
      */
-    getRenderer: function(renderer) {
+    getRenderer: function(renderer){
         if (Ext.isFunction(renderer)) {
             return renderer;
         }
-
         return this.statics().Renderer.Html;
     },
 
     /**
      * Automatically refreshes the content over a specified period.
      * @param {Number} interval The interval to refresh in ms.
-     * @param {Object} options (optional) The options to pass to the load method.
-     * See {@link #method-load}
+     * @param {Object} options (optional) The options to pass to the load method. See {@link #method-load}
      */
-    startAutoRefresh: function(interval, options) {
+    startAutoRefresh: function(interval, options){
         var me = this;
-
         me.stopAutoRefresh();
-
-        me.autoRefresh = Ext.interval(function() {
+        me.autoRefresh = Ext.interval(function(){
             me.load(options);
         }, interval);
     },
@@ -414,7 +389,7 @@ Ext.define('Ext.ElementLoader', {
      * Clears any auto refresh. See {@link #startAutoRefresh}.
      */
     stopAutoRefresh: function() {
-        Ext.uninterval(this.autoRefresh);
+        clearInterval(this.autoRefresh);
         this.autoRefresh = null;
     },
 
@@ -431,10 +406,10 @@ Ext.define('Ext.ElementLoader', {
      */
     destroy: function() {
         var me = this;
-
+        
         me.stopAutoRefresh();
         me.abort();
-
+        
         me.callParent();
     }
 });

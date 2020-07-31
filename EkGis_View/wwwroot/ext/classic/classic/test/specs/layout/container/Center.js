@@ -1,4 +1,5 @@
-topSuite("Ext.layout.container.Center", ['Ext.Panel'], function() {
+describe("Ext.layout.container.Center", function() {
+
     var ct, item;
 
     afterEach(function() {
@@ -16,7 +17,6 @@ topSuite("Ext.layout.container.Center", ['Ext.Panel'], function() {
 
     function expectResult(w, h, left, top, ctWidth, ctHeight) {
         var pos = item.getEl().getStyle(['left', 'top']);
-
         expect(item.getWidth()).toBe(w);
         expect(item.getHeight()).toBe(h);
         expect(parseInt(pos.left, 10)).toBe(left);
@@ -27,15 +27,12 @@ topSuite("Ext.layout.container.Center", ['Ext.Panel'], function() {
 
     function makeAutoSizer(w, h) {
         var css = [];
-
         if (w) {
             css.push('width: ' + w + 'px');
         }
-
         if (h) {
             css.push('height: ' + h + 'px');
         }
-
         return '<div style="' + css.join(';') + '"></div>';
     }
 
@@ -78,7 +75,6 @@ topSuite("Ext.layout.container.Center", ['Ext.Panel'], function() {
                     }]
                 }]
             });
-
             ct = p.getDockedItems()[0];
             item = ct.items.first();
             expectResult(100, 30, 150, 0, 400, 30);
@@ -101,7 +97,6 @@ topSuite("Ext.layout.container.Center", ['Ext.Panel'], function() {
                     }]
                 }]
             });
-
             ct = p.getDockedItems()[0];
             item = ct.items.first();
             expectResult(30, 100, 0, 150, 30, 400);

@@ -1,17 +1,14 @@
-topSuite("grid-general-paging-buffered-renderer",
-    [false, 'Ext.grid.Panel', 'Ext.data.ArrayStore', 'Ext.toolbar.Paging',
-     'Ext.Button'],
-function() {
+/* global Ext, expect, spyOn, jasmine, xit, MockAjaxManager */
+
+describe("grid-general-paging-buffered-renderer", function() {
     var grid, store,
         synchronousLoad = true,
         proxyStoreLoad = Ext.data.ProxyStore.prototype.load,
         loadStore = function() {
             proxyStoreLoad.apply(this, arguments);
-
             if (synchronousLoad) {
                 this.flushLoad.apply(this, arguments);
             }
-
             return this;
         };
 
@@ -41,10 +38,8 @@ function() {
 
             if (Ext.supports.CssTransforms && !Ext.isIE9m) {
                 transform = dom.style[transformStyleName];
-
                 return transform ? parseInt(transform.split(',')[1], 10) : 0;
-            }
-            else {
+            } else {
                 return parseInt(dom.style.top || '0', 10);
             }
         }
@@ -57,32 +52,28 @@ function() {
         });
 
         it("should refresh the view on each page change", function() {
-            var store, ptoolbar,
-                refreshCount = 0;
-
+            var store, ptoolbar;
+            
             runs(function() {
                 function getRandomDate() {
-                    var from = new Date(1900, 0, 1).getTime(),
-                        to = new Date().getTime();
-
+                    var from = new Date(1900, 0, 1).getTime();
+                    var to = new Date().getTime();
                     return new Date(from + Math.random() * (to - from));
                 }
 
                 function createFakeData(count) {
-                    var firstNames   = ['Ed', 'Tommy', 'Aaron', 'Abe'],
-                        lastNames    = ['Spencer', 'Maintz', 'Conran', 'Elias'];
+                    var firstNames   = ['Ed', 'Tommy', 'Aaron', 'Abe'];
+                    var lastNames    = ['Spencer', 'Maintz', 'Conran', 'Elias'];
 
                     var data = [];
-
-                    for (var i = 0; i < count; i++) {
-                        var dob = getRandomDate(),
-                            firstNameId = Math.floor(Math.random() * firstNames.length),
-                            lastNameId  = Math.floor(Math.random() * lastNames.length),
-                            name        = Ext.String.format("{0} {1}", firstNames[firstNameId], lastNames[lastNameId]);
+                    for (var i = 0; i < count ; i++) {
+                        var dob = getRandomDate();           
+                        var firstNameId = Math.floor(Math.random() * firstNames.length);
+                        var lastNameId  = Math.floor(Math.random() * lastNames.length);
+                        var name        = Ext.String.format("{0} {1}", firstNames[firstNameId], lastNames[lastNameId]);
 
                         data.push([name, dob]);
                     }
-
                     return data;
                 }
 
@@ -106,9 +97,9 @@ function() {
                 grid = Ext.create('Ext.grid.Panel', {
                     store: store,
                     columns: [
-                        { text: "Name", width: 120, dataIndex: 'Name' },
-                        { text: "dob", flex: 1, dataIndex: 'dob' }
-                    ],
+                        {text: "Name", width:120, dataIndex: 'Name'},
+                        {text: "dob", flex: 1, dataIndex: 'dob'}
+                    ],                    
                     dockedItems: [
                         ptoolbar = Ext.create('Ext.toolbar.Paging', {
                             dock: 'bottom',
@@ -127,28 +118,32 @@ function() {
             // Wait for first refresh.
             waitsFor(function() {
                 return grid.view.all.getCount() === 20;
-            }, 'first refresh');
-
-            runs(function() {
-                refreshCount = grid.view.refreshCounter;
-
-                grid.view.scrollTo(0, 110);
             });
+            
+            runs(function() {
+                var refreshCount = grid.view.refreshCounter;
+
+                grid.view.scrollTo(0,100);
 
                 // Wait for the scroll event to get into the BufferedRenderer                
-            waitsFor(function() {
-                return grid.view.getScrollable().getPosition().y >= 100;
-            }, 'view to scroll to scrollTop:100');
+                waitsFor(function() {
+                    return grid.view.bufferedRenderer.scrollTop === 100;
+                });
 
-            runs(function() {
-                jasmine.fireMouseEvent(ptoolbar.down('#next').el, 'click');
+                runs(function() {
+                    jasmine.fireMouseEvent(ptoolbar.down('#next').el, 'click');
 
-                // Should be one more page refresh
-                expect(grid.view.refreshCounter).toBe(refreshCount + 1);
+                    // Should be one more page refresh
+                    expect(grid.view.refreshCounter).toBe(refreshCount + 1);
 
-                // A new full page of 20 records should be there
-                expect(grid.view.all.getCount()).toBe(20);
+                    // A new full page of 20 records should be there
+                    expect(grid.view.all.getCount()).toBe(20);
+
+                    // Should have scrolled to top on view refresh
+                    expect(grid.view.getScrollY()).toBe(0);
+                });
             });
         });
     });
+
 });
