@@ -1,21 +1,21 @@
-/**
+﻿/**
  * This class is the main view for the application. It is specified in app.js as the
  * "mainView" property. That setting automatically applies the "viewport"
  * plugin causing this view to become the body element (i.e., the viewport).
  *
  * TODO - Replace this content of this view to suite the needs of your application.
  */
-Ext.define('LoaiYeuCau.view.main.Main', {
+Ext.define('Admin.view.main.Main', {
     extend: 'Ext.tab.Panel',
     xtype: 'app-main',
 
     requires: [
         'Ext.plugin.Viewport',
         'Ext.window.MessageBox',
-
-        'LoaiYeuCau.view.main.MainController',
-        'LoaiYeuCau.view.main.MainModel',
-        'LoaiYeuCau.view.main.List'
+        'Ext.grid.Panel',
+        'Admin.view.main.MainController',
+        'Admin.view.main.MainModel',
+        'Admin.view.main.List'
     ],
 
     controller: 'main',
@@ -37,7 +37,7 @@ Ext.define('LoaiYeuCau.view.main.Main', {
             },
             flex: 0
         },
-        iconCls: 'fa-th-list'
+        iconCls: 'x-fa fa-th-list'
     },
 
     tabBar: {
@@ -74,28 +74,45 @@ Ext.define('LoaiYeuCau.view.main.Main', {
         }
     },
 
+    layout: {
+        type: "vbox",
+        align: "stretch"
+    },
+
     items: [{
-        title: 'Home',
-        iconCls: 'fa-home',
+        title: 'Yêu Cầu',
+        layout: {
+            type: "vbox",
+            align: "stretch"
+        },
+        iconCls: 'x-fa fa-home',
         // The following grid shares a store with the classic version's grid as well!
-        items: [{
-            xtype: 'mainlist'
-        }]
+        items: [
+            {
+                xtype: 'dsdmyeucau',
+            }
+        ]
     }, {
-        title: 'Users',
-        iconCls: 'fa-user',
-        bind: {
-            html: '{loremIpsum}'
-        }
+        title: 'Loại',
+        layout: {
+            type: "vbox",
+            align: "stretch"
+        },
+        iconCls: 'x-fa fa-user',
+        items: [
+            {
+                xtype: 'dsdmphannhom',
+            }
+        ]
     }, {
         title: 'Groups',
-        iconCls: 'fa-users',
+        iconCls: 'x-fa fa-users',
         bind: {
             html: '{loremIpsum}'
         }
     }, {
         title: 'Settings',
-        iconCls: 'fa-cog',
+        iconCls: 'x-fa fa-cog',
         bind: {
             html: '{loremIpsum}'
         }

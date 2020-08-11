@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EkGis.Application.Catalog.Loais;
+using EkGis.Application.Catalog.YeuCaus;
+using EkGis.Data.EF;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +27,13 @@ namespace EkGis_View
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<EkGisDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("Ekgis")));
+
+            services.AddTransient<ILoaiservice, LoaiService>();
+            services.AddTransient<IYeuCauService, YeuCauService>();
+
+
             services.AddControllersWithViews();
         }
 

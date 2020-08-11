@@ -7,10 +7,10 @@ namespace EkGis.Application.Catalog.Loais.Dtos
 {
     public class LoaiCreateRequest
     {
-        public int MaLoai { get; set; }
+                public int MaLoai { get; set; }
 
-        public string TenLoai { get; set; }
+                public string TenLoai { get; set; }
 
-        public DateTime NgayTao { get; set; }
+                public DateTime NgayTao { get; set; }
     }
 }

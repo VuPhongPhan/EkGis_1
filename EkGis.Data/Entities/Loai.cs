@@ -8,7 +8,7 @@ namespace EkGis.Data.Entities
     {
         public int MaLoai { set; get; }
         public string TenLoai { set; get; }
-        public DateTime NgayTao { set; get; }
+        public DateTime? NgayTao { set; get; }
 
         public List<YeuCau> YeuCaus { get; set; }
     }

@@ -18,16 +18,12 @@ namespace EkGis.Application.Catalog.Loais
         {
             _context = context;
         }
-        public async Task<int> Create(LoaiCreateRequest request)
+        public async Task<Loai> Create(Loai request)
         {
-            var loai = new Loai()
-            {
-                TenLoai = request.TenLoai,
-                NgayTao = DateTime.Now
-            };
-            _context.Loais.Add(loai);
+            request.NgayTao = DateTime.Now;
+            _context.Loais.Add(request);
             await _context.SaveChangesAsync();
-            return request.MaLoai;
+            return request;
         }
 
         public async Task<int> Delete(int ma)
@@ -44,7 +40,7 @@ namespace EkGis.Application.Catalog.Loais
             {
                 MaLoai = x.MaLoai,
                 TenLoai = x.TenLoai,
-                NgayTao = x.NgayTao
+                NgayTao = x.NgayTao.Value
             }).ToListAsync();
             return new List<LoaiViewModel>(loais);
         }
@@ -56,11 +52,11 @@ namespace EkGis.Application.Catalog.Loais
             {
                 MaLoai = loai.MaLoai,
                 TenLoai = loai.TenLoai,
-                NgayTao = loai.NgayTao
+                NgayTao = loai.NgayTao.Value
             };
             return loaiViewModel;
         }
-        public async Task<int> Update(int maLoai,string tenLoai)
+        public async Task<int> Update(int maLoai, string tenLoai)
         {
             var maloai = await _context.Loais.FindAsync(maLoai);
             var loai = await _context.Loais.FirstOrDefaultAsync(x => x.MaLoai == maLoai);
@@ -68,7 +64,6 @@ namespace EkGis.Application.Catalog.Loais
 
             loai.TenLoai = tenLoai;
             return await _context.SaveChangesAsync();
-
         }
     }
 }

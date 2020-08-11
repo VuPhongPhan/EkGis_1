@@ -1,4 +1,4 @@
-Ext.define('LoaiYeuCau.store.Personnel', {
+Ext.define('Admin.store.Personnel', {
     extend: 'Ext.data.Store',
 
     alias: 'store.personnel',

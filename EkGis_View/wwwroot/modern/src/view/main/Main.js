@@ -5,16 +5,16 @@
  *
  * TODO - Replace the content of this view to suit the needs of your application.
  */
-Ext.define('LoaiYeuCau.view.main.Main', {
+Ext.define('Admin.view.main.Main', {
     extend: 'Ext.tab.Panel',
     xtype: 'app-main',
 
     requires: [
         'Ext.MessageBox',
 
-        'LoaiYeuCau.view.main.MainController',
-        'LoaiYeuCau.view.main.MainModel',
-        'LoaiYeuCau.view.main.List'
+        'Admin.view.main.MainController',
+        'Admin.view.main.MainModel',
+        'Admin.view.main.List'
     ],
 
     controller: 'main',

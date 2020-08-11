@@ -1,4 +1,5 @@
 ﻿using EkGis.Application.Catalog.YeuCaus.Dtos;
+using EkGis.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;

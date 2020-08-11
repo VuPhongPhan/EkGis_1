@@ -3,10 +3,10 @@
  * calls Ext.application(). This is the ideal place to handle application launch and
  * initialization details.
  */
-Ext.define('LoaiYeuCau.Application', {
+Ext.define('Admin.Application', {
     extend: 'Ext.app.Application',
 
-    name: 'LoaiYeuCau',
+    name: 'Admin',
 
     quickTips: false,
     platformConfig: {

@@ -1,12 +1,12 @@
 /**
  * This view is an example list of people.
  */
-Ext.define('LoaiYeuCau.view.main.List', {
+Ext.define('Admin.view.main.List', {
     extend: 'Ext.grid.Panel',
     xtype: 'mainlist',
 
     requires: [
-        'LoaiYeuCau.store.Personnel'
+        'Admin.store.Personnel'
     ],
 
     title: 'Personnel',

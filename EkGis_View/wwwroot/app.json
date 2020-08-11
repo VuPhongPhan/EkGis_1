@@ -1,6 +1,6 @@
 {
-    "name": "LoaiYeuCau",
-    "namespace": "LoaiYeuCau",
+    "name": "Admin",
+    "namespace": "Admin",
     "version": "1.0.0.0",
     "framework": "ext",
 
@@ -64,13 +64,13 @@
     "sass": {
         /**
          * The root namespace to use when mapping *.scss files to classes in the
-         * sass/src and sass/var directories. For example, "LoaiYeuCau.view.Foo" would
-         * map to "sass/src/view/Foo.scss". If we changed this to "LoaiYeuCau.view" then
+         * sass/src and sass/var directories. For example, "Admin.view.Foo" would
+         * map to "sass/src/view/Foo.scss". If we changed this to "Admin.view" then
          * it would map to "sass/src/Foo.scss". To style classes outside the app's
          * root namespace, change this to "". Doing so would change the mapping of
-         * "LoaiYeuCau.view.Foo" to "sass/src/LoaiYeuCau/view/Foo.scss".
+         * "Admin.view.Foo" to "sass/src/Admin/view/Foo.scss".
          */
-        "namespace": "LoaiYeuCau",
+        "namespace": "Admin",
 
         /**
          * Generated sass source settings
@@ -547,5 +547,5 @@
      * Uniquely generated id for this application, used as prefix for localStorage keys.
      * Normally you should never change this value.
      */
-    "id": "035122cc-fd7b-4d94-9541-1f38b0912163"
+    "id": "4bb8e97e-cc90-4086-90d4-e0a93fbae6bd"
 }
