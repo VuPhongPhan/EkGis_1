@@ -18,5 +18,7 @@ namespace EkGis.Application.Catalog.Loais
         Task<LoaiViewModel> GetByMa(int ma);
 
         Task<List<LoaiViewModel>> GetAll();
+
+        Task<PagedResult<LoaiViewModel>> GetAllPaging(int page, int start, int limit, string keywords);
     }
 }

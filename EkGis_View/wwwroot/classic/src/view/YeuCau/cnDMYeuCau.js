@@ -3,7 +3,6 @@
     alias: 'viewmodel.yeucau-cndmyeucau',
     stores: {
         store: { type: 'sdmyeucau' },
-        loai: { type: 'sdmphannhom' }
     },
     data: {
         record: null,
@@ -22,6 +21,8 @@ Ext.define('Admin.view.YeuCau.cnTrangThai', {
     width: '50%',
     modal: true,
     items: [{
+        xtype: 'form',
+        reference: 'frmTrangThai',
         width: '100%',
         height: '100%',
         items: [{
@@ -60,6 +61,10 @@ Ext.define('Admin.view.YeuCau.cnTrangThai', {
                     { "maTrangThai": 3, "tenTrangThai": "Đã xử lý" }
                 ]
             }),
+                validator: function (val) {
+                    return (!val.trim().change) ? true : 'Bạn chưa chuyển trạng thái!'
+            },
+            msgTarget: 'side',
         }, {
             xtype: 'textarea',
             fieldLabel: 'Mô tả',
@@ -108,27 +113,33 @@ Ext.define('Admin.view.YeuCau.cnDMYeuCau', {
             xtype: 'fieldset',
             title: 'Thông tin người yêu cầu',
             items: [{
-                xtype: 'textfield',
+                xtype: 'combobox',
                 fieldLabel: 'Người yêu cầu (*):',
                 width: '100%',
-                // bind: '{record.maKH}'
-                bind: "{record.maKH}",
+                queryMode: 'remote',
                 displayField: 'tenKH',
                 valueField: 'maKH',
-                store: Ext.create("Ext.data.Store", {
-                    fields: ["maKH", "tenKH"],
-                }),
+                store: {
+                    type: 'skhachhang',
+                    proxy: { url: 'api/khachhang' }
+                },
+                bind: "{record.maKH}",
+                validator: function (val) {
+                    return (!val.trim().length > 0) ? true : 'Cần chọn người yêu cầu!'
+                },
+                msgTarget: 'side',
             }, {
                 xtype: 'textfield',
                 fieldLabel: 'Số điện thoại :',
                 emptyText: 'Nhập số điện thoại',
                 width: '100%',
-                bind: ''
+                bind: '{record.sdt}',
             }, {
                 xtype: 'textfield',
                 fieldLabel: 'Email :',
+                emptyText: 'Nhập email',
                 width: '100%',
-                bind: ''
+                bind: '{record.email}',
             }]
         }, {
             xtype: 'fieldset',
@@ -137,17 +148,23 @@ Ext.define('Admin.view.YeuCau.cnDMYeuCau', {
                 xtype: 'combobox',
                 fieldLabel: 'Loại yêu cầu',
                 emptyText: 'Chọn loại yêu cầu ',
+                addAllSelector: true,
+                triggerAction: "all",
+                forceSelection: false,
                 width: '100%',
                 queryMode: 'remote',
-                valueField: "maLoai",
-                displayField: "tenLoai",
-                bind: {
-                    store: {
-                        type: 'sdmphannhom',
-                        proxy: { url: 'api/loai' }
-                    },
-                    value: "{record.maLoai}",
+                displayField: 'tenLoai',
+                valueField: 'maLoai',
+
+                store: {
+                    type: 'sdmphannhom',
+                    proxy: { url: 'api/loai/' }
                 },
+                bind: { value: "{record.maLoai}" },
+                validator: function (val) {
+                    return (val.trim().length > 0) ? true : 'Cần chọn loại yêu cầu'
+                },
+                msgTarget: 'side',
             }, {
                 xtype: 'datefield',
                 fieldLabel: 'Ngày tiếp nhận :',
@@ -184,6 +201,10 @@ Ext.define('Admin.view.YeuCau.cnDMYeuCau', {
                 emptyText: 'Nội dụng yêu cầu',
                 width: '100%',
                 bind: "{record.noidung}",
+                validator: function (val) {
+                    return (val.trim().length > 0) ? true : 'Cần nhập nội dung yêu cầu'
+                },
+                msgTarget: 'side',
             }, {
                 xtype: 'textfield',
                 fieldLabel: 'Địa điểm :',
@@ -205,7 +226,6 @@ Ext.define('Admin.view.YeuCau.cnDMYeuCau', {
 
                         { "maNV": 1, "tenNV": "Nguyễn Thúc Quân" },
                         { "maNV": 2, "tenNV": "Phan Vũ Phong" },
-                        /*  { "maMucDo": 3, "tenMucDo": "Mức độ 3" }*/
                     ]
                 }),
             }, {
@@ -267,43 +287,45 @@ Ext.define("Admin.view.YeuCau.cnDMYeuCauController", {
 
     fnSave: function () {
         var me = this;
-        /*  var frm = me.refs.frmYeuCau;
-          if (!frm.getForm().isValid()) {
-  
-              return;
-          }*/
         var view = me.getView();
+        var frm = view.getReferences('frmYeuCau').frmYeuCau;
         var fnSauKhiSave = me.getViewModel().data.fnSauKhiSave;
         var record = me.getViewModel().get("record");
         view.setLoading(false);
 
-        if (record.data.maYeuCau != 0) {
-            view.setLoading(false);
-            me.fnPUTAjax();
-
+        if (!frm.isValid()) {
+            Ext.Msg.alert('Thông báo', 'Nhập thông tin chưa hợp lê!');
         } else {
-            var record = this.getViewModel().get("record");
-            $.ajax({
-                type: 'POST',
-                context: this,
-                async: false,
-                url: '/api/yeucau',
-                data: JSON.stringify(record.data),
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                success: function (responseData) {
-                    // record.set('maLoai', responseData.maLoai);
-                    if (fnSauKhiSave) fnSauKhiSave();
-                    console.log(responseData);
-                },
-                complete: function (responseData) {
-                    if (fnSauKhiSave) fnSauKhiSave();
-                },
-                error: function (exx) {
-                    console.log(exx);
-                }
-            });
+            if (record.data.maYeuCau != 0) {
+
+                view.setLoading(false);
+                me.fnPUTAjax();
+                Ext.Msg.alert('Thông báo', 'Đã lưu thành công!');
+            } else {
+                var record = this.getViewModel().get("record");
+                $.ajax({
+                    type: 'POST',
+                    context: this,
+                    async: false,
+                    url: '/api/yeucau',
+                    data: JSON.stringify(record.data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (responseData) {
+                        if (fnSauKhiSave) fnSauKhiSave();
+                        console.log(responseData);
+                    },
+                    complete: function () {
+                        if (fnSauKhiSave) fnSauKhiSave();
+                    },
+                    error: function (exx) {
+                        console.log(exx);
+                    }
+                });
+                Ext.Msg.alert('Thông báo', 'Đã thêm thành công!');
+            }
         }
+
     },
 
     onClose: function () {
@@ -336,15 +358,11 @@ Ext.define("Admin.view.YeuCau.cnDMYeuCauController", {
             contentType: "application/json; charset=utf-8",
             dataType: 'jsonp',
             success: function (responseData) {
-                console.log(responseData);
-
             },
             complete: function () {
-                //this.fnGETAjax();
                 if (fnSauKhiSave) fnSauKhiSave();
             },
             error: function (exx) {
-                //abp.notify.warn(exx);
                 console.log(exx);
 
             }
@@ -376,6 +394,7 @@ Ext.define("Admin.view.YeuCau.cnDMYeuCauController", {
 
 
     onEditStatus: function () {
-        this.fnPUTStatusAjax();
+            this.fnPUTStatusAjax();
+            Ext.Msg.alert('Thông báo', 'Đã chuyển trạng thái!');
     }
 });

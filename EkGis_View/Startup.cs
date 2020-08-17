@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EkGis.Application.Catalog.KhachHangs;
 using EkGis.Application.Catalog.Loais;
+using EkGis.Application.Catalog.NhanViens;
 using EkGis.Application.Catalog.YeuCaus;
 using EkGis.Data.EF;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +34,8 @@ namespace EkGis_View
 
             services.AddTransient<ILoaiservice, LoaiService>();
             services.AddTransient<IYeuCauService, YeuCauService>();
-
+            services.AddTransient<IKhachHangService, KhachHangService>();
+            services.AddTransient<INhanVienService, NhanVienService>();
 
             services.AddControllersWithViews();
         }

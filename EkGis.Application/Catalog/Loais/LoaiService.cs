@@ -36,13 +36,39 @@ namespace EkGis.Application.Catalog.Loais
 
         public async Task<List<LoaiViewModel>> GetAll()
         {
-            var loais = await _context.Loais.Select(x => new LoaiViewModel()
+            var data = await _context.Loais.Select(x => new LoaiViewModel()
             {
                 MaLoai = x.MaLoai,
-                TenLoai = x.TenLoai,
-                NgayTao = x.NgayTao.Value
+                NgayTao = x.NgayTao.Value,
+                TenLoai = x.TenLoai
             }).ToListAsync();
-            return new List<LoaiViewModel>(loais);
+            return data;
+        }
+
+        public async Task<PagedResult<LoaiViewModel>> GetAllPaging(int page, int start, int limit, string keywords)
+        {
+            var query = from a in _context.Loais select new { a };
+
+            if (!string.IsNullOrEmpty(keywords))
+                query = query.Where(x => x.a.TenLoai.Contains(keywords));
+
+            int totalRow = await query.CountAsync();
+
+            var data = await query.Skip((page - 1) * limit)
+                     .Take(limit)
+                     .Select(x => new LoaiViewModel()
+                     {
+                         MaLoai = x.a.MaLoai,
+                         TenLoai = x.a.TenLoai,
+                         NgayTao = x.a.NgayTao.Value
+                     }).ToListAsync();
+
+            var pagedResult = new PagedResult<LoaiViewModel>()
+            {
+                TotalRecord = totalRow,
+                Items = data
+            };
+            return pagedResult;
         }
 
         public async Task<LoaiViewModel> GetByMa(int ma)

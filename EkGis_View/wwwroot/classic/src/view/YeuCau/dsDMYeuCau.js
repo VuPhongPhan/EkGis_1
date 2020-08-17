@@ -33,32 +33,68 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
         align: 'center',
         sortable: false
     }, {
+
+        xtype: 'gridcolumn',
+        renderer: function () {
+            return "<i class='x-fa fa-calendar'></i>";
+        },
+        flex: 0.5,
+    }, {
+        xtype: 'gridcolumn',
+        cls: 'content-column',
+        renderer: function () {
+            return "<i class='x-fa fa-wrench'></i>";
+        },
+        flex: 0.5,
+    }, {
+        xtype: 'gridcolumn',
+        cls: 'content-column',
+        renderer: function () {
+            return "<img src='https://thumbs.dreamstime.com/b/no-image-available-icon-photo-camera-flat-vector-illustration-132483141.jpg' width=50 height=50/>";
+        },
+    }, {
         xtype: "datecolumn",
         text: "Ngày Yêu Cầu",
         flex: 3,
+        align: 'center',
         dataIndex: "ngayTiepNhan",
         format: "d/m/Y"
     }, {
         text: "Nội Dung",
         flex: 4,
+        align: 'center',
         minWidth: 200,
         dataIndex: "noidung"
     }, {
         text: "Người Yêu Cầu",
         flex: 4,
+        align: 'center',
         dataIndex: "tenKH",
 
     }, {
         text: "Loại Yêu Cầu",
         flex: 4,
+        align: 'center',
         dataIndex: "tenLoai",
     }, {
         text: "Trạng Thái",
         flex: 3,
+        align: 'center',
         dataIndex: "tenTrangThai",
+        renderer: function (value, metaData, opData) {
+            if (value === "Đã xử lý") {
+                metaData.style = "background-color:#EAA8A8;color:white;border-radius:10px";
+            } else if (value === "Chưa xử lý") {
+                metaData.style = "background-color:#daef2c;color:white;border-radius:10px";
+            } else {
+                metaData.style = "background-color:green;color:white;border-radius:10px";
+            }
+            return value;
+        },
+
     }],
     viewConfig: {
-        emptyText: "ExtNoData"
+        emptyText: "Không có dữ liệu bạn tìm kiếm"
     },
     dockedItems: [{
         xtype: "toolbar",
@@ -71,29 +107,78 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
             paddingTop: "4px"
         },
         items: [{
-            xtype: "panel",
-            layout: {
-                type: "vbox",
-                align: "stretch"
-            },
+            xtype: 'form',
+            reference: 'frmSearch',
             items: [{
-                xtype: "fieldcontainer",
-                layout: "hbox",
-                combineErrors: true,
-                defaultType: "textfield",
-                defaults: {
-                    labelWidth: 60,
-                    labelAlign: "right",
-                    margin: "5 0 0 0"
+                xtype: "fieldset",
+                title: 'tìm kiếm yêu cầu',
+                layout: 'column',
+                reference: 'frmSearch',
+                style: {
+                    paddingTop: '10px'
                 },
+                paddingBottom: '10px',
                 items: [{
+                    xtype: 'datefield',
+                    fieldLabel: 'Ngày ',
+                    style: {
+                        paddingLeft: '50px'
+                    }
+                }, {
+                    xtype: 'combobox',
+                    fieldLabel: 'Loại yêu cầu ',
+                    style: {
+                        paddingLeft: '50px'
+                    },
+                    emptyText: "Chọn loại yêu cầu",
+                    queryMode: 'remote',
+                    displayField: 'tenLoai',
+                    valueField: 'maLoai',
+
+                    store: {
+                        type: 'sdmphannhom',
+                        proxy: { url: 'api/loai' }
+                    },
+                    bind: { value: "{record.maLoai}" },
+                }, {
+                    xtype: 'textfield',
+                    fieldLabel: 'Người yêu cầu ',
+                    emptyText: "Người yêu cầu",
+                    reference: 'txttenKH',
+                    width: '37%',
+                    style: {
+                        paddingLeft: '50px'
+                    }
+                }, {
+                    xtype: 'combobox',
+                    fieldLabel: 'Trạng thái ',
+                    style: {
+                        paddingLeft: '50px',
+                        paddingTop: '10px'
+                    },
+                    emptyText: "Chọn trạng thái",
+                    bind: "{record.maTrangThai}",
+                    displayField: 'tenTrangThai',
+                    valueField: 'maTrangThai',
+                    store: Ext.create("Ext.data.Store", {
+                        fields: ["maTrangThai", "tenTrangThai"],
+                        data: [
+                            { "maTrangThai": 1, "tenTrangThai": "Đang xử lý" },
+                            { "maTrangThai": 2, "tenTrangThai": "Chưa xử lý" },
+                            { "maTrangThai": 3, "tenTrangThai": "Đã xử lý" }
+                        ]
+                    }),
+
+                }, {
                     xtype: "textfield",
-                    fieldLabel: "Tìm",
+                    fieldLabel: "Từ khóa ",
                     reference: "txtSearch",
-                    emptyText: "Tìm kiếm",
-                    tabIndex: 1,
-                    flex: 6,
-                    cls: "EnterToTab",
+                    emptyText: "Nhập từ khóa tìm kiếm",
+                    width: "50%",
+                    style: {
+                        paddingLeft: '50px',
+                        paddingTop: '10px'
+                    },
                     listeners: {
                         specialkey: 'specialkey'
                     }
@@ -102,10 +187,23 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                     reference: "btnTimKiem",
                     iconCls: "x-fa fa-search",
                     text: "Tìm",
-                    flex: 1,
-                    tabIndex: 12,
+                    style: {
+                        marginTop: '10px',
+                        marginLeft: '10px'
+                    },
                     cls: "EnterToTab",
                     handler: "onSearch"
+                }, {
+                    xtype: "button",
+                    reference: "reset",
+                    iconCls: "fa fa-retweet",
+                    text: "Tìm mới",
+                    style: {
+                        marginTop: '10px',
+                        marginLeft: '10px'
+                    },
+                    cls: "EnterToTab",
+                    handler: "onReset"
                 }]
             }]
         }]
@@ -139,14 +237,6 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                 handler: "onDelete"
             }, {
                 xtype: "button",
-                iconCls: "fa fa-calendar",
-                reference: "btnAdd",
-                text: "Thêm Công Việc",
-                bind: { disabled: "{!rSelected}" },
-                tooltip: "AddTooltip",
-                handler: "onAddJob"
-            }, {
-                xtype: "button",
                 iconCls: "fa fa-retweet",
                 reference: "btnAdd",
                 bind: { disabled: "{!rSelected}" },
@@ -160,30 +250,6 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                 bind: {
                     store: "{store}"
                 },
-                style: "padding: 0px !important",
-                lastText: "ExtLastText",
-                prevText: "ExtPrevText",
-                firstText: "ExtFirstText",
-                nextText: "ExtNextText",
-                refreshText: "ExtRefreshText",
-                beforePageText: "ExtBeforePageText",
-                afterPageText: "ExtAfterPageText",
-                displayMsg: "ExtDisplayMsg",
-                emptyMsg: "ExtEmptyMsg",
-                listeners: {
-                    beforechange: function (page, currentPage) {
-                        //--- Get Proxy ------//
-                        var myProxy = this.store.getProxy();
-                        //--- Define Your Parameter for send to server ----//
-                        myProxy.params = {
-                            skipCount: 0,
-                            maxResultCount: 0
-                        };
-                        //--- Set value to your parameter  ----//
-                        myProxy.setExtraParam("skipCount", (currentPage - 1) * this.store.pageSize);
-                        myProxy.setExtraParam("maxResultCount", this.store.pageSize);
-                    }
-                }
             }
         ]
     }],
@@ -222,7 +288,9 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
     onSearch: function () {
         var me = this;
         var store = me.storeInfo.store;
-        var url = "/api/yeucau";
+        var noidung = me.refs.txtSearch.getValue();
+        var tenKH = me.refs.txttenKH.getValue();
+        var url = "/api/yeucau/paging" + noidung;
         console.log(store);
         store.proxy.api.read = url;
         store.load({
@@ -243,7 +311,7 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
         record.set("maTrangThai", 2);
         record.set("maKH", 1);
         Ext.create("Admin.view.YeuCau.cnDMYeuCau", {
-            title: "Thêm mới loại",
+            title: "Thêm mới yêu cầu",
             viewModel: {
                 data: {
                     record: record,
@@ -258,8 +326,9 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
     onUpdate: function () {
         var me = this;
         var record = me.getViewModel().get("rSelected");
+        console.log(record);
         Ext.create("Admin.view.YeuCau.cnDMYeuCau", {
-            title: "Cập nhật loại",
+            title: "Cập nhật yêu cầu",
             viewModel: {
                 data: {
                     record: record,
@@ -324,5 +393,12 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
                 }
             }
         }).show();
+    },
+
+    onReset: function () {
+        var me = this;
+        var view = me.getView();
+        var frm = view.getReferences('frmSearch').frmSearch;
+        frm.reset();
     }
 });

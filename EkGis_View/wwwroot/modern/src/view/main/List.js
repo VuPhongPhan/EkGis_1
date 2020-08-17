@@ -5,9 +5,6 @@ Ext.define('Admin.view.main.List', {
     extend: 'Ext.grid.Grid',
     xtype: 'mainlist',
 
-    requires: [
-        'Admin.store.Personnel'
-    ],
 
     title: 'Personnel',
 

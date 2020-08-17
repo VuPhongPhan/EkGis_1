@@ -1,10 +1,4 @@
-﻿/**
- * This class is the main view for the application. It is specified in app.js as the
- * "mainView" property. That setting automatically applies the "viewport"
- * plugin causing this view to become the body element (i.e., the viewport).
- *
- * TODO - Replace this content of this view to suite the needs of your application.
- */
+﻿
 Ext.define('Admin.view.main.Main', {
     extend: 'Ext.tab.Panel',
     xtype: 'app-main',
@@ -13,9 +7,6 @@ Ext.define('Admin.view.main.Main', {
         'Ext.plugin.Viewport',
         'Ext.window.MessageBox',
         'Ext.grid.Panel',
-        'Admin.view.main.MainController',
-        'Admin.view.main.MainModel',
-        'Admin.view.main.List'
     ],
 
     controller: 'main',
@@ -33,7 +24,7 @@ Ext.define('Admin.view.main.Main', {
         },
         title: {
             bind: {
-                text: '{name}'
+                text: 'EkGis_SpeedMaint'
             },
             flex: 0
         },
@@ -93,7 +84,7 @@ Ext.define('Admin.view.main.Main', {
             }
         ]
     }, {
-        title: 'Loại',
+        title: 'Loại yêu cầu',
         layout: {
             type: "vbox",
             align: "stretch"
@@ -105,16 +96,43 @@ Ext.define('Admin.view.main.Main', {
             }
         ]
     }, {
-        title: 'Groups',
+        title: 'Nhân viên',
         iconCls: 'x-fa fa-users',
-        bind: {
-            html: '{loremIpsum}'
-        }
+        layout: {
+            type: "vbox",
+            align: "stretch"
+        },
+        items: [
+            {
+                xtype: 'dsnhanvien',
+            }]
     }, {
-        title: 'Settings',
-        iconCls: 'x-fa fa-cog',
-        bind: {
-            html: '{loremIpsum}'
-        }
+        title: 'Khách hàng',
+        iconCls: 'x-fa fa-user',
+        layout: {
+            type: "vbox",
+            align: "stretch"
+        },
+        items: [
+            {
+                xtype: 'dskhachhang',
+            }]
     }]
+});
+
+
+Ext.define('Admin.view.main.MainController', {
+    extend: 'Ext.app.ViewController',
+
+    alias: 'controller.main',
+
+    onItemSelected: function (sender, record) {
+        Ext.Msg.confirm('Confirm', 'Are you sure?', 'onConfirm', this);
+    },
+
+    onConfirm: function (choice) {
+        if (choice === 'yes') {
+            //
+        }
+    }
 });

@@ -1,29 +1,29 @@
-﻿var _phanNhomServices = "";
-Ext.define("Admin.view.configs.dsDMPhanNhomModel", {
+﻿Ext.define("Admin.view.KhachHang.dsKhachHangModel", {
     extend: "Ext.app.ViewModel",
-    alias: "viewmodel.configs-dsdmphannhom",
+    alias: "viewmodel.vmkhachhang",
     data: {
         rSelected: null,
     },
     stores: {
-        store: { type: "sdmphannhom" }
+        store: { type: "skhachhang" }
     }
 });
 
-Ext.define("Admin.view.configs.dsDMPhanNhom", {
+Ext.define("Admin.view.KhachHang.dsKhachHang", {
     extend: "Ext.grid.Panel",
-    alias: "widget.dsdmphannhom",
-    requires: ["Admin.view.configs.dsDMPhanNhomController", "Admin.view.configs.dsDMPhanNhomModel"],
-    controller: "configs-dsdmphannhom",
+    alias: 'widget.dskhachhang',
+    controller: "ckhachhang",
     viewModel: {
-        type: "configs-dsdmphannhom"
+        type: "vmkhachhang"
     },
     layout: 'fit',
     bind: {
         selection: "{rSelected}",
         store: "{store}"
     },
+
     flex: 1,
+
     columns: [{
         xtype: 'rownumberer',
         text: '#',
@@ -31,26 +31,36 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
         align: 'center',
         sortable: false
     }, {
-        text: "Mã loại",
-        flex: 3,
-        dataIndex: "maLoai",
+        text: "Tên Khach Hàng",
+        flex: 4,
+        minWidth: 200,
+        dataIndex: "tenKH",
         align: 'center',
     }, {
-        text: "Tên loại",
+        text: "Email",
+        flex: 4,
+        dataIndex: "email",
+        align: 'center',
+    }, {
+        text: "Số Điện Thoại",
         flex: 3,
-        minWidth: 200,
-        dataIndex: "tenLoai",
+        dataIndex: "sdt",
+        align: 'center',
+    }, {
+        text: "Địa Chỉ",
+        flex: 3,
+        dataIndex: "diaChi",
         align: 'center',
     }, {
         xtype: "datecolumn",
-        text: "Ngày Tạo",
+        text: "Ngày Sinh",
         flex: 3,
-        dataIndex: "ngayTao",
+        dataIndex: "ngaySinh",
         format: "d/m/Y",
         align: 'center',
     }],
     viewConfig: {
-        emptyText: "Không có dữ liệu cần tìm"
+        emptyText: "Không có dữ liệu"
     },
     dockedItems: [{
         xtype: "toolbar",
@@ -82,7 +92,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                     xtype: "textfield",
                     fieldLabel: "Tìm",
                     reference: "txtSearch",
-                    emptyText: "Nhập tên loại",
+                    emptyText: "Nhập tên khách hàng cần tìm kiếm",
                     tabIndex: 1,
                     flex: 6,
                     cls: "EnterToTab",
@@ -128,7 +138,6 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 reference: "btnDelete",
                 bind: { disabled: "{!rSelected}" },
                 text: "Xóa",
-                tooltip: "DeleteTooltip",
                 handler: "onDelete"
             }, "->", {
                 xtype: "pagingtoolbar",
@@ -136,10 +145,6 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 bind: {
                     store: "{store}"
                 },
-                displayInfo: true,
-                displayMsg: 'Displaying {0} to {1} of {2} &nbsp;records ',
-                emptyMsg: "No records to display&nbsp;"
-
             }
         ]
     }],
@@ -152,9 +157,9 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
     }
 });
 
-Ext.define("Admin.view.configs.dsDMPhanNhomController", {
+Ext.define("Admin.view.KhachHang.dsKhachHangController", {
     extend: "Ext.app.ViewController",
-    alias: "controller.configs-dsdmphannhom",
+    alias: "controller.ckhachhang",
     storeInfo: null,
     refs: null,
     init: function () {
@@ -179,12 +184,13 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
         var me = this;
         var store = me.storeInfo.store;
         var txt = me.refs.txtSearch.getValue();
-        var url = "/api/loai/paging/" + txt;
+        var url = "/api/khachhang/kh" + txt;
+        console.log(store);
         store.proxy.api.read = url;
         store.load({
             scope: this,
             callback: function (records, operation, success) {
-                // console.log(records);
+                console.log(records);
                 if (records == null) {
                     store.removeAll();
                 }
@@ -194,14 +200,13 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
 
     onAdd: function () {
         var me = this;
-        var record = Ext.create("Admin.model.mDMPhanNhom", { maLoai: 0 });
-        //console.log(record);
-        Ext.create("Admin.view.configs.cnDMPhanNhom", {
-            title: "Thêm mới loại",
+        var record = Ext.create("Admin.model.mKhachHang", { maKH: 0 });
+        Ext.create("Admin.view.KhachHang.cnKhachHang", {
+            title: "Thêm khách hàng",
             viewModel: {
                 data: {
                     record: record,
-                    fnSauKhiSave: function () {
+                    fnLoad: function () {
                         me.onSearch();
                     }
                 }
@@ -212,8 +217,8 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
     onUpdate: function () {
         var me = this;
         var record = me.getViewModel().get("rSelected");
-        Ext.create("Admin.view.configs.cnDMPhanNhom", {
-            title: "Cập nhật loại",
+        Ext.create("Admin.view.KhachHang.cnKhachHang", {
+            title: "Cập nhật thông tin khách hàng",
             viewModel: {
                 data: {
                     record: record,
@@ -229,7 +234,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
         var me = this;
         Ext.Msg.show({
             title: 'Xóa loại',
-            message: 'Bạn có muốn xóa loại này không?',
+            message: 'Bạn có muốn xóa yêu cầu này không?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,
             fn: function (btn) {
@@ -242,78 +247,21 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
         });
 
     },
-    fnGETAjax: function (url, fnSauKhiLoad) {
-        console.log(url);
-        $.ajax({
-            type: 'GET',
-            dataType: 'json',
-            async: false,
-            url: url,
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                console.log(exx);
-            }
-        });
-    },
 
-    fnDELETEAjax: function (url, fnSauKhiLoad) {
+
+    fnDELETEAjax: function (fnLoad) {
         var record = this.getViewModel().get("rSelected");
         $.ajax({
             type: 'DELETE',
             dataType: 'json',
             async: false,
-            url: '/api/loai/' + record.get('maLoai'),
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
+            url: '/api/khachhang/' + record.get('maKH'),
+            success: function () {
+                if (fnLoad) fnLoad();
             },
             complete: function () {
             },
             error: function (exx) {
-                // abp.notify.warn(exx);
-            }
-        });
-    },
-
-    fnPUTAjax: function (url, data, fnSauKhiLoad) {
-        $.ajax({
-            type: 'PUT',
-            context: this,
-            async: false,
-            url: url,
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: 'jsonp',
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                abp.notify.warn(exx);
-            }
-        });
-    },
-
-    fnPOSTAjax: function (url, data, fnSauKhiLoad) {
-        $.ajax({
-            type: 'POST',
-            context: this,
-            async: false,
-            url: '/api/loai/' + record.get('tenLoai'),
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: 'jsonp',
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                //abp.notify.warn(exx);
             }
         });
     },

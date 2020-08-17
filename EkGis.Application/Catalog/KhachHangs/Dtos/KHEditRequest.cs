@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EkGis.Data.Entities
+namespace EkGis.Application.Catalog.KhachHangs.Dtos
 {
-    public class KhachHang
+    public class KHEditRequest
     {
         public int MaKH { set; get; }
         public string TenKH { set; get; }
@@ -12,6 +12,5 @@ namespace EkGis.Data.Entities
         public string SDT { set; get; }
         public string DiaChi { set; get; }
         public DateTime? NgaySinh { set; get; }
-        public List<YeuCau> YeuCaus { get; set; }
     }
 }

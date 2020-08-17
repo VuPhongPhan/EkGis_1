@@ -16,5 +16,7 @@
         { name: 'noidung', type: 'string'},
         { name: 'diaDiem', type: 'string'},
         { name: 'moTa', type: 'string'},
+        { name: 'email', type: 'string'},
+        { name: 'sdt', type: 'string'},
     ]
 });

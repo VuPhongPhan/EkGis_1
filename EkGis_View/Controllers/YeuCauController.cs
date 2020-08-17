@@ -17,25 +17,31 @@ namespace EkGis_1.Controllers
         }
 
         [HttpGet()]
-         public async Task<IActionResult> GetAll()
-         {
-             var yeuCaus = await _yeuCauService.GetAll();
-             return Ok(yeuCaus);
-         }
-       /* [HttpGet()]
-        public async Task<IActionResult> GetAllPaging([FromQuery] GetYeuCauPagingRequest request)
+        public async Task<IActionResult> GetAll()
         {
-            var yeuCaus = await _yeuCauService.GetAllPaging(request);
+            var yeuCaus = await _yeuCauService.GetAll();
             return Ok(yeuCaus);
-        }*/
-        [HttpGet("{ma}")]
+        }
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging(int page, int start, int limit, string keywords)
+        {
+            var yeuCaus = await _yeuCauService.GetAllPaging(page, start, limit, keywords);
+            return Ok(yeuCaus);
+        }
+        [HttpGet("{keywords}")]
+        public async Task<IActionResult> GetSearch(int page, int start, int limit, string keywords)
+        {
+            var yeuCaus = await _yeuCauService.GetAllPaging(page, start, limit, keywords);
+            return Ok(yeuCaus);
+        }
+       /* [HttpGet("{ma}")]
         public async Task<IActionResult> GetByMa(int ma)
         {
             var yeuCau = await _yeuCauService.GetByMa(ma);
             if (yeuCau == null)
                 return BadRequest("khong tim thay yeu cau");
             return Ok(yeuCau);
-        }
+        }*/
         [HttpPut()]
         public async Task<IActionResult> Update([FromBody] YeuCauEditRequest request)
         {
@@ -61,7 +67,7 @@ namespace EkGis_1.Controllers
             if (maYeuCau == null)
                 return BadRequest();
 
-            return CreatedAtAction(nameof(GetByMa), new { maYeuCau = request.MaYeuCau }, request);
+            return Ok(maYeuCau);
         }
         [HttpDelete("{ma}")]
         public async Task<IActionResult> DeleTe(int ma)

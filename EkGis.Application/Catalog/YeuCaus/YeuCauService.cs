@@ -30,31 +30,13 @@ namespace EkGis.Application.Catalog.YeuCaus
                 Noidung = request.Noidung,
                 DiaDiem = request.DiaDiem,
                 MoTa = request.MoTa
-
-
-                /*MaYeuCau = request.MaYeuCau,
-                MaLoai = request.MaLoai,
-                TenLoai = request.TenLoai,
-                MaTrangThai = request.MaTrangThai,
-                TenTrangThai = request.TenTrangThai,
-                MaMucDo = request.MaMucDo,
-                TenMucDo = request.TenMucDo,
-                TenMucDo = request.TenMucDo,
-                MaNV = request.MaNV,
-                TenNV = request.TenNV,
-                MaKH = request.MaKH,
-                TenKH = request.TenKH,
-                NgayTiepNhan = request.NgayTiepNhan,
-                Noidung = request.Noidung,
-                DiaDiem = request.DiaDiem,
-                MoTa = x.a.MoTa*/
             };
             _context.YeuCaus.Add(yeuCau);
             await _context.SaveChangesAsync();
             return request.MaYeuCau;
         }
 
-   
+
 
         public async Task<int> Delete(int ma)
         {
@@ -73,11 +55,7 @@ namespace EkGis.Application.Catalog.YeuCaus
                         join e in _context.KhachHangs on a.MaKH equals e.MaKH
                         join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
                         select new { a, b, c, d, e, f };
-            /* //2. filter
-             if (!string.IsNullOrEmpty(request.keywords))
-                 query = query.Where(x => x.a.Noidung.Contains(request.keywords));
-             //3. Paging
-             int totalRow = await query.CountAsync();*/
+            
 
             var data = await query.Select(x => new YeuCauViewModel()
             {
@@ -100,7 +78,7 @@ namespace EkGis.Application.Catalog.YeuCaus
             return new List<YeuCauViewModel>(data);
         }
 
-        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(GetYeuCauPagingRequest request)
+        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(int page, int start, int limit, string keywords)
         {
             //1. Select join
             var query = from a in _context.YeuCaus
@@ -111,27 +89,39 @@ namespace EkGis.Application.Catalog.YeuCaus
                         join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
                         select new { a, b, c, d, e, f };
             //2. filter
-            if (!string.IsNullOrEmpty(request.keywords))
-                query = query.Where(x => x.a.Noidung.Contains(request.keywords));
+             if (!string.IsNullOrEmpty(keywords))
+                 query = query.Where(x => x.a.Noidung.Contains(keywords));
             //3. Paging
             int totalRow = await query.CountAsync();
 
-            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
-                       .Take(request.PageSize)
+            var data = await query.Skip((page - 1) * limit)
+                       .Take(limit)
                        .Select(x => new YeuCauViewModel()
                        {
+                           MaYeuCau = x.a.MaYeuCau,
+                           MaLoai = x.b.MaLoai,
+                           TenLoai = x.b.TenLoai,
+                           MaTrangThai = x.c.MaTrangThai,
+                           TenTrangThai = x.c.TenTrangThai,
+                           MaMucDo = x.f.MaMucDo,
+                           TenMucDo = x.f.TenMucDo,
+                           MaNV = x.d.MaNV,
+                           TenNV = x.d.TenNV,
+                           MaKH = x.e.MaKH,
+                           TenKH = x.e.TenKH,
                            NgayTiepNhan = x.a.NgayTiepNhan,
                            Noidung = x.a.Noidung,
-                           TenKH = x.e.TenKH,
-                           TenLoai = x.b.TenLoai,
-                           TenTrangThai = x.c.TenTrangThai
+                           DiaDiem = x.a.DiaDiem,
+                           MoTa = x.a.MoTa,
+                           SDT = x.e.SDT,
+                           Email = x.e.Email
                        }).ToListAsync();
             //4. Select and projection
             var pagedResult = new PagedResult<YeuCauViewModel>()
             {
                 TotalRecord = totalRow,
-                PageSize = request.PageSize,
-                PageIndex = request.PageIndex,
+                /*pageSize = pageSize,
+                pageIndex = pageIndex,*/
                 Items = data
             };
             return pagedResult;

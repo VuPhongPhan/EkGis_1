@@ -1,7 +1,7 @@
-Ext.define("Admin.store.sDMPhanNhom", {
+﻿Ext.define("Admin.store.sKhachHang", {
     extend: "Ext.data.Store",
-    alias: "store.sdmphannhom",
-    model: "Admin.model.mDMPhanNhom",
+    alias: "store.skhachhang",
+    model: "Admin.model.mKhachHang",
     pageSize: 3,
     autoLoad: false,
     proxy: {
@@ -14,11 +14,12 @@ Ext.define("Admin.store.sDMPhanNhom", {
             rootProperty: "items",
             totalProperty: "totalRecord"
         },
+
         appendId: true,
         writer: {
             writeAllFields: true,
             type: "json"
         },
-     
+
     }
 });

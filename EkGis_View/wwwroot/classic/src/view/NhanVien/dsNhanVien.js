@@ -1,29 +1,29 @@
-﻿var _phanNhomServices = "";
-Ext.define("Admin.view.configs.dsDMPhanNhomModel", {
+﻿Ext.define("Admin.view.NhanVien.dsNhanVienModel", {
     extend: "Ext.app.ViewModel",
-    alias: "viewmodel.configs-dsdmphannhom",
+    alias: "viewmodel.vmnhanvien",
     data: {
         rSelected: null,
     },
     stores: {
-        store: { type: "sdmphannhom" }
+        store: { type: "snhanvien" }
     }
 });
 
-Ext.define("Admin.view.configs.dsDMPhanNhom", {
+Ext.define("Admin.view.NhanVien.dsNhanVien", {
     extend: "Ext.grid.Panel",
-    alias: "widget.dsdmphannhom",
-    requires: ["Admin.view.configs.dsDMPhanNhomController", "Admin.view.configs.dsDMPhanNhomModel"],
-    controller: "configs-dsdmphannhom",
+    alias: 'widget.dsnhanvien',
+    controller: "cnhanvien",
     viewModel: {
-        type: "configs-dsdmphannhom"
+        type: "vmnhanvien"
     },
     layout: 'fit',
     bind: {
         selection: "{rSelected}",
         store: "{store}"
     },
+
     flex: 1,
+
     columns: [{
         xtype: 'rownumberer',
         text: '#',
@@ -31,26 +31,41 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
         align: 'center',
         sortable: false
     }, {
-        text: "Mã loại",
-        flex: 3,
-        dataIndex: "maLoai",
+        text: "Tên Nhân Viên",
+        flex: 4,
+        minWidth: 200,
+        dataIndex: "tenNV",
         align: 'center',
     }, {
-        text: "Tên loại",
+        text: "Chức Vụ",
+        flex: 4,
+        dataIndex: "chucVu",
+        align: 'center',
+    }, {
+        text: "Email",
+        flex: 4,
+        dataIndex: "email",
+        align: 'center',
+    }, {
+        text: "Số Điện Thoại",
         flex: 3,
-        minWidth: 200,
-        dataIndex: "tenLoai",
+        dataIndex: "sdt",
+        align: 'center',
+    }, {
+        text: "Địa Chỉ",
+        flex: 3,
+        dataIndex: "diaChi",
         align: 'center',
     }, {
         xtype: "datecolumn",
-        text: "Ngày Tạo",
+        text: "Ngày Sinh",
         flex: 3,
-        dataIndex: "ngayTao",
+        dataIndex: "ngaySinh",
         format: "d/m/Y",
         align: 'center',
     }],
     viewConfig: {
-        emptyText: "Không có dữ liệu cần tìm"
+        emptyText: "Không có dữ liệu"
     },
     dockedItems: [{
         xtype: "toolbar",
@@ -82,7 +97,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                     xtype: "textfield",
                     fieldLabel: "Tìm",
                     reference: "txtSearch",
-                    emptyText: "Nhập tên loại",
+                    emptyText: "Nhập tên nhân viên cần tìm kiếm",
                     tabIndex: 1,
                     flex: 6,
                     cls: "EnterToTab",
@@ -110,8 +125,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 iconCls: "fa fa-plus",
                 reference: "btnAdd",
                 text: "Thêm",
-
-                tooltip: "AddTooltip",
+                tooltip: "Thêm mới nhân viên",
                 handler: "onAdd"
             }, {
                 xtype: "button",
@@ -119,8 +133,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 reference: "btnUpdate",
                 bind: { disabled: "{!rSelected}" },
                 text: "Sửa",
-
-                tooltip: "EditTooltip",
+                tooltip: "Sửa thông tin nhân viên",
                 handler: "onUpdate"
             }, {
                 xtype: "button",
@@ -128,7 +141,7 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 reference: "btnDelete",
                 bind: { disabled: "{!rSelected}" },
                 text: "Xóa",
-                tooltip: "DeleteTooltip",
+                tooltip: "Xóa nhân viên",
                 handler: "onDelete"
             }, "->", {
                 xtype: "pagingtoolbar",
@@ -136,10 +149,6 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
                 bind: {
                     store: "{store}"
                 },
-                displayInfo: true,
-                displayMsg: 'Displaying {0} to {1} of {2} &nbsp;records ',
-                emptyMsg: "No records to display&nbsp;"
-
             }
         ]
     }],
@@ -152,9 +161,9 @@ Ext.define("Admin.view.configs.dsDMPhanNhom", {
     }
 });
 
-Ext.define("Admin.view.configs.dsDMPhanNhomController", {
+Ext.define("Admin.view.NhanVien.dsNhanVienController", {
     extend: "Ext.app.ViewController",
-    alias: "controller.configs-dsdmphannhom",
+    alias: "controller.cnhanvien",
     storeInfo: null,
     refs: null,
     init: function () {
@@ -179,12 +188,12 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
         var me = this;
         var store = me.storeInfo.store;
         var txt = me.refs.txtSearch.getValue();
-        var url = "/api/loai/paging/" + txt;
+        var url = "/api/nhanvien/" + txt;
         store.proxy.api.read = url;
         store.load({
             scope: this,
-            callback: function (records, operation, success) {
-                // console.log(records);
+            callback: function (records) {
+                console.log(records);
                 if (records == null) {
                     store.removeAll();
                 }
@@ -194,14 +203,13 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
 
     onAdd: function () {
         var me = this;
-        var record = Ext.create("Admin.model.mDMPhanNhom", { maLoai: 0 });
-        //console.log(record);
-        Ext.create("Admin.view.configs.cnDMPhanNhom", {
-            title: "Thêm mới loại",
+        var record = Ext.create("Admin.model.mNhanVien", { maNV: 0 });
+        Ext.create("Admin.view.NhanVien.cnNhanVien", {
+            title: "Thêm mới nhân viên",
             viewModel: {
                 data: {
                     record: record,
-                    fnSauKhiSave: function () {
+                    fnLoad: function () {
                         me.onSearch();
                     }
                 }
@@ -212,8 +220,8 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
     onUpdate: function () {
         var me = this;
         var record = me.getViewModel().get("rSelected");
-        Ext.create("Admin.view.configs.cnDMPhanNhom", {
-            title: "Cập nhật loại",
+        Ext.create("Admin.view.NhanVien.cnNhanVien", {
+            title: "Cập nhật thông tin nhân viên",
             viewModel: {
                 data: {
                     record: record,
@@ -228,8 +236,8 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
     onDelete: function () {
         var me = this;
         Ext.Msg.show({
-            title: 'Xóa loại',
-            message: 'Bạn có muốn xóa loại này không?',
+            title: 'Xóa nhân viên',
+            message: 'Bạn có muốn xóa nhân viên này không?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,
             fn: function (btn) {
@@ -242,78 +250,20 @@ Ext.define("Admin.view.configs.dsDMPhanNhomController", {
         });
 
     },
-    fnGETAjax: function (url, fnSauKhiLoad) {
-        console.log(url);
-        $.ajax({
-            type: 'GET',
-            dataType: 'json',
-            async: false,
-            url: url,
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                console.log(exx);
-            }
-        });
-    },
 
-    fnDELETEAjax: function (url, fnSauKhiLoad) {
+
+    fnDELETEAjax: function () {
         var record = this.getViewModel().get("rSelected");
         $.ajax({
             type: 'DELETE',
             dataType: 'json',
             async: false,
-            url: '/api/loai/' + record.get('maLoai'),
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
+            url: '/api/nhanvien/' + record.get('maNV'),
+            success: function () {
             },
             complete: function () {
             },
             error: function (exx) {
-                // abp.notify.warn(exx);
-            }
-        });
-    },
-
-    fnPUTAjax: function (url, data, fnSauKhiLoad) {
-        $.ajax({
-            type: 'PUT',
-            context: this,
-            async: false,
-            url: url,
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: 'jsonp',
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                abp.notify.warn(exx);
-            }
-        });
-    },
-
-    fnPOSTAjax: function (url, data, fnSauKhiLoad) {
-        $.ajax({
-            type: 'POST',
-            context: this,
-            async: false,
-            url: '/api/loai/' + record.get('tenLoai'),
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: 'jsonp',
-            success: function (responseData) {
-                if (fnSauKhiLoad) fnSauKhiLoad(responseData);
-            },
-            complete: function () {
-            },
-            error: function (exx) {
-                //abp.notify.warn(exx);
             }
         });
     },

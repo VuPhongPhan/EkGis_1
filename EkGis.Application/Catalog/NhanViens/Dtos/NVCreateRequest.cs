@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EkGis.Data.Entities
+namespace EkGis.Application.Catalog.NhanViens.Dtos
 {
-    public class KhachHang
+    public class NVCreateRequest
     {
-        public int MaKH { set; get; }
-        public string TenKH { set; get; }
+        public int MaNV { set; get; }
+        public string TenNV { set; get; }
+        public string ChucVu { set; get; }
         public string Email { set; get; }
         public string SDT { set; get; }
         public string DiaChi { set; get; }
         public DateTime? NgaySinh { set; get; }
-        public List<YeuCau> YeuCaus { get; set; }
     }
 }

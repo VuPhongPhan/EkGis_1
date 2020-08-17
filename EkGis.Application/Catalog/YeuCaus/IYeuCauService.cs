@@ -16,6 +16,6 @@ namespace EkGis.Application.Catalog.YeuCaus
         Task<YeuCauViewModel> GetByMa(int ma);
         Task<List<YeuCauViewModel>> GetAll();
 
-        Task<PagedResult<YeuCauViewModel>> GetAllPaging(GetYeuCauPagingRequest request);
+        Task<PagedResult<YeuCauViewModel>> GetAllPaging(int page, int start, int limit, string keywords);
     }
 }

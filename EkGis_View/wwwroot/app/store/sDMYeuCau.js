@@ -2,7 +2,7 @@
     extend: "Ext.data.Store",
     alias: "store.sdmyeucau",
     model: "Admin.model.mDMYeuCau",
-    pageSize: 100,
+    pageSize: 5,
     autoLoad: false,
     proxy: {
         type: "rest",
@@ -11,9 +11,10 @@
         },
         reader: {
             type: "json",
-            rootProperty: "result.items",
-            totalProperty: "result.totalCount"
+            rootProperty: "items",
+            totalProperty: "totalRecord"
         },
+        
         appendId: true,
         writer: {
             writeAllFields: true,
