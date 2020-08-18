@@ -23,9 +23,8 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
         selection: "{rSelected}",
         store: "{store}"
     },
-
+    plugins: 'gridfilters',
     flex: 1,
-
     columns: [{
         xtype: 'rownumberer',
         text: '#',
@@ -81,6 +80,12 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
         flex: 3,
         align: 'center',
         dataIndex: "tenTrangThai",
+        reference: 'state',
+        filter: {
+            type: 'string',
+            itemDefaults: {
+            }
+        },
         renderer: function (value, metaData, opData) {
             if (value === "Đã xử lý") {
                 metaData.style = "background-color:#EAA8A8;color:white;border-radius:10px";
@@ -111,7 +116,7 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
             reference: 'frmSearch',
             items: [{
                 xtype: "fieldset",
-                title: 'tìm kiếm yêu cầu',
+                title: 'Tìm kiếm yêu cầu',
                 layout: 'column',
                 reference: 'frmSearch',
                 style: {
@@ -119,11 +124,38 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                 },
                 paddingBottom: '10px',
                 items: [{
-                    xtype: 'datefield',
-                    fieldLabel: 'Ngày ',
-                    style: {
-                        paddingLeft: '50px'
-                    }
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Ngày tiếp nhận',
+                    combineErrors: true,
+                    msgTarget: 'side',
+                    layout: 'hbox',
+                    defaults: {
+                        flex: 1,
+                    },
+                    items: [{
+                        xtype: 'datefield',
+                        name: 'startDate',
+                        emptyText: "Chọn ngày bắt đầu",
+                        reference: 'startdate',
+                        format: 'm/d/Y',
+                    }, {
+                        xtype: 'datefield',
+                        name: 'endDate',
+                        emptyText: "Chọn ngày kết thúc",
+                        padding: '0 0 0 10',
+                        reference: 'enddate',
+                        format: 'm/d/Y',
+                        listeners: {
+                            'change': function (me) {
+                                var sdate = this.up('fieldcontainer').getRefItems()[0].getSubmitValue();
+                                var edate = me.getSubmitValue();
+                                if (edate < sdate) {
+                                    Ext.toast('Ngày kết thúc phải lớn hơn ngày bắt đầu!!Vui lòng nhập lại', 'Lỗi nhập')
+                                }
+
+                            }
+                        }
+                    }]
                 }, {
                     xtype: 'combobox',
                     fieldLabel: 'Loại yêu cầu ',
@@ -134,27 +166,17 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                     queryMode: 'remote',
                     displayField: 'tenLoai',
                     valueField: 'maLoai',
-
+                    reference: 'txtLoai',
                     store: {
                         type: 'sdmphannhom',
                         proxy: { url: 'api/loai' }
                     },
                     bind: { value: "{record.maLoai}" },
                 }, {
-                    xtype: 'textfield',
-                    fieldLabel: 'Người yêu cầu ',
-                    emptyText: "Người yêu cầu",
-                    reference: 'txttenKH',
-                    width: '37%',
-                    style: {
-                        paddingLeft: '50px'
-                    }
-                }, {
                     xtype: 'combobox',
                     fieldLabel: 'Trạng thái ',
                     style: {
                         paddingLeft: '50px',
-                        paddingTop: '10px'
                     },
                     emptyText: "Chọn trạng thái",
                     bind: "{record.maTrangThai}",
@@ -168,7 +190,17 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                             { "maTrangThai": 3, "tenTrangThai": "Đã xử lý" }
                         ]
                     }),
-
+                    reference: 'txtTrangThai',
+                }, {
+                    xtype: 'textfield',
+                    fieldLabel: 'Người yêu cầu ',
+                    emptyText: "Nhập người yêu cầu",
+                    reference: 'txtKH',
+                    width: '31%',
+                    reference: 'txtKH',
+                    style: {
+                        paddingTop: '10px'
+                    }
                 }, {
                     xtype: "textfield",
                     fieldLabel: "Từ khóa ",
@@ -181,7 +213,8 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
                     },
                     listeners: {
                         specialkey: 'specialkey'
-                    }
+                    },
+                    reference: 'txtNoiDung',
                 }, {
                     xtype: "button",
                     reference: "btnTimKiem",
@@ -244,6 +277,56 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
 
                 tooltip: "AddTooltip",
                 handler: "onEditStatus"
+            }, {
+                xtype: "button",
+                style: {
+                    backgroundColor: '#EAA8A8',
+                    marginLeft: "70px",
+                    marginBottom: "20px"
+                },
+                reference: 'daxuli',
+                width: 20,
+                height: 20,
+                listeners: {
+                    click: function () {
+                        var view = this.up('gridpanel');
+                        var form = view.getReferences('state').state;
+                        form.filter.setValue('Đã')
+                    }
+                }
+            },
+            {
+                xtype: "button",
+                style: {
+                    backgroundColor: '#daef2c',
+                    marginBottom: "15px"
+                },
+                reference: 'chuaxuli',
+                listeners: {
+                    click: function () {
+                        var view = this.up('gridpanel');
+                        var form = view.getReferences('state').state;
+                        form.filter.setValue('Chưa')
+                    }
+                },
+                width: 20,
+                height: 20,
+            }, {
+                xtype: "button",
+                style: {
+                    backgroundColor: 'green',
+                    marginBottom: "15px"
+                },
+                reference: 'dangxuli',
+                width: 20,
+                height: 20,
+                listeners: {
+                    click: function () {
+                        var view = this.up('gridpanel');
+                        var form = view.getReferences('state').state;
+                        form.filter.setValue('Đang')
+                    }
+                }
             }, "->", {
                 xtype: "pagingtoolbar",
                 displayInfo: true,
@@ -254,7 +337,7 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
         ]
     }],
 
-    title: "Danh sách loại",
+    title: "Danh sách yêu cầu",
     iconCls: "x-fa fa-object-group",
 
     listeners: {
@@ -288,9 +371,21 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
     onSearch: function () {
         var me = this;
         var store = me.storeInfo.store;
-        var noidung = me.refs.txtSearch.getValue();
-        var tenKH = me.refs.txttenKH.getValue();
-        var url = "/api/yeucau/paging" + noidung;
+        var noidung = me.refs.txtNoiDung.getValue();
+        var KH = me.refs.txtKH.getValue();
+        var Loai = me.refs.txtLoai.getValue();
+        var TrangThai = me.refs.txtTrangThai.getValue();
+        var Sdate = me.getView().refs.startdate.getSubmitValue();
+        var Edate = me.getView().refs.enddate.getSubmitValue();
+        console.log(Sdate);
+        if (Loai == null) {
+            Loai = '';
+        };
+        if (TrangThai == null) {
+            TrangThai = '';
+        };
+        console.log(Loai);
+        var url = "/api/yeucau?" + '&noidung=' + noidung + '&tenKH=' + KH + '&maloai=' + Loai + '&matrangthai=' + TrangThai + '&ngaybatdau=' + Sdate + '&ngayketthuc=' + Edate;
         console.log(store);
         store.proxy.api.read = url;
         store.load({
@@ -307,7 +402,6 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCauController", {
     onAdd: function () {
         var me = this;
         var record = Ext.create("Admin.model.mDMYeuCau", { maYeuCau: 0 });
-        //console.log(record);
         record.set("maTrangThai", 2);
         record.set("maKH", 1);
         Ext.create("Admin.view.YeuCau.cnDMYeuCau", {

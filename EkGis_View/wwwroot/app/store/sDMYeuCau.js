@@ -2,7 +2,7 @@
     extend: "Ext.data.Store",
     alias: "store.sdmyeucau",
     model: "Admin.model.mDMYeuCau",
-    pageSize: 5,
+    pageSize: 9,
     autoLoad: false,
     proxy: {
         type: "rest",

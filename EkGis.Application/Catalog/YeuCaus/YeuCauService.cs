@@ -55,7 +55,7 @@ namespace EkGis.Application.Catalog.YeuCaus
                         join e in _context.KhachHangs on a.MaKH equals e.MaKH
                         join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
                         select new { a, b, c, d, e, f };
-            
+
 
             var data = await query.Select(x => new YeuCauViewModel()
             {
@@ -78,7 +78,7 @@ namespace EkGis.Application.Catalog.YeuCaus
             return new List<YeuCauViewModel>(data);
         }
 
-        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(int page, int start, int limit, string keywords)
+        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(SearchRequest request)
         {
             //1. Select join
             var query = from a in _context.YeuCaus
@@ -89,13 +89,35 @@ namespace EkGis.Application.Catalog.YeuCaus
                         join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
                         select new { a, b, c, d, e, f };
             //2. filter
-             if (!string.IsNullOrEmpty(keywords))
-                 query = query.Where(x => x.a.Noidung.Contains(keywords));
+            if (!string.IsNullOrEmpty(request.Noidung))
+            {
+                query = query.Where(x => x.a.Noidung.Contains(request.Noidung));
+            }
+            if (!string.IsNullOrEmpty(request.TenKH))
+            {
+                query = query.Where(x => x.e.TenKH.Contains(request.TenKH));
+            }
+            if (request.MaLoai.HasValue)
+            {
+                query = query.Where(x => x.a.MaLoai == request.MaLoai);
+            }
+            if (request.NgayBatDau.HasValue)
+            {
+                query = query.Where(x => x.a.NgayTiepNhan >= request.NgayBatDau);
+            }
+            if (request.NgayKetThuc.HasValue)
+            {
+                query = query.Where(x => x.a.NgayTiepNhan <= request.NgayKetThuc);
+            }
+            if (request.MaTrangThai.HasValue)
+            {
+                query = query.Where(x => x.a.MaTrangThai == request.MaTrangThai);
+            }
             //3. Paging
             int totalRow = await query.CountAsync();
 
-            var data = await query.Skip((page - 1) * limit)
-                       .Take(limit)
+            var data = await query.Skip((request.page - 1) * request.limit)
+                       .Take(request.limit)
                        .Select(x => new YeuCauViewModel()
                        {
                            MaYeuCau = x.a.MaYeuCau,
@@ -120,8 +142,6 @@ namespace EkGis.Application.Catalog.YeuCaus
             var pagedResult = new PagedResult<YeuCauViewModel>()
             {
                 TotalRecord = totalRow,
-                /*pageSize = pageSize,
-                pageIndex = pageIndex,*/
                 Items = data
             };
             return pagedResult;

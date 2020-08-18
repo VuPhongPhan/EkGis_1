@@ -16,22 +16,16 @@ namespace EkGis_1.Controllers
             _yeuCauService = yeuCauService;
         }
 
-        [HttpGet()]
+        [HttpGet("EkGis")]
         public async Task<IActionResult> GetAll()
         {
             var yeuCaus = await _yeuCauService.GetAll();
             return Ok(yeuCaus);
         }
-        [HttpGet("paging")]
-        public async Task<IActionResult> GetAllPaging(int page, int start, int limit, string keywords)
+        [HttpGet()]
+        public async Task<IActionResult> GetSearch([FromQuery] SearchRequest request)
         {
-            var yeuCaus = await _yeuCauService.GetAllPaging(page, start, limit, keywords);
-            return Ok(yeuCaus);
-        }
-        [HttpGet("{keywords}")]
-        public async Task<IActionResult> GetSearch(int page, int start, int limit, string keywords)
-        {
-            var yeuCaus = await _yeuCauService.GetAllPaging(page, start, limit, keywords);
+            var yeuCaus = await _yeuCauService.GetAllPaging(request);
             return Ok(yeuCaus);
         }
        /* [HttpGet("{ma}")]
@@ -45,51 +39,26 @@ namespace EkGis_1.Controllers
         [HttpPut()]
         public async Task<IActionResult> Update([FromBody] YeuCauEditRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var result = await _yeuCauService.Update(request);
-            if (result == null)
-            {
-                return BadRequest();
-            }
-            return Ok();
+            return Ok(result);
         }
         [HttpPost()]
         public async Task<IActionResult> Create([FromBody] YeuCauCreateRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var maYeuCau = await _yeuCauService.Create(request);
-            if (maYeuCau == null)
-                return BadRequest();
-
             return Ok(maYeuCau);
         }
         [HttpDelete("{ma}")]
         public async Task<IActionResult> DeleTe(int ma)
         {
             var result = await _yeuCauService.Delete(ma);
-            if (result == null)
-                return BadRequest();
-            return Ok();
+            return Ok(result);
         }
         [HttpPut("{maYeuCau}/{maStatus}/{moTa}")]
         public async Task<IActionResult> UpdateStatus(int maYeuCau, int maStatus, string moTa)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var result = await _yeuCauService.UpdateStatus(maYeuCau, maStatus, moTa);
-            if (result == null)
-            {
-                return BadRequest();
-            }
-            return Ok();
+            return Ok(result);
         }
     }
 }
