@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EkGis.Application", "EkGis.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EkGis_View", "EkGis_View\EkGis_View.csproj", "{00588579-E3E8-49E8-B32A-B300217426D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EkGis.API", "EkGis.API\EkGis.API.csproj", "{39E27159-2651-42C0-BE92-97622835C789}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EkGis.API", "EkGis.API\EkGis.API.csproj", "{39E27159-2651-42C0-BE92-97622835C789}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

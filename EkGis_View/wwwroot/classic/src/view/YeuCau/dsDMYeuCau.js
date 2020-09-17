@@ -271,7 +271,7 @@ Ext.define("Admin.view.YeuCau.dsDMYeuCau", {
             }, {
                 xtype: "button",
                 iconCls: "fa fa-retweet",
-                reference: "btnAdd",
+                reference: "btnStatus",
                 bind: { disabled: "{!rSelected}" },
                 text: "Chuyển Trạng Thái",
 
