@@ -21,9 +21,7 @@ Ext.define('Ext.util.Wrapper', {
         this.boundMethodName = boundMethodName = sizeName === 'width' ? 'setWidth' : 'setHeight';
 
         this.bindHook(wrappedElement, boundMethodName, 'onBoundSizeChange');
-        wrappedElement[boundMethodName].call(
-            wrappedElement, wrappedElement.getStyleValue(sizeName)
-        );
+        wrappedElement[boundMethodName].call(wrappedElement, wrappedElement.getStyleValue(sizeName));
     },
 
     onBoundSizeChange: function(size, args) {
@@ -76,7 +74,6 @@ Ext.define('Ext.util.Wrapper', {
             if (!wrappedElement.destroyed) {
                 parentNode.replaceChild(dom.firstElementChild, dom);
             }
-
             delete me.wrappedElement;
         }
 

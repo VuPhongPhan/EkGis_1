@@ -1,18 +1,10 @@
-topSuite("Ext.field.Checkbox",
-    ['Ext.form.Panel', 'Ext.form.FieldSet', 'Ext.field.*', 'Ext.app.ViewModel',
-     'Ext.layout.VBox'],
-function() {
+describe("Ext.field.Checkbox", function() {
+
     var field, container;
 
     function makeField(cfg) {
         field = new Ext.field.Checkbox(cfg);
-
-        if (field.getFloated()) {
-            field.show();
-        }
- else {
-            field.render(Ext.getBody());
-        }
+        field.renderTo(Ext.getBody());
     }
 
     function makeForm() {
@@ -34,7 +26,7 @@ function() {
                         name: 'status',
                         value: 'Closed'
                     }]
-                }, {
+                },{
                     xtype: 'fieldset',
                     title: 'Alt Item',
                     items: [{
@@ -63,8 +55,8 @@ function() {
                 }]
             }]
         });
-        container.render(Ext.getBody());
-    }
+        container.renderTo(Ext.getBody());
+    } 
 
     function makeFieldset() {
         container = new Ext.Container({
@@ -93,19 +85,16 @@ function() {
                 }]
             }]
         });
-        container.render(Ext.getBody());
+        container.renderTo(Ext.getBody());
     }
 
-    afterEach(function() {
-        field = Ext.destroy(field);
-        container = Ext.destroy(container);
-    });
-
     describe("binding", function() {
+        afterEach(function() {
+            field = Ext.destroy(field);
+        });
         describe("publish with reference", function() {
             it("should publish the checked state if checked: false", function() {
                 var vm;
-
                 makeField({
                     reference: 'fooField',
                     viewModel: {}
@@ -118,7 +107,6 @@ function() {
 
             it("should publish the checked state if checked: true", function() {
                 var vm;
-
                 makeField({
                     reference: 'fooField',
                     checked: true,
@@ -132,10 +120,14 @@ function() {
     });
 
     describe("getSameGroupFields", function() {
+        afterEach(function() {
+            if(container) {
+                container = Ext.destroy(container);
+            }
+        });
         describe("retrieving descendant components", function() {
             it("should return fields with the same name within the parent form", function() {
                 var form, radio, children;
-
                 makeForm();
 
                 form = container.down('#form1');
@@ -143,11 +135,23 @@ function() {
 
                 children = radio.getSameGroupFields();
 
-                expect(children.length).toBe(4);
+                expect(children.length).toBe(4);        
+            });
+
+            it("should return fields with the same name within the parent fieldset", function() {
+                var fieldset, radio, children;
+                makeFieldset();
+
+                fieldset = container.down('#fieldset1');
+                radio = container.down('#status1');
+
+                children = radio.getSameGroupFields();
+
+                expect(children.length).toBe(2);
             });
 
             it("should return only the checkboxes/radio fields", function() {
-                var types = [],
+                var types=[],
                     form, radio, children;
 
                 makeForm();
@@ -157,105 +161,11 @@ function() {
 
                 children = radio.getSameGroupFields();
                 children.forEach(function(child) {
-                    types.push(child.xtype);
+                    types.push(child.xtype); 
                 });
 
                 expect(types).toEqual(['radiofield', 'radiofield', 'radiofield', 'radiofield']);
             });
-        });
-    });
-
-    describe('boxLabel', function() {
-        var boxLabel = '<div style="width:50px;background:green;">&nbsp;</div>';
-
-        it('should layout with boxLabelAlign: after', function() {
-            makeField({
-                inline: true,
-                boxLabel: boxLabel
-            });
-
-            expect(field).toHaveLayout({
-                element: { xywh: '0 0 70 24' },
-                bodyWrapElement: { xywh: '0 0 70 24' },
-                bodyElement: { xywh: '0 0 70 24' },
-                labelElement: { d: false },
-                inputElement: { xywh: '0 4 16 16' },
-                boxWrapElement: { xywh: '0 0 70 24' },
-                iconElement: { xywh: '0 4 16 16' },
-                boxLabelElement: { xywh: '16 0 54 24' }
-            });
-        });
-
-        it('should layout with boxLabelAlign: before', function() {
-            makeField({
-                inline: true,
-                boxLabel: boxLabel,
-                boxLabelAlign: 'before'
-            });
-
-            expect(field).toHaveLayout({
-                element: { xywh: '0 0 70 24' },
-                bodyWrapElement: { xywh: '0 0 70 24' },
-                bodyElement: { xywh: '0 0 70 24' },
-                labelElement: { d: false },
-                inputElement: { xywh: '54 4 16 16' },
-                boxWrapElement: { xywh: '0 0 70 24' },
-                iconElement: { xywh: '54 4 16 16' },
-                boxLabelElement: { xywh: '0 0 54 24' }
-            });
-        });
-
-        describe("labeled", function() {
-            it('should layout with boxLabelAlign: after', function() {
-                makeField({
-                    inline: true,
-                    label: 'Foo',
-                    boxLabel: boxLabel
-                });
-
-                expect(field).toHaveLayout({
-                    element: { xywh: '0 0 170 24' },
-                    bodyWrapElement: { xywh: '100 0 70 24' },
-                    bodyElement: { xywh: '100 0 70 24' },
-                    labelElement: { xywh: '0 0 100 24' },
-                    inputElement: { xywh: '100 4 16 16' },
-                    boxWrapElement: { xywh: '100 0 70 24' },
-                    iconElement: { xywh: '100 4 16 16' },
-                    boxLabelElement: { xywh: '116 0 54 24' }
-                });
-            });
-
-            it('should layout with boxLabelAlign: before', function() {
-                makeField({
-                    inline: true,
-                    label: 'Foo',
-                    boxLabel: boxLabel,
-                    boxLabelAlign: 'before'
-                });
-
-                expect(field).toHaveLayout({
-                    element: { xywh: '0 0 170 24' },
-                    bodyWrapElement: { xywh: '100 0 70 24' },
-                    bodyElement: { xywh: '100 0 70 24' },
-                    labelElement: { xywh: '0 0 100 24' },
-                    inputElement: { xywh: '154 4 16 16' },
-                    boxWrapElement: { xywh: '100 0 70 24' },
-                    iconElement: { xywh: '154 4 16 16' },
-                    boxLabelElement: { xywh: '100 0 54 24' }
-                });
-            });
-        });
-    });
-
-    describe('getRawValue', function() {
-
-        it('should return the checked state of the checkbox', function(){
-            makeField();
-
-            expect(field.getRawValue()).toBe(false);
-
-            field.setChecked(true);
-            expect(field.getRawValue()).toBe(true);
         });
     });
 });

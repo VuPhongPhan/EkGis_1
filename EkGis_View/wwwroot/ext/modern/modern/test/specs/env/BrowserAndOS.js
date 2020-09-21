@@ -1,4 +1,4 @@
-xtopSuite("Ext.env.Browser and Ext.env.OS", false, function() {
+xdescribe("Ext.env.Browser and Ext.env.OS", function() {
 
     var profiles = {
         Safari_502_Mac: {
@@ -410,6 +410,7 @@ xtopSuite("Ext.env.Browser and Ext.env.OS", false, function() {
             }
         },
 
+
         "Motorola Droid Bionic w/Opera Mobile": {
             platform: '',
             userAgent: 'Mozilla/5.0 (Linux; Android 2.3.4; DROID BIONIC Build/5.5.1_84_DBN-74) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.123 Mobile Safari/537.22 OPR/14.0.1025.53005',
@@ -446,7 +447,7 @@ xtopSuite("Ext.env.Browser and Ext.env.OS", false, function() {
     };
 
     Ext.Object.each(profiles, function(device, profile) {
-        describe(device, function() {
+        describe(device, function(){
             it("Ext.env.Browser", function() {
                 var expected = profile.expect.browser,
                     expectedFlags = expected.flags,
@@ -460,7 +461,7 @@ xtopSuite("Ext.env.Browser and Ext.env.OS", false, function() {
 
                 expect(env.version.toString()).toBe(expected.version);
 
-                for (i = 0, ln = expectedFlags.length; i < ln; i++) {
+                for (i = 0,ln = expectedFlags.length; i < ln; i++) {
                     flag = expectedFlags[i];
                     Ext.Array.include(expectedFlags, flag.toLowerCase());
                 }
@@ -482,10 +483,9 @@ xtopSuite("Ext.env.Browser and Ext.env.OS", false, function() {
                 var expected = profile.expect.os,
                     expectedFlags = expected.flags,
                     env = new Ext.env.OS(profile.userAgent, profile.platform),
-                    flags = [],
-i, k, ln, flag;
+                    flags = [], i, k, ln, flag;
 
-                for (i = 0, ln = expectedFlags.length; i < ln; i++) {
+                for (i = 0,ln = expectedFlags.length; i < ln; i++) {
                     flag = expectedFlags[i];
                     Ext.Array.include(expectedFlags, flag.toLowerCase());
                 }

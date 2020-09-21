@@ -18,11 +18,9 @@ Ext.define('Ext.tree.ViewDragZone', {
 
         if (formatRe.test(dragText) && count === 1 && text) {
             return text;
-        }
-        else if (!text) {
+        } else if (!text) {
             suffix = '';
         }
-
         return Ext.String.format(dragText, count, suffix);
     },
 
@@ -32,7 +30,7 @@ Ext.define('Ext.tree.ViewDragZone', {
             selectedRowCls = view.selectedItemCls,
             records = me.dragData.records,
             r,
-            rLen = records.length,
+            rLen    = records.length,
             fly = Ext.fly,
             item;
 
@@ -62,7 +60,6 @@ Ext.define('Ext.tree.ViewDragZone', {
             }
 
         }
-
         me.dragging = false;
     }
 });

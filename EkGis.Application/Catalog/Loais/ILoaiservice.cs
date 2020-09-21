@@ -1,4 +1,5 @@
 ﻿using EkGis.Application.Catalog.Loais.Dtos;
+using EkGis.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace EkGis.Application.Catalog.Loais
 {
     public interface ILoaiservice
     {
-        Task<int> Create(LoaiCreateRequest request);
+        Task<Loai> Create(Loai request);
 
         Task<int> Update(int ma, string ten);
 
@@ -17,5 +18,7 @@ namespace EkGis.Application.Catalog.Loais
         Task<LoaiViewModel> GetByMa(int ma);
 
         Task<List<LoaiViewModel>> GetAll();
+
+        Task<PagedResult<LoaiViewModel>> GetAllPaging(int page, int start, int limit, string keywords);
     }
 }

@@ -1,8 +1,7 @@
 /**
  * Creates plugin instances.
  *
- * A plugin may be specified simply as a *config object* as long as the correct `ptype`
- * is specified:
+ * A plugin may be specified simply as a *config object* as long as the correct `ptype` is specified:
  *
  *     {
  *         ptype: 'gridviewdragdrop',
@@ -21,31 +20,28 @@
  * @private
  */
 Ext.define('Ext.plugin.Manager', {
-    singleton: true,
-
     alternateClassName: [
         'Ext.PluginManager',
         'Ext.PluginMgr'
     ],
 
+    singleton: true,
     typeName: 'ptype',
 
     /**
-     * Creates a new Plugin from the specified config object using the config object's ptype
-     * to determine the class to instantiate.
+     * Creates a new Plugin from the specified config object using the config object's ptype to determine the class to
+     * instantiate.
      * @param {Object} config A configuration object for the Plugin you wish to create.
-     * @param {Function} defaultType (optional) The constructor to provide the default Plugin type
-     * if the config object does not contain a `ptype`. (Optional if the config contains a `ptype`).
-     * @param {String} host
+     * @param {Function} defaultType (optional) The constructor to provide the default Plugin type if the config object does not
+     * contain a `ptype`. (Optional if the config contains a `ptype`).
      * @return {Ext.Component} The newly instantiated Plugin.
      */
-    create: function(config, defaultType, host) {
+    create : function(config, defaultType, host) {
         var result, type;
 
         if (config.init) {
             result = config;
-        }
-        else {
+        } else {
             // Inject the host into the config is we know the host
             if (host) {
                 config = Ext.apply({}, config); // copy since we are going to modify
@@ -58,8 +54,7 @@ Ext.define('Ext.plugin.Manager', {
 
             if (config.xclass) {
                 result = Ext.create(config);
-            }
-            else {
+            } else {
                 // Lookup the class from the ptype and instantiate unless its a singleton
                 type = 'plugin.' + (config.ptype || defaultType);
                 result = Ext.ClassManager.instantiateByAlias(type, config);
@@ -71,7 +66,6 @@ Ext.define('Ext.plugin.Manager', {
             result.setCmp(host);
             result.setCmpCalled = true;
         }
-
         return result;
     }
 });

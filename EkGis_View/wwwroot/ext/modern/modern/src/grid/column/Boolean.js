@@ -1,48 +1,43 @@
 /**
- * A Column definition class which renders boolean data fields.  
- * See the {@link Ext.grid.column.Column#xtype xtype} config option of 
- * {@link Ext.grid.column.Column} for more details.
+ * A Column definition class which renders boolean data fields.  See the {@link Ext.grid.column.Column#xtype xtype}
+ * config option of {@link Ext.grid.column.Column} for more details.
  *
- * ```javascript
- * @example({ framework: 'extjs' })
- * Ext.create('Ext.data.Store', {
- *    storeId:'sampleStore',
- *    fields:[
- *        {name: 'framework', type: 'string'},
- *        {name: 'rocks', type: 'boolean'}
- *    ],
- *    data:[
- *        { framework: "Ext JS",     rocks: true  },
- *        { framework: "Ext GWT",    rocks: true  },
- *        { framework: "Other Guys", rocks: false }
- *    ]
- * });
+ *     @example
+ *     Ext.create('Ext.data.Store', {
+ *        storeId:'sampleStore',
+ *        fields:[
+ *            {name: 'framework', type: 'string'},
+ *            {name: 'rocks', type: 'boolean'}
+ *        ],
+ *        data:{ items:[
+ *            { framework: "Ext JS",     rocks: true  },
+ *            { framework: "Ext GWT",    rocks: true  },
+ *            { framework: "Other Guys", rocks: false }
+ *        ]}
+ *     });
  *
- * Ext.create('Ext.grid.Grid', {
- *     fullscreen: true,
- *     store: Ext.data.StoreManager.lookup('sampleStore'),
- *     columns: [
- *         { text: 'Framework',  dataIndex: 'framework', flex: 1 },
- *         {
- *             xtype: 'booleancolumn',
- *             text: 'Rocks',
- *             trueText: 'Yes',
- *             falseText: 'No',
- *             dataIndex: 'rocks'
- *         }
- *     ],
- *     height: 200,
- *     width: 400
- * });
- * ```
+ *     Ext.create('Ext.grid.Grid', {
+ *         store: Ext.data.StoreManager.lookup('sampleStore'),
+ *         columns: [
+ *             { text: 'Framework',  dataIndex: 'framework', flex: 1 },
+ *             {
+ *                 xtype: 'booleancolumn',
+ *                 text: 'Rocks',
+ *                 trueText: 'Yes',
+ *                 falseText: 'No',
+ *                 dataIndex: 'rocks'
+ *             }
+ *         ],
+ *         height: 200,
+ *         width: 400
+ *     });
  */
 Ext.define('Ext.grid.column.Boolean', {
     extend: 'Ext.grid.column.Column',
-    xtype: 'booleancolumn',
-
-    isBooleanColumn: true,
 
     requires: ['Ext.grid.cell.Boolean'],
+
+    xtype: 'booleancolumn',
 
     config: {
         /**

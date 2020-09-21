@@ -1,13 +1,13 @@
-topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
+/* global Ext, MockAjaxManager, expect, jasmine */
+
+describe("Ext.view.MultiSelector", function(){
     var synchronousLoad = true,
         proxyStoreLoad = Ext.data.ProxyStore.prototype.load,
         loadStore = function() {
             proxyStoreLoad.apply(this, arguments);
-
             if (synchronousLoad) {
                 this.flushLoad.apply(this, arguments);
             }
-
             return this;
         },
         Employee, multiSelector;
@@ -20,22 +20,22 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
         sequence = 0;
 
     var defaultStoreCfg = {
-            model: 'spec.Employee',
-            proxy: {
-                type: 'ajax',
-                url: 'foo'
-            }
-        };
+        model: 'spec.Employee',
+        proxy: {
+            type: 'ajax',
+            url: 'foo'
+        }
+    };
 
     var defaultSearchStoreCfg = {
-            model: 'spec.Employee',
-            autoLoad: true,
-            asynchronousLoad: false,
-            proxy: {
-                type: 'ajax',
-                url: 'bar'
-            }
-        };
+        model: 'spec.Employee',
+        autoLoad: true,
+        asynchronousLoad: false,
+        proxy: {
+            type: 'ajax',
+            url: 'bar'
+        }
+    };
 
     for (i = 0; i < lastNames.length; ++i) {
         map = {};
@@ -54,7 +54,6 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
             } while (map[s = firstNames[k]]);
 
             map[s] = 1;
-
             data.push({
                 id: ++sequence,
                 forename: s,
@@ -128,7 +127,7 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
         MockAjaxManager.removeMethods();
     });
 
-    describe("search popup", function() {
+    describe("search popup", function () {
         describe("alignment", function() {
             beforeEach(function() {
                 makeSelector();
@@ -137,7 +136,6 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
 
             it("should align to the top right", function() {
                 var popup = multiSelector.searchPopup;
-
                 expect(popup.el.getTop()).toBe(multiSelector.el.getTop());
                 expect(popup.el.getLeft()).toBe(multiSelector.el.getRight());
             });
@@ -152,8 +150,8 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
             });
         });
 
-        describe("synchronizing selection", function() {
-            describe("store with remote data", function() {
+        describe("synchronizing selection", function () {
+            describe("store with remote data", function () {
                 beforeEach(function() {
                     makeSelector();
                 });
@@ -167,22 +165,22 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                     completeRequest(data[0]);
 
                     multiSelector.onShowSearch();
-
+                    
                     // Search grid's store is set to autoload, so wait for it to kick off a load
                     waitsFor(function() {
                         searchGrid = multiSelector.searchPopup.child('gridpanel');
                         searchStore = searchGrid.store;
 
                         return (searchStore instanceof Ext.data.Store) && searchStore.isLoading();
-                    }, 'searchStore to kick off a load');
+                    }, 'searchStore to kick off a load');                    
                     runs(function() {
                         completeRequest();
-
+                        
                         expect(searchGrid.getSelectionModel().getSelection()[0].get('name')).toBe(multiSelector.store.getAt(0).get('name'));
                     });
                 });
 
-                it("should visually highlight the rows in the searcher which match by ID the records in the selector", function() {
+                it("should visually highlight the rows in the searcher which match by ID the records in the selector", function () {
                     var searchStore,
                         searchGrid,
                         nodes;
@@ -199,7 +197,7 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                         searchStore = searchGrid.store;
 
                         return (searchStore instanceof Ext.data.Store) && searchStore.isLoading();
-                    }, 'searchStore to kick off a load');
+                    }, 'searchStore to kick off a load');                    
                     runs(function() {
                         completeRequest();
 
@@ -209,8 +207,8 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                 });
             });
 
-            describe("store with inline data", function() {
-                beforeEach(function() {
+            describe("store with inline data", function () {
+                beforeEach(function () {
                     var storeCfg = {
                         model: 'spec.Employee',
                         data: [{
@@ -229,26 +227,26 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                             forename: 'Ben',
                             surname: 'Toll',
                             id: 1
-                        }, {
+                        },{
                             forename: 'Don',
                             surname: 'Griffin',
                             id: 2
-                        }, {
+                        },{
                             forename: 'Evan',
                             surname: 'Trimboli',
                             id: 3
                         }]
                     };
-
+                    
                     makeSelector(storeCfg, searchStoreCfg);
                 });
-                it("should select the records in the searcher which match by ID the records in the selector", function() {
+                it("should select the records in the searcher which match by ID the records in the selector", function () {
                     multiSelector.onShowSearch();
-
+                    
                     expect(multiSelector.down('gridpanel').selModel.getSelection()[0].get('name')).toBe(multiSelector.store.getAt(0).get('name'));
                 });
 
-                it("should visually highlight the rows in the searcher which match by ID the records in the selector", function() {
+                it("should visually highlight the rows in the searcher which match by ID the records in the selector", function () {
                     var nodes;
 
                     multiSelector.onShowSearch();
@@ -257,18 +255,18 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                     expect(nodes[0]).toHaveCls('x-grid-item-selected');
                 });
 
-                if (jasmine.supportsTouch) {
+                if (Ext.supports.TouchEvents) {
                     it('should not hide the picker when the picker is tapped', function() {
                         multiSelector.onShowSearch();
 
                         var searchGrid = multiSelector.searchPopup.lookupReference('searchGrid'),
-                            cell = new Ext.grid.CellContext(searchGrid.view).setPosition(1, 0).getCell(true),
+                            cell = new Ext.grid.CellContext(searchGrid.view).setPosition(1, 0).getCell(),
                             selectedCount = multiSelector.store.getCount(),
-                            x = Ext.fly(cell).getX() + Ext.fly(cell).getWidth() / 2,
-                            y = Ext.fly(cell).getY() + Ext.fly(cell).getHeight() / 2;
+                            x = cell.getX() + cell.getWidth() / 2,
+                            y = cell.getY() + cell.getHeight() / 2;
 
-                        Ext.testHelper.fireEvent('start', cell, [{ x: x, y: y }]);
-                        Ext.testHelper.fireEvent('end', cell, [{ x: x, y: y }]);
+                        Ext.testHelper.fireEvent('start', cell.dom, [{ x: x, y: y }]);
+                        Ext.testHelper.fireEvent('end', cell.dom, [{ x: x, y: y }]);
 
                         expect(multiSelector.store.getCount()).toBe(selectedCount + 1);
                         expect(multiSelector.searchPopup.isVisible()).toBe(true);
@@ -277,8 +275,8 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
             });
         });
 
-        describe("synchronizing deselection", function() {
-            beforeEach(function() {
+        describe("synchronizing deselection", function () {
+            beforeEach(function () {
                 var storeCfg = {
                     model: 'spec.Employee',
                     data: [{
@@ -297,21 +295,21 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                         forename: 'Ben',
                         surname: 'Toll',
                         id: 1
-                    }, {
+                    },{
                         forename: 'Don',
                         surname: 'Griffin',
                         id: 2
-                    }, {
+                    },{
                         forename: 'Evan',
                         surname: 'Trimboli',
                         id: 3
                     }]
                 };
-
+                
                 makeSelector(storeCfg, searchStoreCfg);
             });
 
-            it("should deselect the records in the searcher which match by ID the records removed from the selector", function() {
+            it("should deselect the records in the searcher which match by ID the records removed from the selector", function () {
                 var store = multiSelector.getStore(),
                     record;
 
@@ -325,9 +323,9 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                 expect(multiSelector.down('gridpanel').selModel.getSelection().length).toBe(0);
             });
 
-            it("should visually unhighlight the rows in the searcher which match by ID the records removed from the selector", function() {
+            it("should visually unhighlight the rows in the searcher which match by ID the records removed from the selector", function () {
                 var store = multiSelector.getStore(),
-                    record, node;
+                    record;
 
                 multiSelector.onShowSearch();
 
@@ -339,45 +337,6 @@ topSuite("Ext.view.MultiSelector", ['Ext.data.ArrayStore'], function() {
                 node = multiSelector.down('gridpanel').getView().getNode(0);
 
                 expect(node).not.toHaveCls('x-grid-item-selected');
-            });
-        });
-
-        describe('focus', function() {
-            beforeEach(function() {
-                makeSelector();
-            });
-
-            it('should move focus to the search field after checkbox selection and scrolling the row out of the buffer', function() {
-                var searchStore, searchGrid, searchField,
-                    cell, x, y;
-
-                multiSelector.onShowSearch();
-
-                searchGrid = multiSelector.searchPopup.lookup('searchGrid');
-                searchField = multiSelector.searchPopup.lookup('searchField');
-                searchStore = searchGrid.store;
-
-                // Search grid's store is set to autoload, so wait for it to kick off a load
-                waitsFor(function() {
-                    return (searchStore instanceof Ext.data.Store) && searchStore.isLoading();
-                }, 'searchStore to kick off a load');
-                runs(function() {
-                    completeRequest();
-
-                    cell = new Ext.grid.CellContext(searchGrid.view).setPosition(0, 0).getCell(true);
-                    x = Ext.fly(cell).getX() + Ext.fly(cell).getWidth() / 2;
-                    y = Ext.fly(cell).getY() + Ext.fly(cell).getHeight() / 2;
-
-                    jasmine.fireMouseEvent(cell, 'click', x, y);
-                });
-
-                jasmine.waitsForScroll(searchGrid.getScrollable(), function(scroller, x, y) {
-                    if (searchField.inputEl.dom === Ext.dom.Element.getActiveElement()) {
-                        return true;
-                    }
-
-                    scroller.scrollBy(0, 10);
-                }, 'focus to move to the Search field');
             });
         });
     });

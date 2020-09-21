@@ -18,16 +18,12 @@ namespace EkGis.Application.Catalog.Loais
         {
             _context = context;
         }
-        public async Task<int> Create(LoaiCreateRequest request)
+        public async Task<Loai> Create(Loai request)
         {
-            var loai = new Loai()
-            {
-                TenLoai = request.TenLoai,
-                NgayTao = DateTime.Now
-            };
-            _context.Loais.Add(loai);
+            request.NgayTao = DateTime.Now;
+            _context.Loais.Add(request);
             await _context.SaveChangesAsync();
-            return request.MaLoai;
+            return request;
         }
 
         public async Task<int> Delete(int ma)
@@ -40,13 +36,39 @@ namespace EkGis.Application.Catalog.Loais
 
         public async Task<List<LoaiViewModel>> GetAll()
         {
-            var loais = await _context.Loais.Select(x => new LoaiViewModel()
+            var data = await _context.Loais.Select(x => new LoaiViewModel()
             {
                 MaLoai = x.MaLoai,
-                TenLoai = x.TenLoai,
-                NgayTao = x.NgayTao
+                NgayTao = x.NgayTao.Value,
+                TenLoai = x.TenLoai
             }).ToListAsync();
-            return new List<LoaiViewModel>(loais);
+            return data;
+        }
+
+        public async Task<PagedResult<LoaiViewModel>> GetAllPaging(int page, int start, int limit, string keywords)
+        {
+            var query = from a in _context.Loais select new { a };
+
+            if (!string.IsNullOrEmpty(keywords))
+                query = query.Where(x => x.a.TenLoai.Contains(keywords));
+
+            int totalRow = await query.CountAsync();
+
+            var data = await query.Skip((page - 1) * limit)
+                     .Take(limit)
+                     .Select(x => new LoaiViewModel()
+                     {
+                         MaLoai = x.a.MaLoai,
+                         TenLoai = x.a.TenLoai,
+                         NgayTao = x.a.NgayTao.Value
+                     }).ToListAsync();
+
+            var pagedResult = new PagedResult<LoaiViewModel>()
+            {
+                TotalRecord = totalRow,
+                Items = data
+            };
+            return pagedResult;
         }
 
         public async Task<LoaiViewModel> GetByMa(int ma)
@@ -56,11 +78,11 @@ namespace EkGis.Application.Catalog.Loais
             {
                 MaLoai = loai.MaLoai,
                 TenLoai = loai.TenLoai,
-                NgayTao = loai.NgayTao
+                NgayTao = loai.NgayTao.Value
             };
             return loaiViewModel;
         }
-        public async Task<int> Update(int maLoai,string tenLoai)
+        public async Task<int> Update(int maLoai, string tenLoai)
         {
             var maloai = await _context.Loais.FindAsync(maLoai);
             var loai = await _context.Loais.FirstOrDefaultAsync(x => x.MaLoai == maLoai);
@@ -68,7 +90,6 @@ namespace EkGis.Application.Catalog.Loais
 
             loai.TenLoai = tenLoai;
             return await _context.SaveChangesAsync();
-
         }
     }
 }

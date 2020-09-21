@@ -66,22 +66,22 @@ Ext.define('Ext.layout.component.Auto', {
 
     waitForOuterHeightInDom: false,
     waitForOuterWidthInDom: false,
-
-    beginLayoutCycle: function(ownerContext, firstCycle) {
+    
+    beginLayoutCycle: function(ownerContext, firstCycle){
         var me = this,
             lastWidthModel = me.lastWidthModel,
             lastHeightModel = me.lastHeightModel,
             el = me.owner.el;
-
+            
         me.callParent(arguments);
-
+            
         if (lastWidthModel && lastWidthModel.fixed && ownerContext.widthModel.shrinkWrap) {
             el.setWidth(null);
         }
-
+            
         if (lastHeightModel && lastHeightModel.fixed && ownerContext.heightModel.shrinkWrap) {
             el.setHeight(null);
-        }
+        }    
     },
 
     calculate: function(ownerContext) {
@@ -96,20 +96,15 @@ Ext.define('Ext.layout.component.Auto', {
         if (measurement.gotWidth) {
             if (widthModel.shrinkWrap) {
                 me.publishOwnerWidth(ownerContext, measurement.contentWidth);
-            }
-            else if (me.publishInnerWidth) {
+            } else if (me.publishInnerWidth) {
                 me.publishInnerWidth(ownerContext, measurement.width);
             }
-        }
-        else if (!widthModel.auto && me.publishInnerWidth) {
-            width = me.waitForOuterWidthInDom
-                ? ownerContext.getDomProp('width')
-                : ownerContext.getProp('width');
-
+        } else if (!widthModel.auto && me.publishInnerWidth) {
+            width = me.waitForOuterWidthInDom ? ownerContext.getDomProp('width')
+                        : ownerContext.getProp('width');
             if (width === undefined) {
                 me.done = false;
-            }
-            else {
+            } else {
                 me.publishInnerWidth(ownerContext, width);
             }
         }
@@ -117,21 +112,16 @@ Ext.define('Ext.layout.component.Auto', {
         if (measurement.gotHeight) {
             if (heightModel.shrinkWrap) {
                 me.publishOwnerHeight(ownerContext, measurement.contentHeight);
-            }
-            else if (me.publishInnerHeight) {
+            } else if (me.publishInnerHeight) {
                 me.publishInnerHeight(ownerContext, measurement.height);
             }
-        }
-        else if (!heightModel.auto && me.publishInnerHeight) {
-            height = me.waitForOuterHeightInDom
-                ? ownerContext.getDomProp('height')
-                : ownerContext.getProp('height');
-
+        } else if (!heightModel.auto && me.publishInnerHeight) {
+            height = me.waitForOuterHeightInDom ? ownerContext.getDomProp('height')
+                        : ownerContext.getProp('height');
             if (height === undefined) {
                 me.done = false;
-            }
-            else {
-                me.publishInnerHeight(ownerContext, height);
+            } else {
+               me.publishInnerHeight(ownerContext, height);
             }
         }
 
@@ -140,15 +130,15 @@ Ext.define('Ext.layout.component.Auto', {
         }
     },
 
-    calculateOwnerHeightFromContentHeight: function(ownerContext, contentHeight) {
+    calculateOwnerHeightFromContentHeight: function (ownerContext, contentHeight) {
         return contentHeight + ownerContext.getFrameInfo().height;
     },
 
-    calculateOwnerWidthFromContentWidth: function(ownerContext, contentWidth) {
+    calculateOwnerWidthFromContentWidth: function (ownerContext, contentWidth) {
         return contentWidth + ownerContext.getFrameInfo().width;
     },
 
-    publishOwnerHeight: function(ownerContext, contentHeight) {
+    publishOwnerHeight: function (ownerContext, contentHeight) {
         var me = this,
             owner = me.owner,
             height = me.calculateOwnerHeightFromContentHeight(ownerContext, contentHeight),
@@ -156,14 +146,12 @@ Ext.define('Ext.layout.component.Auto', {
 
         if (isNaN(height)) {
             me.done = false;
-        }
-        else {
+        } else {
             constrainedHeight = Ext.Number.constrain(height, owner.minHeight, owner.maxHeight);
 
             if (constrainedHeight === height) {
                 dirty = me.setHeightInDom;
-            }
-            else {
+            } else {
                 heightModel = me.sizeModels[
                     (constrainedHeight < height) ? 'constrainedMax' : 'constrainedMin'];
                 height = constrainedHeight;
@@ -173,17 +161,16 @@ Ext.define('Ext.layout.component.Auto', {
                     // to signal our ownerLayout that we need an invalidate to actually
                     // make good on the determined (constrained) size!
                     ownerContext.heightModel = heightModel;
-                }
-                else {
+                } else {
                     ownerContext.invalidate({ heightModel: heightModel });
                 }
             }
-
+            
             ownerContext.setHeight(height, dirty);
         }
     },
 
-    publishOwnerWidth: function(ownerContext, contentWidth) {
+    publishOwnerWidth: function (ownerContext, contentWidth) {
         var me = this,
             owner = me.owner,
             width = me.calculateOwnerWidthFromContentWidth(ownerContext, contentWidth),
@@ -191,14 +178,12 @@ Ext.define('Ext.layout.component.Auto', {
 
         if (isNaN(width)) {
             me.done = false;
-        }
-        else {
+        } else {
             constrainedWidth = Ext.Number.constrain(width, owner.minWidth, owner.maxWidth);
 
             if (constrainedWidth === width) {
                 dirty = me.setWidthInDom;
-            }
-            else {
+            } else {
                 widthModel = me.sizeModels[
                     (constrainedWidth < width) ? 'constrainedMax' : 'constrainedMin'];
                 width = constrainedWidth;
@@ -208,8 +193,7 @@ Ext.define('Ext.layout.component.Auto', {
                     // to signal our ownerLayout that we need an invalidate to actually
                     // make good on the determined (constrained) size!
                     ownerContext.widthModel = widthModel;
-                }
-                else {
+                } else {
                     ownerContext.invalidate({ widthModel: widthModel });
                 }
             }

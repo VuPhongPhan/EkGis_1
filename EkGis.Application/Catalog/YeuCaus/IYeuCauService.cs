@@ -1,4 +1,5 @@
 ﻿using EkGis.Application.Catalog.YeuCaus.Dtos;
+using EkGis.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +16,6 @@ namespace EkGis.Application.Catalog.YeuCaus
         Task<YeuCauViewModel> GetByMa(int ma);
         Task<List<YeuCauViewModel>> GetAll();
 
-        Task<PagedResult<YeuCauViewModel>> GetAllPaging(GetYeuCauPagingRequest request);
+        Task<PagedResult<YeuCauViewModel>> GetAllPaging(SearchRequest request);
     }
 }

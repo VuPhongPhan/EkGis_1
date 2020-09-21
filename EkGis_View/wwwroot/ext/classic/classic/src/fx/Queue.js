@@ -5,6 +5,7 @@
  */
 
 Ext.define('Ext.fx.Queue', {
+
     requires: ['Ext.util.HashMap'],
 
     constructor: function() {
@@ -17,11 +18,9 @@ Ext.define('Ext.fx.Queue', {
      */
     getFxDefaults: function(targetId) {
         var target = this.targets.get(targetId);
-
         if (target) {
             return target.fxDefaults;
         }
-
         return {};
     },
 
@@ -30,7 +29,6 @@ Ext.define('Ext.fx.Queue', {
      */
     setFxDefaults: function(targetId, obj) {
         var target = this.targets.get(targetId);
-
         if (target) {
             target.fxDefaults = Ext.apply(target.fxDefaults || {}, obj);
         }
@@ -44,26 +42,24 @@ Ext.define('Ext.fx.Queue', {
             queue = me.getFxQueue(targetId),
             ln = queue.length,
             item;
-
+        
         while (ln) {
             item = queue[ln - 1];
-
+            
             if (item) {
                 item.end(suppressEvent);
             }
-
+            
             ln--;
         }
     },
 
     /**
      * @private
-     * Returns current animation object if the element has any effects actively running or queued,
-     * else returns false.
+     * Returns current animation object if the element has any effects actively running or queued, else returns false.
      */
     getActiveAnimation: function(targetId) {
         var queue = this.getFxQueue(targetId);
-
         return (queue && !!queue.length) ? queue[0] : false;
     },
 
@@ -72,7 +68,6 @@ Ext.define('Ext.fx.Queue', {
      */
     hasFxBlock: function(targetId) {
         var queue = this.getFxQueue(targetId);
-
         return queue && queue[0] && queue[0].block;
     },
 
@@ -84,8 +79,6 @@ Ext.define('Ext.fx.Queue', {
         if (!targetId) {
             return false;
         }
-
-        // eslint-disable-next-line vars-on-top
         var me = this,
             fxQueue = me.fxQueue,
             queue = fxQueue[targetId],
@@ -97,9 +90,8 @@ Ext.define('Ext.fx.Queue', {
 
         if (!queue) {
             me.fxQueue[targetId] = fxQueue[targetId] = [];
-
-            // GarbageCollector will need to clean up Elements since they
-            // aren't currently observable
+            
+            // GarbageCollector will need to clean up Elements since they aren't currently observable
             if (target.type !== 'element') {
                 target.target.on('destroy', function() {
                     fxQueue[targetId] = null;
@@ -107,16 +99,7 @@ Ext.define('Ext.fx.Queue', {
                 });
             }
         }
-
         return me.fxQueue[targetId];
-    },
-
-    /**
-     * @private
-     * Clears the fx queue of any pending animations
-     */
-    clearFxQueue: function() {
-        Ext.Object.clear(this.fxQueue);
     },
 
     /**
@@ -148,22 +131,20 @@ Ext.define('Ext.fx.Queue', {
         else {
             anim.paused = false;
         }
-
+        
         anim.on('afteranimate', function() {
-            var el;
-
             Ext.Array.remove(queue, anim);
-
+            
             if (queue.length === 0) {
                 me.targets.remove(anim.target);
                 me.fxQueue[targetId] = null;
                 delete me.fxQueue[targetId];
             }
-
+            
             if (anim.remove) {
                 if (target.type === 'element') {
-                    el = Ext.get(targetId);
-
+                    var el = Ext.get(targetId);
+                    
                     if (el) {
                         el.destroy();
                     }
@@ -172,7 +153,7 @@ Ext.define('Ext.fx.Queue', {
         }, me, {
             single: true
         });
-
+        
         queue.push(anim);
     }
 });

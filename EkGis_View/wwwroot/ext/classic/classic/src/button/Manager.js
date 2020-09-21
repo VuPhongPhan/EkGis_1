@@ -12,33 +12,31 @@ Ext.define('Ext.button.Manager', {
 
     init: function() {
         var me = this;
-
         if (!me.initialized) {
             Ext.getDoc().on({
                 mouseup: me.onDocumentMouseUp,
                 scope: me
             });
-
             me.initialized = true;
         }
     },
 
     // Called by buton instances.
-    // Track the button which was mousedowned upon so that the next *document* mouseup
-    // can be delivered to it in case mouse is moved outside of button element.
+    // Track the button which was mousedowned upon so that the next *document* mouseup can be delivered to it
+    // in case mouse is moved outside of button element.
     onButtonMousedown: function(button, e) {
         var pressed = this.pressedButton;
-
+        
         if (pressed && !pressed.destroying && !pressed.destroyed) {
             pressed.onMouseUp(e);
         }
-
+        
         this.pressedButton = button;
     },
 
     onDocumentMouseUp: function(e) {
         var pressed = this.pressedButton;
-
+        
         if (pressed && !pressed.destroying && !pressed.destroyed) {
             pressed.onMouseUp(e);
             this.pressedButton = null;
@@ -46,12 +44,12 @@ Ext.define('Ext.button.Manager', {
     },
 
     toggleGroup: function(btn, state) {
-        var g, i, length;
-
         if (state) {
-            g = this.groups[btn.toggleGroup];
+            var g = this.groups[btn.toggleGroup],
+                length = g.length,
+                i;
 
-            for (i = 0, length = g.length; i < length; i++) {
+            for (i = 0; i < length; i++) {
                 if (g[i] !== btn) {
                     g[i].toggle(false);
                 }
@@ -65,7 +63,6 @@ Ext.define('Ext.button.Manager', {
             group = groups[btn.toggleGroup];
 
         me.init();
-
         if (!btn.toggleGroup) {
             return;
         }
@@ -73,7 +70,6 @@ Ext.define('Ext.button.Manager', {
         if (!group) {
             group = groups[btn.toggleGroup] = [];
         }
-
         group.push(btn);
         btn.on('toggle', me.toggleGroup, me);
     },
@@ -82,8 +78,6 @@ Ext.define('Ext.button.Manager', {
         if (!btn.toggleGroup) {
             return;
         }
-
-        // eslint-disable-next-line vars-on-top
         var me = this,
             group = me.groups[btn.toggleGroup];
 
@@ -110,7 +104,6 @@ Ext.define('Ext.button.Manager', {
                 }
             }
         }
-
         return null;
     }
 });

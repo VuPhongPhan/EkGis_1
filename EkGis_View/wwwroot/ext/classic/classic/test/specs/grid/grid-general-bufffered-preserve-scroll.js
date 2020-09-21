@@ -1,16 +1,14 @@
-(Ext.isIE8 || Ext.os.is.Android ? xtopSuite : topSuite)("grid-general-buffered-preserve-scroll",
-    [false, 'Ext.grid.Panel', 'Ext.data.ArrayStore', 'Ext.data.BufferedStore'],
-function() {
+/* global Ext, expect, spyOn, jasmine, xit, MockAjaxManager */
+
+describe("grid-general-buffered-preserve-scroll", function() {
     var grid, store,
         synchronousLoad = true,
         proxyStoreLoad = Ext.data.ProxyStore.prototype.load,
         loadStore = function() {
             proxyStoreLoad.apply(this, arguments);
-
             if (synchronousLoad) {
                 this.flushLoad.apply(this, arguments);
             }
-
             return this;
         };
 
@@ -40,10 +38,8 @@ function() {
 
             if (Ext.supports.CssTransforms && !Ext.isIE9m) {
                 transform = dom.style[transformStyleName];
-
                 return transform ? parseInt(transform.split(',')[1], 10) : 0;
-            }
-            else {
+            } else {
                 return parseInt(dom.style.top || '0', 10);
             }
         }
@@ -83,7 +79,6 @@ function() {
                     title: 'Title' + i
                 });
             }
-
             return recs;
         }
 
@@ -116,7 +111,7 @@ function() {
             for (i = 0, len = requests.length; i < len; i++) {
                 request = requests[i];
                 params = request.options.params;
-
+                
                 if (Ext.Array.contains(pages, params.page)) {
                     data = getData(params.start, params.limit);
 
@@ -182,7 +177,7 @@ function() {
 
             // Load inline in the scroll event
             bufferedRenderer.scrollToLoadBuffer = 0;
-
+            
             scrollRequestCount = 0;
         });
 
@@ -210,7 +205,6 @@ function() {
                     if (!store.data.peekPage(1)) {
                         return true;
                     }
-
                     view.scrollBy(null, 100);
                     scrollRequestCount++;
                 }
@@ -220,7 +214,7 @@ function() {
                 scrollEventCount = 0;
                 scroller.scrollTo(0, 0);
             });
-
+            
             waitsFor(function() {
                 return scrollEventCount === 1;
             }, 'A scroll event to fire', 20000);
@@ -235,7 +229,7 @@ function() {
         it('should render page 1, and page 1 should still be in the page cache when returning to page 1 after scrolling down', function() {
             // Scroll to new areas of dataset.
             // Will queue a lot of page requests which we will satisfy in a while
-            waitsFor(scroller, function() {
+            waitsFor(function() {
                 //  Scroll until we have 20 page requests outstanding
                 if (Ext.Ajax.mockGetAllRequests().length > 20) {
                     return true;
@@ -251,7 +245,7 @@ function() {
                 scrollEventCount = 0;
                 scroller.scrollTo(0, 0);
             });
-
+            
             waitsFor(function() {
                 return scrollEventCount === 1;
             });
@@ -267,7 +261,7 @@ function() {
             });
         });
 
-        it('should keep Page 1 rendered and in the page cache when returning to page 1 after scrolling down with only buffer zone pages loaded into store during scroll', function() {
+        it('Page 1 should still be rendered, and page 1 should still be in the page cache when returning to page 1 after scrolling down with only buffer zone pages loaded into store during scroll', function() {
             // Scroll to new areas of dataset.
             // Will queue a lot of page requests which we will satisfy in a while
             waitsFor(function() {
@@ -286,7 +280,7 @@ function() {
                 scrollEventCount = 0;
                 scroller.scrollTo(0, 0);
             });
-
+            
             waitsFor(function() {
                 return scrollEventCount === 1;
             });
@@ -321,7 +315,6 @@ function() {
 
             waitsFor(function() {
                 satisfyRequests();
-
                 return scrollDone;
             }, 'scroll to finish');
 
@@ -339,7 +332,6 @@ function() {
 
             waitsFor(function() {
                 satisfyRequests();
-
                 return refreshed;
             }, 'store to reload');
 

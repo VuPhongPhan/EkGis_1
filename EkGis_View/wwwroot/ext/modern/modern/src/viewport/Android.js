@@ -7,39 +7,26 @@ Ext.define('Ext.viewport.Android', {
 
     config: {
         translatable: {
-            type: 'csstransform'
+            translationMethod: 'csstransform'
         }
     },
 
-    /**
-     * @property {Boolean} preventPullRefresh
-     * Disables built-in pull-refresh of a page in Chrome
-     */
-    preventPullRefresh: true,
-
     constructor: function() {
-        var me = this;
+        this.callParent(arguments);
 
-        me.callParent(arguments);
-
-        me.on({
+        this.on({
             orientationchange: 'hideKeyboardIfNeeded',
-            scope: me,
+            scope: this,
             // run our handler before user code
             priority: 1001
         });
-
-        // https://sencha.jira.com/browse/EXTJS-25292
-        if (me.preventPullRefresh) {
-            Ext.getBody().setStyle({ overflow: 'hidden' });
-        }
     },
 
-    getWindowWidth: function() {
+    getWindowWidth: function () {
         return this.element.getWidth();
     },
 
-    getWindowHeight: function() {
+    getWindowHeight: function () {
         return this.element.getHeight();
     },
 
@@ -110,11 +97,7 @@ Ext.define('Ext.viewport.Android', {
 
         }, function() {
             //<debug>
-            Ext.Logger.error(
-                "Timeout waiting for viewport's outerHeight to change " +
-                "before firing orientationchange",
-                this
-            );
+            Ext.Logger.error("Timeout waiting for viewport's outerHeight to change before firing orientationchange", this);
             //</debug>
         });
 
@@ -128,7 +111,7 @@ Ext.define('Ext.viewport.Android', {
     maximize: function() {
         var stretchHeights = this.stretchHeights,
             orientation = this.orientation,
-            isHeightMaximized, height;
+            height;
 
         height = stretchHeights[orientation];
 
@@ -142,7 +125,7 @@ Ext.define('Ext.viewport.Android', {
 
         this.setHeight(height);
 
-        isHeightMaximized = this.isHeightMaximized.bind(this, height);
+        var isHeightMaximized = Ext.Function.bind(this.isHeightMaximized, this, [height]);
 
         this.scrollToTop();
         this.waitUntil(isHeightMaximized, this.fireMaximizeEvent, this.fireMaximizeEvent);
@@ -150,40 +133,32 @@ Ext.define('Ext.viewport.Android', {
 
     isHeightMaximized: function(height) {
         this.scrollToTop();
-
         return this.getWindowHeight() === height;
     },
 
-    doPreventZooming: function(e) {
-        var target;
-
+    doPreventZooming: function (e) {
         // Don't prevent right mouse event
         if ('button' in e && e.button !== 0) {
             return;
         }
 
-        target = e.target;
+        var target = e.target;
 
-        if (
-            target && target.nodeType === 1 &&
-            !this.isInputRegex.test(target.tagName) && !this.focusedElement
-        ) {
+        if (target && target.nodeType === 1 && !this.isInputRegex.test(target.tagName) && !this.focusedElement) {
             e.preventDefault();
         }
     }
 
 }, function() {
-    var version, userAgent, isBuggy;
-
     if (!Ext.os.is.Android) {
         return;
     }
 
-    version = Ext.os.version;
-    userAgent = Ext.browser.userAgent;
-    // These Android devices have a nasty bug which causes JavaScript timers to be completely frozen
-    // when the browser's viewport is being panned.
-    isBuggy = /(htc|desire|incredible|ADR6300)/i.test(userAgent) && version.lt('2.3');
+    var version = Ext.os.version,
+        userAgent = Ext.browser.userAgent,
+        // These Android devices have a nasty bug which causes JavaScript timers to be completely frozen
+        // when the browser's viewport is being panned.
+        isBuggy = /(htc|desire|incredible|ADR6300)/i.test(userAgent) && version.lt('2.3');
 
     if (isBuggy) {
         this.override({
@@ -194,7 +169,7 @@ Ext.define('Ext.viewport.Android', {
 
                 config.autoMaximize = false;
 
-                this.watchDogTick = this.watchDogTick.bind(this);
+                this.watchDogTick = Ext.Function.bind(this.watchDogTick, this);
 
                 Ext.interval(this.watchDogTick, 1000);
 
@@ -236,7 +211,7 @@ Ext.define('Ext.viewport.Android', {
     if (version.match('2')) {
         this.override({
             onReady: function() {
-                this.addWindowListener('resize', this.onWindowResize.bind(this));
+                this.addWindowListener('resize', Ext.Function.bind(this.onWindowResize, this));
 
                 this.callParent(arguments);
             },
@@ -251,12 +226,12 @@ Ext.define('Ext.viewport.Android', {
                     width = this.getWindowWidth(),
                     height = this.getWindowHeight();
 
-                if (this.getAutoMaximize() && !this.isMaximizing && !this.orientationChanging &&
-                    window.scrollY === 0 &&
-                    oldWidth === width &&
-                    height < oldHeight &&
-                    ((height >= oldHeight - this.addressBarHeight) || !this.focusedElement)) {
-                    this.scrollToTop();
+                if (this.getAutoMaximize() && !this.isMaximizing && !this.orientationChanging
+                    && window.scrollY === 0
+                    && oldWidth === width
+                    && height < oldHeight
+                    && ((height >= oldHeight - this.addressBarHeight) || !this.focusedElement)) {
+                        this.scrollToTop();
                 }
             }
         });
@@ -265,7 +240,6 @@ Ext.define('Ext.viewport.Android', {
         this.override({
             isHeightMaximized: function(height) {
                 this.scrollToTop();
-
                 return this.getWindowHeight() === height - 1;
             }
         });
@@ -274,7 +248,6 @@ Ext.define('Ext.viewport.Android', {
         this.override({
             isHeightMaximized: function() {
                 this.scrollToTop();
-
                 return true;
             }
         });

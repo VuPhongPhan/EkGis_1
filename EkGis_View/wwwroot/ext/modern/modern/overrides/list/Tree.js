@@ -1,7 +1,6 @@
 /**
  * @class Ext.list.Tree
  */
-
 Ext.define('Ext.overrides.list.Tree', {
     override: 'Ext.list.Tree',
 
@@ -11,11 +10,9 @@ Ext.define('Ext.overrides.list.Tree', {
 
         me.callParent([config]);
         el = me.element;
-
         if (el.isPainted()) {
             me.syncIconSize();
-        }
-        else {
+        } else {
             el.on({
                 scope: me,
                 painted: me.syncIconSize,

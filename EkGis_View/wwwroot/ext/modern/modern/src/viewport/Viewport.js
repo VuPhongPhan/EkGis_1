@@ -12,9 +12,10 @@ Ext.define('Ext.viewport.Viewport', {
     ],
     singleton: true,
 
-    setup: function(config) {
+    setup: function (config) {
         var osName = Ext.os.name,
-            viewportName;
+            viewportName,
+            viewport;
 
         switch (osName) {
             case 'Android':
@@ -38,7 +39,17 @@ Ext.define('Ext.viewport.Viewport', {
                 break;
         }
 
-        return Ext.Viewport = Ext.create('Ext.viewport.' + viewportName, config);
+        Ext.Viewport = viewport = Ext.create('Ext.viewport.' + viewportName, config);
+
+        // If there are already floated components at the global level, ensure the global floatRoot
+        // is top of the DOM otherwise the viewport body element occludes it.
+        if (Ext.floatRoot) {
+            viewport.floatWrap = Ext.floatRoot;
+            viewport.element.dom.appendChild(Ext.floatRoot.dom);
+            Ext.floatRoot.getData().component = viewport;
+        }
+        
+        return viewport;
     }
 });
 
@@ -49,51 +60,34 @@ Ext.define('Ext.viewport.Viewport', {
  * @extends Ext.viewport.Default
  * @singleton
  *
- * Ext.Viewport is an instance created when you use {@link Ext#setup}. 
- * Because {@link Ext.Viewport} extends from {@link Ext.Container}, it has a {@link #layout} 
- * that defaults to {@link Ext.layout.Card}. This means you can add items to it at any time, 
- * from anywhere in your code. The {@link Ext.Viewport} {@link #cfg-fullscreen} configuration 
- * is `true` by default, so it will take up your whole screen.
+ * Ext.Viewport is an instance created when you use {@link Ext#setup}. Because {@link Ext.Viewport} extends from
+ * {@link Ext.Container}, it has a {@link #layout} that defaults to {@link Ext.layout.Card}. This means you
+ * can add items to it at any time, from anywhere in your code. The {@link Ext.Viewport} {@link #cfg-fullscreen}
+ * configuration is `true` by default, so it will take up your whole screen.
  *
  *     @example raw
- *     Ext.application({
- *         name: 'MyApp',
- *
- *         launch: function() {
+ *     Ext.setup({
+ *         onReady: function() {
  *             Ext.Viewport.add({
- *                 xtype: 'panel',
- *                 title: 'New Panel',
- *                 html: 'My new panel!'
+ *                 xtype: 'container',
+ *                 html: 'My new container!'
  *             });
  *         }
  *     });
  *
- * If you want to customize anything about this {@link Ext.Viewport} instance, you can do so 
- * by adding a property called `viewport` into your {@link Ext#application} object:
+ * If you want to customize anything about this {@link Ext.Viewport} instance, you can do so by adding a property
+ * called `viewport` into your {@link Ext#setup} object:
  *
  *     @example raw
- *     Ext.application({
- *         name: 'MyApp',
- *
+ *     Ext.setup({
  *         viewport: {
  *             layout: 'vbox'
  *         },
- *
- *         launch: function() {
- *             Ext.Viewport.add([{
- *                 xtype: 'panel',
- *                 flex: 1,
- *                 title: 'Top Panel',
- *                 html: 'The top panel'
- *             }, {
- *                 xtype: 'panel',
- *                 flex: 1,
- *                 title: 'Bottom Panel',
- *                 html: 'The bottom panel'
- *             }]);
+ *         onReady: function() {
+ *             //do something
  *         }
  *     });
  *
- * **Note** if you use {@link Ext#onReady}, this instance of {@link Ext.Viewport} will **not** 
- * be created. Though, in most cases, you should **not** use {@link Ext#onReady}.
+ * **Note** if you use {@link Ext#onReady}, this instance of {@link Ext.Viewport} will **not** be created. Though, in most cases,
+ * you should **not** use {@link Ext#onReady}.
  */

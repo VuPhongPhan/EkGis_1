@@ -12,7 +12,7 @@ namespace EkGis.Data.Entities
         public string Email { set; get; }
         public string SDT { set; get; }
         public string DiaChi { set; get; }
-        public DateTime NgaySinh { set; get; }
+        public DateTime? NgaySinh { set; get; }
         public List<YeuCau> YeuCaus { get; set; }
     }
 }

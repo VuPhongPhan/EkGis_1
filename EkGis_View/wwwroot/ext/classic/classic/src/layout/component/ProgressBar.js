@@ -2,12 +2,18 @@
  * @private
  */
 Ext.define('Ext.layout.component.ProgressBar', {
+
+    /* Begin Definitions */
+
+    alias: ['layout.progressbar'],
+
     extend: 'Ext.layout.component.Auto',
-    alias: 'layout.progressbar',
+
+    /* End Definitions */
 
     type: 'progressbar',
 
-    beginLayout: function(ownerContext) {
+    beginLayout: function (ownerContext) {
         var me = this,
             i, textEls;
 
@@ -19,12 +25,10 @@ Ext.define('Ext.layout.component.ProgressBar', {
             if (textEls.isComposite) {
                 ownerContext.textEls = [];
                 textEls = textEls.elements;
-
-                for (i = textEls.length; i--;) {
+                for (i = textEls.length; i--; ) {
                     ownerContext.textEls[i] = ownerContext.getEl(Ext.get(textEls[i]));
                 }
-            }
-            else {
+            } else {
                 ownerContext.textEls = [ ownerContext.getEl('textEl') ];
             }
         }
@@ -40,11 +44,10 @@ Ext.define('Ext.layout.component.ProgressBar', {
             width -= ownerContext.getBorderInfo().width;
             textEls = ownerContext.textEls;
 
-            for (i = textEls.length; i--;) {
+            for (i = textEls.length; i--; ) {
                 textEls[i].setWidth(width);
             }
-        }
-        else {
+        } else {
             me.done = false;
         }
     }

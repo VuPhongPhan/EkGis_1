@@ -1,14 +1,14 @@
-topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
+describe("Ext.slider.Single", function() {
     var slider;
 
-    afterEach(function() {
+    afterEach(function () {
         slider = Ext.destroy(slider);
     });
 
-    describe('binding', function() {
+    describe('binding', function () {
         var data, viewModel;
 
-        beforeEach(function() {
+        beforeEach(function () {
             viewModel = new Ext.app.ViewModel({
                 data: {
                     val: 20
@@ -17,7 +17,7 @@ topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
             data = viewModel.getData();
         });
 
-        function makeSlider(config) {
+        function makeSlider (config) {
             slider = Ext.create(Ext.apply({
                 xtype: 'slider',
                 bind: '{val}',
@@ -31,23 +31,22 @@ topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
             notify();
         }
 
-        function notify() {
+        function notify () {
             viewModel.getScheduler().notify();
         }
 
-        afterEach(function() {
+        afterEach(function () {
             viewModel = Ext.destroy(viewModel);
         });
 
-        it('should receive the initial value', function() {
+        it('should receive the initial value', function () {
             makeSlider();
 
             var v = slider.getValue();
-
             expect(v).toBe(20);
         });
 
-        it('should not update viewModel on setValue incomplete', function() {
+        it('should not update viewModel on setValue incomplete', function () {
             makeSlider({
                 publishOnComplete: true
             });
@@ -58,7 +57,7 @@ topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
             expect(data.val).toBe(20);
         });
 
-        it('should update viewModel on setValue complete', function() {
+        it('should update viewModel on setValue complete', function () {
             makeSlider({
                 publishOnComplete: true
             });
@@ -69,7 +68,7 @@ topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
             expect(data.val).toBe(50);
         });
 
-        it('should update viewModel on setValue when publishOnComplete:false', function() {
+        it('should update viewModel on setValue when publishOnComplete:false', function () {
             makeSlider({
                 publishOnComplete: false
             });
@@ -78,18 +77,6 @@ topSuite("Ext.slider.Single", ['Ext.app.ViewModel'], function() {
             notify();
 
             expect(data.val).toBe(50);
-        });
-
-        it("should publish value by default", function() {
-            makeSlider({
-                publishOnComplete: false,
-                reference: 'mySlider'
-            });
-
-            slider.setValue(12);
-            notify();
-
-            expect(viewModel.get('mySlider.value')).toBe(12);
         });
     });
 });

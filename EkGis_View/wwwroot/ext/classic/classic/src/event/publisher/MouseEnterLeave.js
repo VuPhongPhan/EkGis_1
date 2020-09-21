@@ -21,7 +21,7 @@ Ext.define('Ext.event.publisher.MouseEnterLeave', {
                 var target, relatedTarget, id, el, type, event;
 
                 // call parent to dispatch the native browser event first (mouseover, mouseout)
-                this.callParent([e]);
+                e = this.callParent([e]);
 
                 target = e.getTarget();
                 relatedTarget = e.getRelatedTarget();
@@ -31,7 +31,6 @@ Ext.define('Ext.event.publisher.MouseEnterLeave', {
                 }
 
                 id = target.id;
-
                 if (id) {
                     el = Ext.cache[id];
 
@@ -40,7 +39,6 @@ Ext.define('Ext.event.publisher.MouseEnterLeave', {
                         e = e.chain({
                             type: type
                         });
-
                         if (el.hasListeners[type]) {
                             event = el.events[type];
 
@@ -49,7 +47,6 @@ Ext.define('Ext.event.publisher.MouseEnterLeave', {
                                 // Ext.util.Event because they are listed in the directEvents
                                 // map of Dom publisher
                                 event = event.directs;
-
                                 if (event) {
                                     e.setCurrentTarget(el.dom);
                                     event.fire(e, e.target);

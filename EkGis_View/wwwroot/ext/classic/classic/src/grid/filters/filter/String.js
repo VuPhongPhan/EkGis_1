@@ -25,9 +25,7 @@
  *         height: 250,
  *         width: 250,
  *         store: shows,
- *         plugins: {
- *             gridfilters: true
- *         },
+ *         plugins: 'gridfilters',
  *         columns: [{
  *             dataIndex: 'id',
  *             text: 'ID',
@@ -56,12 +54,13 @@ Ext.define('Ext.grid.filters.filter.String', {
 
     operator: 'like',
 
+    //<locale>
     /**
      * @cfg {String} emptyText
      * The empty text to show for each field.
-     * @locale
      */
     emptyText: 'Enter Filter Text...',
+    //</locale>
 
     itemDefaults: {
         xtype: 'textfield',
@@ -85,18 +84,16 @@ Ext.define('Ext.grid.filters.filter.String', {
      * @private
      * Template method that is to initialize the filter and install required menu items.
      */
-    createMenu: function() {
+    createMenu: function () {
         var me = this,
             config;
 
         me.callParent();
 
         config = Ext.apply({}, me.getItemDefaults());
-
         if (config.iconCls && !('labelClsExtra' in config)) {
             config.labelClsExtra = Ext.baseCSSPrefix + 'grid-filters-icon ' + config.iconCls;
         }
-
         delete config.iconCls;
 
         config.emptyText = config.emptyText || me.emptyText;
@@ -118,7 +115,7 @@ Ext.define('Ext.grid.filters.filter.String', {
      * Template method that is to set the value of the filter.
      * @param {Object} value The value to set the filter.
      */
-    setValue: function(value) {
+    setValue: function (value) {
         var me = this;
 
         if (me.inputItem) {
@@ -130,27 +127,25 @@ Ext.define('Ext.grid.filters.filter.String', {
         if (value && me.active) {
             me.value = value;
             me.updateStoreFilter();
-        }
-        else {
+        } else {
             me.setActive(!!value);
         }
     },
 
-    activateMenu: function() {
+    activateMenu: function () {
         this.inputItem.setValue(this.filter.getValue());
     },
-
+    
     createFilter: function(config, key) {
         var me = this;
-
+        
         if (me.filterFn) {
             return new Ext.util.Filter({
                 filterFn: function(rec) {
                     return Ext.callback(me.filterFn, me.scope, [rec, me.inputItem.getValue()]);
                 }
             });
-        }
-        else {
+        } else {
             return me.callParent([config, key]);
         }
     }

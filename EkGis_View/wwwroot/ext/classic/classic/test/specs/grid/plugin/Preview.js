@@ -1,4 +1,4 @@
-topSuite("Ext.ux.PreviewPlugin", ['Ext.grid.Panel'], function() {
+describe('Ext.ux.PreviewPlugin', function() {
     it('should not throw an error', function() {
         // See EXTJSIV-12783.
         var grid;
@@ -11,7 +11,7 @@ topSuite("Ext.ux.PreviewPlugin", ['Ext.grid.Panel'], function() {
                 title: 'Preview Test',
                 store: {
                     data: [
-                        { name: 'foo', description: 'foo description' }
+                        {name: 'foo', description: 'foo description' }
                     ],
                     fields: ['name', 'description']
                 },

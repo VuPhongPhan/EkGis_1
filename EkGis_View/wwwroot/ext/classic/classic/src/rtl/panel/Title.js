@@ -16,7 +16,6 @@ Ext.define('Ext.rtl.panel.Title', {
     privates: {
         _getVerticalAdjustDirection: function() {
             var header = this.ownerCt;
-
             return (header && header.isParentRtl()) ? 'right' : 'left';
         }
     }

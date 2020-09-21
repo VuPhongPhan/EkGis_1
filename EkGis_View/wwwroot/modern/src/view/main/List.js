@@ -1,13 +1,10 @@
 /**
  * This view is an example list of people.
  */
-Ext.define('MRequest.view.main.List', {
+Ext.define('Admin.view.main.List', {
     extend: 'Ext.grid.Grid',
     xtype: 'mainlist',
 
-    requires: [
-        'MRequest.store.Personnel'
-    ],
 
     title: 'Personnel',
 
@@ -15,22 +12,11 @@ Ext.define('MRequest.view.main.List', {
         type: 'personnel'
     },
 
-    columns: [{ 
-        text: 'Name',
-        dataIndex: 'name',
-        width: 100,
-        cell: {
-            userCls: 'bold'
-        }
-    }, {
-        text: 'Email',
-        dataIndex: 'email',
-        width: 230 
-    }, { 
-        text: 'Phone',
-        dataIndex: 'phone',
-        width: 150 
-    }],
+    columns: [
+        { text: 'Name',  dataIndex: 'name', width: 100 },
+        { text: 'Email', dataIndex: 'email', width: 230 },
+        { text: 'Phone', dataIndex: 'phone', width: 150 }
+    ],
 
     listeners: {
         select: 'onItemSelected'

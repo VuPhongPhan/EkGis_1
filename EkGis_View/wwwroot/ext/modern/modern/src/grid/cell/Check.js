@@ -6,7 +6,7 @@
  * when using a {@link Ext.grid.column.Check Check Column}.
  */
 Ext.define('Ext.grid.cell.Check', {
-    extend: 'Ext.grid.cell.Base',
+    extend: 'Ext.grid.cell.Cell',
     xtype: 'checkcell',
 
     config: {
@@ -19,12 +19,13 @@ Ext.define('Ext.grid.cell.Check', {
 
     innerTemplate: [{
         reference: 'checkboxElement',
-        tabIndex: -1,
-        cls: Ext.baseCSSPrefix + 'checkbox-el ' + Ext.baseCSSPrefix + 'font-icon'
+        classList:[
+            Ext.baseCSSPrefix + 'checkbox-el',
+            Ext.baseCSSPrefix + 'font-icon'
+        ]
     }],
 
     classCls: Ext.baseCSSPrefix + 'checkcell',
-
     disabledCls: Ext.baseCSSPrefix + 'disabled',
     checkedCls: Ext.baseCSSPrefix + 'checked',
 
@@ -34,28 +35,23 @@ Ext.define('Ext.grid.cell.Check', {
         this.checkboxElement.on('tap', 'onTap', this);
     },
 
-    applyValue: function(value) {
-        return !!value;
-    },
-
     updateValue: function(value, oldValue) {
         var me = this,
             column = me.getColumn();
 
+        value = !!value;
         me.el.toggleCls(me.checkedCls, !!value);
 
         // Keep column header state up to date.
         if (value) {
             column.updateHeaderState();
-        }
-        else {
+        } else {
             column.setHeaderStatus(value);
         }
     },
 
-    updateColumn: function(column, oldColumn) {
-        this.callParent([ column, oldColumn ]);
-
+    updateColumn: function(column, olcColumn) {
+        this.callParent([column, olcColumn]);
         if (column) {
             this.setDisabled(column.getDisabled());
         }
@@ -73,7 +69,7 @@ Ext.define('Ext.grid.cell.Check', {
      * Disables this CheckCell
      */
     disable: function() {
-        this.setDisabled(true);
+       this.setDisabled(true);
     },
 
     /**
@@ -92,27 +88,18 @@ Ext.define('Ext.grid.cell.Check', {
 
         if (record) {
             checked = !column.isRecordChecked(record);
-
             if (me.getDisabled()) {
                 return;
             }
 
-            if (
-                column.fireEvent('beforecheckchange',
-                                 me,
-                                 recordIndex,
-                                 checked,
-                                 record,
-                                 e) !== false
-            ) {
+            if (column.fireEvent('beforecheckchange', me, recordIndex, checked, record, e) !== false) {
                 if (me.getColumn().getStopSelection()) {
                     e.stopSelection = true;
                 }
 
                 if (record) {
-                    column.setRecordChecked(record, checked, e);
+                    column.setRecordChecked(record, checked);
                 }
-
                 if (column.hasListeners.checkchange) {
                     column.fireEvent('checkchange', me, recordIndex, checked, record, e);
                 }

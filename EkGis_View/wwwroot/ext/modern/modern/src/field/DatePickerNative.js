@@ -2,39 +2,41 @@
  *
  */
 Ext.define('Ext.field.DatePickerNative', {
-    extend: 'Ext.field.Date',
+    extend: 'Ext.field.DatePicker',
     alternateClassName: 'Ext.form.DatePickerNative',
     xtype: 'datepickernativefield',
 
-    onFocus: function(e) {
-        var me = this,
-            success, fail, dateTimePickerFunc;
+    initialize: function() {
 
-        if (!(navigator.plugins && navigator.plugins.dateTimePicker)) {
+        this.callParent();
+
+    },
+
+    onFocus: function(e) {
+        var me = this;
+
+        if (!(navigator.plugins && navigator.plugins.dateTimePicker)){
 
             me.callParent();
-
             return;
         }
 
-        success = function(res) {
+        var success = function (res) {
             me.setValue(res);
         };
 
-        fail = function(e) {
+        var fail = function (e) {
             console.log("DateTimePicker: error occurred or cancelled: " + e);
         };
 
         try {
 
-            dateTimePickerFunc = me.getName() === 'date'
-                ? navigator.plugins.dateTimePicker.selectDate
-                : navigator.plugins.dateTimePicker.selectTime;
+            var dateTimePickerFunc = me.getName() == 'date' ? navigator.plugins.dateTimePicker.selectDate :
+                navigator.plugins.dateTimePicker.selectTime;
 
-            dateTimePickerFunc(success, fail, { value: me.getValue() });
+            dateTimePickerFunc(success, fail, { value: me.getValue()});
 
-        }
-        catch (ex) {
+        } catch (ex) {
             fail(ex);
         }
     }

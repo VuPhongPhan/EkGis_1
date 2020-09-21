@@ -1,14 +1,8 @@
-var color, toolbarIsDynamic, head, meta;
-
 Ext.require('Ext.theme.Material');
-
-if (Ext.platformTags.android &&
-    Ext.platformTags.chrome &&
-    Ext.manifest.material &&
-    Ext.manifest.material.toolbar) {
-    color = Ext.manifest.material.toolbar.color;
-    toolbarIsDynamic = Ext.manifest.material.toolbar.dynamic;
-    head = document.head;
+if (Ext.platformTags.android && Ext.platformTags.chrome && Ext.manifest.material && Ext.manifest.material.toolbar) {
+    var color = Ext.manifest.material.toolbar.color,
+        toolbarIsDynamic = Ext.manifest.material.toolbar.dynamic,
+        head = document.head, meta;
 
     if (toolbarIsDynamic && Ext.supports.CSSVariables) {
         color = getComputedStyle(document.body).getPropertyValue('--primary-color-md');

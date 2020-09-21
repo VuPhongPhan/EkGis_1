@@ -1,11 +1,11 @@
-topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
+describe('Ext.toolbar.Breadcrumb', function() {
     var store, breadcrumbBar, treeData;
 
     function createBreadcrumbBar(config) {
         // ARIA warnings and errors are expected
         spyOn(Ext.log, 'warn');
         spyOn(Ext.log, 'error');
-
+        
         breadcrumbBar = Ext.widget(Ext.apply({
             xtype: 'breadcrumb',
             renderTo: Ext.getBody(),
@@ -52,7 +52,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
     // triggers a click on the a menu item
     function clickMenuItem(buttonIndex, itemIndex) {
         var menu = breadcrumbBar.items.getAt(buttonIndex).menu;
-
         jasmine.fireMouseEvent(menu.items.getAt(itemIndex).itemEl, 'click');
     }
 
@@ -95,8 +94,7 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
             Ext.each(childNodes, function(childNode, index) {
                 expect(menuItems.getAt(index).text).toBe(childNode.get('text'));
             });
-        }
-        else {
+        } else {
             // no child nodes - menu should have 0 items
             expect(menuItems.getCount()).toBe(0);
         }
@@ -190,7 +188,7 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
     describe("store", function() {
         it("should accept a store instance", function() {
            createBreadcrumbBar();
-           expect(breadcrumbBar.getStore()).toBe(store);
+           expect(breadcrumbBar.getStore()) .toBe(store);
         });
 
         it("should accept a store config", function() {
@@ -238,7 +236,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
         it("should be able to bind a new store", function() {
             createBreadcrumbBar();
             var oldStore = store;
-
             store = new Ext.data.TreeStore({
                 root: {
                     text: 'Root',
@@ -274,7 +271,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
         describe("using setSelection()", function() {
             it("should select a node deeper in the hierarchy", function() {
                 var node = store.getRoot().firstChild.childNodes[1];
-
                 breadcrumbBar.setSelection(node);
                 expectSelection('/SSD/bin/mv');
             });
@@ -509,15 +505,12 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
         function getById(id) {
             var found = null;
-
             store.getRoot().cascade(function(rec) {
                 if (rec.id === id) {
                     found = rec;
-
                     return false;
                 }
             });
-
             return found;
         }
 
@@ -533,18 +526,15 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should publish the root by default", function() {
                 var args = spy.mostRecentCall.args;
-
                 expect(args[0]).toBe(getById('/SSD'));
                 expect(args[1]).toBeUndefined();
             });
 
             it("should publish when the selection is changed", function() {
                 var rec = getById('/SSD/bin/cp');
-
                 breadcrumbBar.setSelection(rec);
                 viewModel.notify();
                 var args = spy.mostRecentCall.args;
-
                 expect(args[0]).toBe(rec);
                 expect(args[1]).toBe(getById('/SSD'));
             });
@@ -553,7 +543,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
                 breadcrumbBar.setSelection(null);
                 viewModel.notify();
                 var args = spy.mostRecentCall.args;
-
                 expect(args[0]).toBeNull();
                 expect(args[1]).toBe(getById('/SSD'));
             });
@@ -577,22 +566,18 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
                     viewModel.notify();
                     spy.reset();
                     var rec = getById('/SSD/bin/cp');
-
                     breadcrumbBar.setSelection(rec);
                     viewModel.notify();
                     var args = spy.mostRecentCall.args;
-
                     expect(args[0]).toBe(rec);
                     expect(args[1]).toBeNull();
                 });
 
                 it("should trigger the binding when changing the selection", function() {
                     var rec = getById('/SSD/bin/cp');
-
                     breadcrumbBar.setSelection(rec);
                     viewModel.notify();
                     var args = spy.mostRecentCall.args;
-
                     expect(args[0]).toBe(rec);
                     expect(args[1]).toBe(getById('/SSD'));
                 });
@@ -601,7 +586,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
                     breadcrumbBar.setSelection(null);
                     viewModel.notify();
                     var args = spy.mostRecentCall.args;
-
                     expect(args[0]).toBeNull();
                     expect(args[1]).toBe(getById('/SSD'));
                 });
@@ -610,7 +594,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
             describe("changing the viewmodel value", function() {
                 it("should select the record when setting the value", function() {
                     var rec = getById('/SSD/bin/cp');
-
                     breadcrumbBar.setSelection(null);
                     viewModel.notify();
                     viewModel.set('foo', rec);
@@ -620,7 +603,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
                 it("should select the record when updating the value", function() {
                     var rec = getById('/SSD/bin/cp');
-
                     viewModel.set('foo', rec);
                     viewModel.notify();
                     expect(breadcrumbBar.getSelection()).toBe(rec);
@@ -701,14 +683,13 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
         it("should use the displayField as the menu item text", function() {
             clickTrigger(0);
             var menuItems = breadcrumbBar.items.getAt(0).menu.items;
-
             expect(menuItems.getAt(0).text).toBe('child1');
             expect(menuItems.getAt(1).text).toBe('child2');
         });
     });
 
     describe("useSplitButtons: false", function() {
-        beforeEach(function() {
+        beforeEach(function(){
             createBreadcrumbBar({
                 useSplitButtons: false
             });
@@ -720,7 +701,7 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
         it("should not navigate when the button is clicked", function() {
             breadcrumbBar.setSelection(store.getRoot().firstChild.firstChild);
-            expectSelection('/SSD/bin/cp');
+            expectSelection('/SSD/bin/cp')
             clickButton(0);
             expectSelection('/SSD/bin/cp');
         });
@@ -740,7 +721,7 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
     describe("showIcons", function() {
         var barIcon = 'resources/images/bar.gif';
-
+        
         beforeEach(function() {
             store = new Ext.data.TreeStore({
                 root: {
@@ -777,7 +758,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should show user defined icons", function() {
                 var node = store.getRoot().firstChild.firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(1).iconCls).toBe('foo');
@@ -788,7 +768,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should not show default icons", function() {
                 var node = store.getRoot().childNodes[1].firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(0).iconCls).toBeFalsy();
@@ -806,7 +785,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should show user defined icons", function() {
                 var node = store.getRoot().firstChild.firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(1).iconCls).toBe('foo');
@@ -817,7 +795,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should show default icons", function() {
                 var node = store.getRoot().childNodes[1].firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(0).iconCls).toBe('x-breadcrumb-icon-folder-default');
@@ -835,7 +812,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should not show user defined icons", function() {
                 var node = store.getRoot().firstChild.firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(1).iconCls).toBeFalsy();
@@ -844,7 +820,6 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
 
             it("should not show default icons", function() {
                 var node = store.getRoot().childNodes[1].firstChild;
-
                 breadcrumbBar.setSelection(node);
 
                 expect(breadcrumbBar.items.getAt(0).iconCls).toBeFalsy();
@@ -872,7 +847,7 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
                 children.push({
                     text: 'Child ' + i,
                     id: 'child' + i
-                });
+                })
             }
 
             store = new Ext.data.TreeStore({
@@ -888,11 +863,9 @@ topSuite("Ext.toolbar.Breadcrumb", ['Ext.app.ViewModel'], function() {
             item.showMenu();
 
             scroller = item.getMenu().getEl().down('.x-box-scroller-bottom');
-
             if (!scroller) {
                 this.fail('Unable to find scroller element');
             }
-
             expect(function() {
                 jasmine.fireMouseEvent(scroller, 'click');
             }).not.toThrow();

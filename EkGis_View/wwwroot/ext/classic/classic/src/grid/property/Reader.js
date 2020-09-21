@@ -18,13 +18,11 @@ Ext.define('Ext.grid.property.Reader', {
             result = {
                 records: [],
                 success: true
-            },
-            val, propName;
+            }, val, propName;
 
         for (propName in dataObject) {
             if (dataObject.hasOwnProperty(propName)) {
                 val = dataObject[propName];
-
                 if (this.isEditableValue(val)) {
                     result.records.push(new Model({
                         name: propName,
@@ -33,16 +31,14 @@ Ext.define('Ext.grid.property.Reader', {
                 }
             }
         }
-
         result.total = result.count = result.records.length;
-
         return new Ext.data.ResultSet(result);
     },
 
     /**
      * @private
      */
-    isEditableValue: function(val) {
+    isEditableValue: function(val){
         return Ext.isPrimitive(val) || Ext.isDate(val) || val === null;
     }
 });

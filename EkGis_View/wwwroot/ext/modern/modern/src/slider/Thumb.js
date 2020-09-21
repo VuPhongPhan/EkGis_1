@@ -3,19 +3,31 @@
  */
 Ext.define('Ext.slider.Thumb', {
     extend: 'Ext.Component',
-    xtype: 'thumb',
-
-    baseCls: Ext.baseCSSPrefix + 'thumb',
-
-    isSliderThumb: true,
+    xtype : 'thumb',
 
     config: {
         /**
-         * @cfg {String}
-         * A CSS class for styling the track fill element.  Assumes {@link #fillTrack} has
-         * been set to `true`, otherwise the fill element will be invisible.
+         * @cfg
+         * @inheritdoc
          */
-        fillCls: null,
+        baseCls: Ext.baseCSSPrefix + 'thumb',
+
+        /**
+         * @cfg
+         * @inheritdoc
+         */
+        draggable: {
+            direction: 'horizontal',
+            translatable: {
+                // use cssposition instead of csstransform so that themes can use transform
+                // scale to style the pressed state of the thumb (material)
+                translationMethod: 'cssposition'
+            }
+        },
+
+        touchAction: { panX: false },
+
+        slider: null,
 
         /**
          * @cfg {Boolean/String}
@@ -26,11 +38,24 @@ Ext.define('Ext.slider.Thumb', {
          */
         fillTrack: null,
 
-        // private
+        /**
+         * @cfg {String}
+         * A CSS class for styling the track fill element.  Assumes {@link #fillTrack} has
+         * been set to `true`, otherwise the fill element will be invisible.
+         */
+        fillCls: null
+    },
 
-        dragMax: null,
-        dragMin: null,
-        slider: null
+    // Strange issue where the thumbs translation value is not being set when it is not visible. Happens when the thumb 
+    // is contained within a modal panel.
+    platformConfig: {
+        ie10: {
+            draggable: {
+                translatable: {
+                    translationMethod: 'csstransform'
+                }
+            }
+        }
     },
 
     template: [{
@@ -40,39 +65,6 @@ Ext.define('Ext.slider.Thumb', {
             Ext.baseCSSPrefix + 'font-icon'
         ]
     }],
-
-    /**
-     * @cfg draggable
-     * @inheritdoc
-     */
-    draggable: {
-        local: true,
-        constrain: {
-            horizontal: true
-        },
-        listeners: {
-            beforedragstart: 'onBeforeDragStart',
-            dragstart: 'onDragStart',
-            dragmove: 'onDragMove',
-            dragend: 'onDragEnd',
-            scope: 'this'
-        }
-    },
-
-    touchAction: { panX: false },
-
-    translatable: {
-        // use cssposition instead of csstransform so that themes can use transform
-        // scale to style the pressed state of the thumb (material)
-        type: 'cssposition',
-
-        listeners: {
-            animationstart: 'onAnimationStart',
-            animationend: 'onAnimationEnd',
-            translate: 'onTranslate',
-            scope: 'this'
-        }
-    },
 
     elementWidth: 0,
 
@@ -94,17 +86,37 @@ Ext.define('Ext.slider.Thumb', {
 
     initialize: function() {
         var me = this,
-            fillElement;
+            element = me.element,
+            draggable, fillElement;
 
         me.callParent();
 
-        me.el.addClsOnClick(me.pressingCls, me.shouldAddPressingCls, me);
+        draggable = me.getDraggable();
+        draggable.onBefore({
+            beforedragstart: 'onBeforeDragStart',
+            dragstart: 'onDragStart',
+            drag: 'onDrag',
+            dragend: 'onDragEnd',
+            scope: me
+        });
+
+        draggable.getTranslatable().on({
+            animationstart: 'onAnimationStart',
+            animationend: 'onAnimationEnd',
+            scope: me
+        });
+
+        element.on('resize', 'onElementResize', me);
+
+        element.addClsOnClick(me.pressingCls, me.shouldAddPressingCls, me);
 
         fillElement = me.fillElement = Ext.Element.create({
             cls: me.fillCls
         });
 
         fillElement.setVisibilityMode(1); // VISIBILITY
+
+        me.getDraggable().getTranslatable().on('translate', 'onTranslate', me);
     },
 
     updateFillTrack: function(fillTrack) {
@@ -112,31 +124,26 @@ Ext.define('Ext.slider.Thumb', {
 
         if (fillTrack === false) {
             fillElement.hide();
-        }
-        else {
+        } else {
             fillElement.show();
-            fillElement.setStyle(
-                'background-color',
-                (typeof fillTrack === 'string') ? fillTrack : ''
-            );
+            fillElement.setStyle('background-color', (typeof fillTrack === 'string') ? fillTrack : '');
         }
     },
 
     updateFillCls: function(fillCls, oldFillCls) {
-        this.fillElement.replaceCls(oldFillCls, fillCls);
+        var fillElement = this.fillElement;
+
+        if (oldFillCls) {
+            fillElement.removeCls(oldFillCls);
+        }
+
+        if (fillCls) {
+            fillElement.addCls(fillCls);
+        }
     },
 
     shouldAddPressingCls: function() {
         return !this.isDisabled();
-    },
-
-    initDragConstraints: function() {
-        // This template method is called JIT to allow us to setup constraints
-        if (this.isDisabled()) {
-            return false;
-        }
-
-        this.getSlider().refreshAllThumbConstraints();
     },
 
     onAnimationStart: function(translatable, x, y) {
@@ -144,68 +151,43 @@ Ext.define('Ext.slider.Thumb', {
     },
 
     onAnimationEnd: function(translatable, x, y) {
-        if (!this.destroyed) {
-            this.getSlider().onThumbAnimationEnd(this, x, y);
-        }
+        this.getSlider().onThumbAnimationEnd(this, x, y);
     },
 
-    onBeforeDragStart: function(source, info, event) {
-        var xy;
-
+    onBeforeDragStart: function(draggable, e, x, y) {
         if (this.isDisabled()) {
             return false;
         }
 
-        xy = info.proxy.current;
-
-        this.getSlider().onThumbBeforeDragStart(this, event, xy.x, xy.y);
+        this.getSlider().onThumbBeforeDragStart(this, e, x, y);
     },
 
-    onDragStart: function(source, info, event) {
-        var xy = info.proxy.current;
-
-        this.getSlider().onThumbDragStart(this, event, xy.x, xy.y);
+    onDragStart: function(draggable, e, x, y) {
+        this.getSlider().onThumbDragStart(this, e, x, y);
     },
 
-    onDragMove: function(source, info, event) {
-        var xy;
-
+    onDrag: function(draggable, e, x, y) {
         if (this.isDisabled()) {
             return false;
         }
 
-        xy = info.proxy.current;
-
-        this.getSlider().onThumbDragMove(this, event, xy.x, xy.y);
+        this.getSlider().onThumbDrag(this, e, x, y);
     },
 
-    onDragEnd: function(source, info, event) {
-        var xy;
-
+    onDragEnd: function(draggable, e, x, y) {
         if (this.isDisabled()) {
             return false;
         }
 
-        xy = info.proxy.current;
-
-        this.getSlider().onThumbDragEnd(this, event, xy.x, xy.y);
+        this.getSlider().onThumbDragEnd(this, e, x, y);
     },
 
     onTranslate: function(translatable, x, y) {
-        if (this.initialized) {
-            this.getSlider().syncFill(this, x);
-        }
+        this.getSlider().syncFill(this, x);
     },
 
-    onResize: function(width) {
-        var me = this,
-            slider = me.ownerCmp;
-
-        me.elementWidth = width;
-
-        if (slider && slider.thumbs && slider.thumbs[0] === me) {
-            slider.onThumbResize(me, width);
-        }
+    onElementResize: function(element, info) {
+        this.elementWidth = info.width;
     },
 
     getElementWidth: function() {
@@ -218,7 +200,7 @@ Ext.define('Ext.slider.Thumb', {
             sizerElement = me.sizerElement;
 
         if (oldUi) {
-            sizerElement.removeCls(oldUi, sizerCls);
+            sizerElement.removeCls(oldUi, sizerCls)
         }
 
         if (ui) {
@@ -226,20 +208,6 @@ Ext.define('Ext.slider.Thumb', {
         }
 
         me.callParent([ui, oldUi]);
-    },
-
-    updateDragMax: function(max) {
-        var constraint = this.getDraggable().getConstrain(),
-            range = constraint.getX();
-
-        constraint.setX([ range && range[0], max ]);
-    },
-
-    updateDragMin: function(min) {
-        var constraint = this.getDraggable().getConstrain(),
-            range = constraint.getX();
-
-        constraint.setX([ min, range && range[1] ]);
     },
 
     destroy: function() {

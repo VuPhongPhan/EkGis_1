@@ -5,7 +5,6 @@
  */
 Ext.define('Ext.view.AbstractView', {
     extend: 'Ext.Component',
-
     requires: [
         'Ext.LoadMask',
         'Ext.CompositeElementLite',
@@ -13,7 +12,6 @@ Ext.define('Ext.view.AbstractView', {
         'Ext.view.NavigationModel',
         'Ext.util.CSS'
     ],
-
     mixins: [
         'Ext.util.StoreHolder'
     ],
@@ -39,33 +37,24 @@ Ext.define('Ext.view.AbstractView', {
             return Ext.getCmp(node.getAttribute('data-boundView'));
         }
     },
-
-    /**
-     * @property defaultBindProperty
-     * @inheritdoc
-     */
+    
     defaultBindProperty: 'store',
 
     /**
      * @private
      * Used for buffered rendering.
      */
-    renderBuffer: new Ext.dom.Fly(document.createElement('div')),
+    renderBuffer: document.createElement('div'),
 
     statics: {
         /**
-         * @prop {Number} [updateDelay=200] Global config for use when using
-         * {@link #throttledUpdate throttled view updating} if the data in the backing
-         * {@link Ext.data.Store store} is being changed rapidly, for example receiving changes
-         * from the server through a WebSocket connection.
+         * @cfg {Number} [updateDelay=200] Global config for use when using {@link #throttledUpdate throttled view updating} if the data in the backing {@link Ext.data.Store store}
+         * is being changed rapidly, for example receiving changes from the server through a WebSocket connection.
          *
-         * To avoid too-frequent view updates overloading the browser with style recalculation,
-         * layout and paint requests, updates can be {@link #throttledUpdate throttled} to 
+         * To avoid too-frequent view updates overloading the browser with style recalculation, layout and paint requests, updates can be {@link #throttledUpdate throttled} to 
          * coalesced, and applied at the interval specified in milliseconds.
-         *
-         * Note that on lower powered devices, updating is throttled to once every second.
          */
-        updateDelay: Ext.platformTags.desktop ? 200 : 1000,
+        updateDelay: 200,
 
         queueRecordChange: function(view, store, record, operation, modifiedFieldNames) {
             var me = this,
@@ -99,8 +88,7 @@ Ext.define('Ext.view.AbstractView', {
                     // More than one update is being performed...
                     if (updated.hasOwnProperty(fieldName)) {
 
-                        // If the update is back to the original value,
-                        // this may have reverted the record to original state
+                        // If the update is back to the original value, this may have reverted the record to original state
                         if (record.isEqual(updated[fieldName], value)) {
                             delete updated[fieldName];
                             checkForReversion = true;
@@ -114,31 +102,36 @@ Ext.define('Ext.view.AbstractView', {
                 }
 
                 // If the record has been returned to its original state, delete the queue entry.
-                // checkForReversion flag saves the expensive (on legacy browsers)
-                // call to Ext.Object.getKeys
+                // checkForReversion flag saves the expensive (on legacy browsers) call to Ext.Object.getKeys
                 if (checkForReversion && !Ext.Object.getKeys(updated).length) {
                     delete changeQueue[recId];
                 }
             }
 
-            // Unspecified fields have changed. We have to collect the whole data object.
+            // Unpsecified fields have changed. We have to collect the whole data object.
             else {
                 Ext.apply(updated, record.data);
             }
 
-            // Create a task which will call flushChangeQueue in updateDelay milliseconds
-            // from the time it's invoked.
+            // Create a task which will call on to the onFlushTick every updateDelay milliseconds.
             if (!me.flushQueueTask) {
-                me.flushQueueTask = new Ext.util.DelayedTask(
-                    Ext.global.requestAnimationFrame
-                        ? Ext.Function.createAnimationFrame(me.flushChangeQueue, me)
-                        : me.flushChangeQueue.bind(me), me, null, false
-                );
+                me.flushQueueTask = Ext.util.TaskManager.newTask({
+                    // Queue the actual render flush on the next animation frame if available.
+                    run: Ext.global.requestAnimationFrame ? Ext.Function.createAnimationFrame(me.onFlushTick, me) : Ext.Function.bind(me.onFlushTick, me),
+                    interval: Ext.view.AbstractView.updateDelay,
+                    repeat: 1
+                });
             }
+            me.flushQueueTask.start();
+        },
 
-            if (!me.flushTimer) {
-                me.flushTimer = me.flushQueueTask.delay(Ext.view.AbstractView.updateDelay);
-            }
+        /**
+         * @private
+         * On every flush (determined by updateDelay setting), ask the animation system to schedule a call to
+         * flushChangeQueue at the next animation frame.
+         */
+        onFlushTick: function() {
+            Ext.AnimationQueue.start(this.flushChangeQueue, this);
         },
 
         /**
@@ -152,19 +145,23 @@ Ext.define('Ext.view.AbstractView', {
         flushChangeQueue: function() {
             // Maintainer: Note that "me" references AbstractView class
             var me = this,
-                dirtyViews, len, changeQueue, recChange, recId, i, view;
+                dirtyViews,
+                len,
+                changeQueue,
+                recChange,
+                recId,
+                i, view;
 
-            // If there is scrolling going on anywhere, requeue the flush operation ASAP.
+            // If there is scrolling going on anywhere, requeue the flush operation.
             if (Ext.isScrolling) {
-                return me.flushTimer = me.flushQueueTask.delay(1);
+                me.flushQueueTask.start();
+                return;
             }
-
-            me.flushTimer = null;
 
             changeQueue = me.changeQueue;
 
             // Empty the view's changeQueue
-            me.changeQueue = {};
+            this.changeQueue = {};
 
             for (recId in changeQueue) {
                 recChange = changeQueue[recId];
@@ -177,17 +174,21 @@ Ext.define('Ext.view.AbstractView', {
 
                     // View may have been destroyed during the buffered phase.
                     if (!view.destroyed) {
-                        view.handleUpdate(
-                            view.dataSource, recChange.record, recChange.operation,
-                            Ext.Object.getKeys(recChange.data)
-                        );
+                        view.handleUpdate(view.dataSource, recChange.record, recChange.operation, Ext.Object.getKeys(recChange.data));
                     }
                 }
             }
+            Ext.AnimationQueue.stop(me.flushChangeQueue, me);
         }
     },
 
     config: {
+        /**
+         * @cfg {Ext.data.Model} selection
+         * The selected model. Typically used with {@link #bind binding}.
+         */
+        selection: null,
+
         /**
          * @cfg {Ext.data.Store} store
          * The {@link Ext.data.Store} to bind this DataView to.
@@ -216,49 +217,31 @@ Ext.define('Ext.view.AbstractView', {
         }
     },
 
-    /**
-     * @cfg publishes
-     * @inheritdoc
-     */
     publishes: ['selection'],
-
-    /**
-     * @cfg twoWayBindable
-     * @inheritdoc
-     */
     twoWayBindable: ['selection'],
 
     /**
-     * @cfg {Ext.data.Model} selection
-     * The selected model. Typically used with {@link #bind binding}.
-     */
-    selection: null,
-
-    /**
-     * @cfg {Boolean} throttledUpdate
-     * Configure as `true` to have this view participate in the global throttled update queue
-     * which flushes store changes to the UI at a maximum rate determined by the
-     * {@link #updateDelay} setting.
+     * @cfg {Boolean} [throttledUpdate=false]
+     * Configure as `true` to have this view participate in the global throttled update queue which flushes store changes to the UI at a maximum rate
+     * determined by the {@link #updateDelay} setting.
      */
     throttledUpdate: false,
 
     /**
      * @cfg {String/String[]/Ext.XTemplate} tpl (required)
-     * The HTML fragment or an array of fragments that will make up the template
-     * used by this DataView.  This should be specified in the same format expected by the
-     * constructor of {@link Ext.XTemplate}. When a `tpl` is specified, this class assumes that
-     * records are rendered in the order they appear in the `{@link #store}`. If a custom `tpl`
-     * does not conform to this assumption, index values will be incorrect which may cause the view
-     * to misbehave.
+     * The HTML fragment or an array of fragments that will make up the template used by this DataView.  This should
+     * be specified in the same format expected by the constructor of {@link Ext.XTemplate}. When a `tpl` is specified,
+     * this class assumes that records are rendered in the order they appear in the `{@link #store}`. If a custom `tpl`
+     * does not conform to this assumption, index values will be incorrect which may cause the view to misbehave.
      * @since 2.3.0
      */
 
     /**
-     * @cfg {Boolean} deferInitialRefresh
+     * @cfg {Boolean} [deferInitialRefresh=false]
      * Configure as 'true` to defer the initial refresh of the view.
      *
-     * This allows the View to execute its render and initial layout more quickly because
-     * the process will not be encumbered by the update of the view structure.
+     * This allows the View to execute its render and initial layout more quickly because the process will not be encumbered
+     * by the update of the view structure.
      */
     deferInitialRefresh: false,
 
@@ -295,8 +278,8 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @cfg {String} itemCls
-     * Specifies the class to be assigned to each element in the view when used in conjunction
-     * with the {@link #itemTpl} configuration.
+     * Specifies the class to be assigned to each element in the view when used in conjunction with the
+     * {@link #itemTpl} configuration.
      * @since 2.3.0
      */
     itemCls: Ext.baseCSSPrefix + 'dataview-item',
@@ -313,16 +296,16 @@ Ext.define('Ext.view.AbstractView', {
      * Setting this will automatically set {@link #trackOver} to `true`.
      */
 
+    //<locale>
     /**
      * @cfg {String} loadingText
      * A string to display during data load operations.  If specified, this text will be
-     * displayed in a loading div and the view's contents will be cleared while loading, otherwise
-     * the view's contents will continue to display normally until the new data is loaded
-     * and the contents are replaced.
+     * displayed in a loading div and the view's contents will be cleared while loading, otherwise the view's
+     * contents will continue to display normally until the new data is loaded and the contents are replaced.
      * @since 2.3.0
-     * @locale
      */
     loadingText: 'Loading...',
+    //</locale>
 
     /**
      * @cfg {Boolean/Object} loadMask
@@ -333,8 +316,7 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @cfg {String} loadingCls
-     * The CSS class to apply to the loading message element. Defaults to
-     * Ext.LoadMask.prototype.msgCls "x-mask-loading".
+     * The CSS class to apply to the loading message element. Defaults to Ext.LoadMask.prototype.msgCls "x-mask-loading".
      */
 
     /**
@@ -344,12 +326,12 @@ Ext.define('Ext.view.AbstractView', {
      */
     loadingUseMsg: true,
 
+
     /**
      * @cfg {Number} loadingHeight
-     * If specified, gives an explicit height for the data view when it is showing the
-     * {@link #loadingText}, if that is specified. This is useful to prevent the view's height
-     * from collapsing to zero when the loading mask is applied and there are no other contents
-     * in the data view.
+     * If specified, gives an explicit height for the data view when it is showing the {@link #loadingText},
+     * if that is specified. This is useful to prevent the view's height from collapsing to zero when the
+     * loading mask is applied and there are no other contents in the data view.
      */
 
     /**
@@ -358,6 +340,7 @@ Ext.define('Ext.view.AbstractView', {
      */
     selectedItemCls: Ext.baseCSSPrefix + 'item-selected',
 
+    //<locale>
     /**
      * @cfg {String} emptyText
      * The text to display in the view when there is no data to display.
@@ -365,9 +348,9 @@ Ext.define('Ext.view.AbstractView', {
      * the {@link #deferEmptyText} option to false.
      * @since 2.3.0
      * @accessor
-     * @locale
      */
     emptyText: "",
+    //</locale>
 
     /**
      * @cfg {Boolean} deferEmptyText
@@ -398,8 +381,8 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @cfg {Boolean} [disableSelection=false]
-     * True to disable selection within the DataView. This configuration will lock
-     * the selection model that the DataView uses.
+     * True to disable selection within the DataView. This configuration will lock the selection model
+     * that the DataView uses.
      */
 
     /**
@@ -409,27 +392,18 @@ Ext.define('Ext.view.AbstractView', {
     preserveScrollOnRefresh: false,
 
     /**
-     * @cfg {Boolean} preserveScrollOnReload
+     * @cfg {Boolean} [preserveScrollOnReload=false]
      * True to preserve scroll position when the store is reloaded.
      *
-     * You may want to configure this as `true` if you are using a
-     * {@link Ext.data.BufferedStore buffered store} and you require refreshes of the client side
-     * data state not to disturb the state of the UI.
+     * You may want to configure this as `true` if you are using a {@link Ext.data.BufferedStore buffered store}
+     * and you require refreshes of the client side data state not to disturb the state of the UI.
      *
      * @since 5.1.1
      */
     preserveScrollOnReload: false,
 
-    /**
-     * @property autoDestroyBoundStore
-     * @inheritdoc
-     */
     autoDestroyBoundStore: true,
-
-    /**
-     * @property ariaRole
-     * @inheritdoc
-     */
+    
     ariaRole: 'listbox',
     itemAriaRole: 'option',
 
@@ -437,27 +411,16 @@ Ext.define('Ext.view.AbstractView', {
      * @private
      */
     last: false,
-
-    /**
-     * @property focusable
-     * @inheritdoc
-     */
     focusable: true,
-
-    /**
-     * @cfg tabIndex
-     * @inheritdoc
-     */
     tabIndex: 0,
 
     triggerEvent: 'itemclick',
     triggerCtEvent: 'containerclick',
 
-    // Starts as true by default so that pn the leading edge of the first layout a refresh
-    // will be triggered. A refresh opereration sets this flag to false.
-    // When a refresh is requested using refreshView, the request may be deferred because of hidden
-    // or collapsed state. This is done by setting the refreshNeeded flag to true, and the the next
-    // layout will trigger refresh.
+    // Starts as true by default so that pn the leading edge of the first layout a refresh will be triggered.
+    // A refresh opereration sets this flag to false.
+    // When a refresh is requested using refreshView, the request may be deferred because of hidden or collapsed state.
+    // This is done by setting the refreshNeeded flag to true, and the the next layout will trigger  refresh.
     refreshNeeded: true,
 
     updateSuspendCounter: 0,
@@ -478,8 +441,8 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @event viewready
-     * Fires when the View's item elements representing Store items has been rendered.
-     * No items will be available for selection until this event fires.
+     * Fires when the View's item elements representing Store items has been rendered. No items will be available
+     * for selection until this event fires.
      * @param {Ext.view.View} this
      */
 
@@ -514,22 +477,15 @@ Ext.define('Ext.view.AbstractView', {
         if (config && config.selModel) {
             config.selectionModel = config.selModel;
         }
-
         this.callParent([config]);
     },
 
-    initComponent: function() {
+    initComponent: function(){
         var me = this,
             isDef = Ext.isDefined,
             itemTpl = me.itemTpl,
             memberFn = {},
-            selection = me.selection,
             store;
-
-        if (selection) {
-            me.selection = null;
-            me.setSelection(selection);
-        }
 
         if (itemTpl) {
             if (Ext.isArray(itemTpl)) {
@@ -538,10 +494,8 @@ Ext.define('Ext.view.AbstractView', {
                     itemTpl = itemTpl.slice(0);
                     memberFn = itemTpl.pop();
                 }
-
                 itemTpl = itemTpl.join('');
-            }
-            else if (Ext.isObject(itemTpl)) {
+            } else if (Ext.isObject(itemTpl)) {
                 // tpl instance
                 memberFn = Ext.apply(memberFn, itemTpl.initialConfig);
                 itemTpl = itemTpl.html;
@@ -551,17 +505,7 @@ Ext.define('Ext.view.AbstractView', {
                 me.itemSelector = '.' + me.itemCls;
             }
 
-            if (memberFn.fn) {
-                memberFn.baseFn = memberFn.fn;
-                delete memberFn.fn;
-                itemTpl = "{%this.baseFn(out, values, parent, xindex, xcount, xkey)%}";
-            }
-
-            itemTpl = Ext.String.format(
-                '<tpl for="."><div class="{0}" role="{2}">{1}</div></tpl>', me.itemCls, itemTpl,
-                me.itemAriaRole
-            );
-
+            itemTpl = Ext.String.format('<tpl for="."><div class="{0}" role="{2}">{1}</div></tpl>', me.itemCls, itemTpl, me.itemAriaRole);
             me.tpl = new Ext.XTemplate(itemTpl, memberFn);
         }
 
@@ -584,27 +528,18 @@ Ext.define('Ext.view.AbstractView', {
         // TODO: Consider support for overCls generation Ext.Component config
         if (isDef(me.overCls) || isDef(me.overClass)) {
             if (Ext.isDefined(Ext.global.console)) {
-                Ext.global.console.warn(
-                    'Ext.view.View: Using the deprecated overCls or overClass configuration. ' +
-                    'Use overItemCls instead.'
-                );
+                Ext.global.console.warn('Ext.view.View: Using the deprecated overCls or overClass configuration. Use overItemCls instead.');
             }
-
             me.overItemCls = me.overCls || me.overClass;
-
             delete me.overCls;
             delete me.overClass;
         }
 
         if (isDef(me.selectedCls) || isDef(me.selectedClass)) {
             if (Ext.isDefined(Ext.global.console)) {
-                Ext.global.console.warn(
-                    'Ext.view.View: Using the deprecated selectedCls or selectedClass ' +
-                    'configuration. Use selectedItemCls instead.');
+                Ext.global.console.warn('Ext.view.View: Using the deprecated selectedCls or selectedClass configuration. Use selectedItemCls instead.');
             }
-
             me.selectedItemCls = me.selectedCls || me.selectedClass;
-
             delete me.selectedCls;
             delete me.selectedClass;
         }
@@ -616,12 +551,10 @@ Ext.define('Ext.view.AbstractView', {
 
         me.addCmpEvents();
 
-        // Look up the configured Store. If none configured, use the fieldless,
-        // empty Store defined in Ext.data.Store.
+        // Look up the configured Store. If none configured, use the fieldless, empty Store defined in Ext.data.Store.
         store = me.store = Ext.data.StoreManager.lookup(me.store || 'ext-empty-store');
 
-        // Use the provided store as the data source unless a Feature or plugin
-        // has injected a special one
+        // Use the provided store as the data source unless a Feature or plugin has injected a special one
         if (!me.dataSource) {
             me.dataSource = store;
         }
@@ -652,15 +585,13 @@ Ext.define('Ext.view.AbstractView', {
         if (this.focusable) {
             result.tabIndex = 0;
         }
-
         return result;
     },
 
-    onRender: function(parentNode, containerIdx) {
+    onRender: function(parentNode , containerIdx) {
         var mask = this.loadMask;
 
-        this.callParent([parentNode, containerIdx]);
-
+        this.callParent([parentNode , containerIdx]);
         if (mask) {
             this.createMask(mask);
         }
@@ -683,7 +614,7 @@ Ext.define('Ext.view.AbstractView', {
         }
     },
 
-    onMaskBeforeShow: function() {
+    onMaskBeforeShow: function(){
         var me = this,
             loadingHeight = me.loadingHeight;
 
@@ -695,7 +626,7 @@ Ext.define('Ext.view.AbstractView', {
         }
     },
 
-    onMaskHide: function() {
+    onMaskHide: function(){
         var me = this;
 
         if (!me.destroying && me.hasLoadingHeight) {
@@ -728,29 +659,11 @@ Ext.define('Ext.view.AbstractView', {
         if (mask && mask.isComponent) {
             result.push(mask);
         }
-
         return result;
     },
 
     getSelection: function() {
         return this.getSelectionModel().getSelection();
-    },
-
-    /**
-     * Sets the value of the selection.
-     * @param {Ext.data.Model} selection
-     */
-    setSelection: function(selection) {
-        // This is purposefully written not as a config. Because getSelection
-        // is an existing API that doesn't mirror the value for setSelection, we
-        // don't want the publish system to call the getter, but rather just the
-        // raw property.
-        var current = this.selection;
-
-        if (selection !== current) {
-            this.selection = selection;
-            this.updateSelection(selection, current);
-        }
     },
 
     updateSelection: function(selection) {
@@ -760,18 +673,13 @@ Ext.define('Ext.view.AbstractView', {
         if (!me.ignoreNextSelection) {
             me.ignoreNextSelection = true;
             sm = me.getSelectionModel();
-
             if (selection) {
                 sm.select(selection);
-            }
-            else {
+            } else {
                 sm.deselectAll();
             }
-
             me.ignoreNextSelection = false;
         }
-
-        me.publishState('selection', selection);
     },
 
     updateBindSelection: function(selModel, selection) {
@@ -780,21 +688,18 @@ Ext.define('Ext.view.AbstractView', {
 
         if (!me.ignoreNextSelection) {
             me.ignoreNextSelection = true;
-
             if (selection.length) {
                 selected = selModel.getLastSelected();
                 me.hasHadSelection = true;
             }
-
             if (me.hasHadSelection) {
                 me.setSelection(selected);
             }
-
             me.ignoreNextSelection = false;
         }
     },
 
-    applySelectionModel: function(selModel, oldSelModel) {
+    applySelectionModel: function(selModel, oldSelModel) { 
         var me = this,
             grid = me.grid,
             mode, ariaAttr, ariaDom;
@@ -808,7 +713,7 @@ Ext.define('Ext.view.AbstractView', {
                     lastselectedchanged: me.updateBindSelection
                 });
             }
-
+            
             Ext.destroy(me.selModelRelayer);
             selModel = Ext.Factory.selection(selModel);
         }
@@ -816,15 +721,12 @@ Ext.define('Ext.view.AbstractView', {
         else {
             if (selModel && selModel.isSelectionModel) {
                 selModel.locked = me.disableSelection;
-            }
-            else {
+            } else {
                 if (me.simpleSelect) {
                     mode = 'SIMPLE';
-                }
-                else if (me.multiSelect) {
+                } else if (me.multiSelect) {
                     mode = 'MULTI';
-                }
-                else {
+                } else {
                     mode = 'SINGLE';
                 }
 
@@ -833,7 +735,6 @@ Ext.define('Ext.view.AbstractView', {
                         type: selModel
                     };
                 }
-
                 selModel = Ext.Factory.selection(Ext.apply({
                     allowDeselect: me.allowDeselect || me.multiSelect,
                     mode: mode,
@@ -841,11 +742,11 @@ Ext.define('Ext.view.AbstractView', {
                 }, selModel));
             }
         }
-
+        
         // Grids should have aria-multiselectable on their ariaEl instead
         if (selModel.mode !== 'SINGLE') {
             ariaDom = (grid || me).ariaEl.dom;
-
+            
             if (ariaDom) {
                 ariaDom.setAttribute('aria-multiselectable', true);
             }
@@ -858,7 +759,7 @@ Ext.define('Ext.view.AbstractView', {
         me.selModelRelayer = me.relayEvents(selModel, [
             'selectionchange', 'beforeselect', 'beforedeselect', 'select', 'deselect', 'focuschange'
         ]);
-
+        
         selModel.on({
             scope: me,
             lastselectedchanged: me.updateBindSelection,
@@ -873,54 +774,49 @@ Ext.define('Ext.view.AbstractView', {
         this.selModel = selectionModel;
     },
 
-    applyNavigationModel: function(navigationModel) {
+    applyNavigationModel: function (navigationModel) {
         return Ext.Factory.viewNavigation(navigationModel);
     },
 
     onFocusEnter: function(e) {
         var me = this,
             navigationModel = me.getNavigationModel(),
-            focusPosition = me.lastFocused;
+            focusPosition;
 
         // This is set on mousedown on the scrollbar in IE/Edge.
         // Those browsers focus the element on mousedown on its scrollbar
         // which is not what we want, so throw focus back in this
         // situation.
         // See Ext.view.navigationModel for this being set.
-        me.lastFocused = null;
-
         if (focusPosition === 'scrollbar') {
             e.relatedTarget.focus();
-
             return;
         }
 
         // Disable tabbability of elements within this view.
         me.toggleChildrenTabbability(false);
-
+        
         if (!me.itemFocused && me.all.getCount()) {
 
             // SHIFT+TAB hit the tab guard - focus last item.
             if (e.event.getTarget() === me.tabGuardEl) {
                 focusPosition = me.all.getCount() - 1;
-            }
-            else {
+            } else {
                 focusPosition = navigationModel.getLastFocused();
             }
-
             navigationModel.setPosition(focusPosition || 0, e.event, null, !focusPosition);
 
             // We now contain focus is that was successful
             me.itemFocused = navigationModel.getPosition() != null;
         }
-
+        
         // View's main el should be kept untabbable, otherwise pressing
         // Shift-Tab key in the view would move the focus to the main el
         // which will then bounce it back to the last focused item.
         // That would effectively make Shift-Tab unusable.
         if (me.itemFocused) {
             me.el.dom.setAttribute('tabIndex', -1);
-
+            
             if (me.tabGuardEl) {
                 me.tabGuardEl.setAttribute('tabIndex', -1);
             }
@@ -941,26 +837,13 @@ Ext.define('Ext.view.AbstractView', {
 
             me.itemFocused = false;
             me.el.dom.setAttribute('tabIndex', 0);
-
+            
             if (me.tabGuardEl) {
                 me.tabGuardEl.setAttribute('tabIndex', 0);
             }
         }
 
         me.callParent([e]);
-    },
-
-    /**
-     * @private
-     * Cancel a pending focus task, if any.
-     * This is a separate method to allow simple abstraction for locked views.
-     */
-    cancelFocusTask: function() {
-        var task = this.getFocusTask();
-
-        if (task) {
-            task.cancel();
-        }
     },
 
     onRemoved: function(isDestroying) {
@@ -971,9 +854,12 @@ Ext.define('Ext.view.AbstractView', {
             this.onFocusLeave({});
         }
     },
-
+    
     /**
      * Refreshes the view by reloading the data from the store and re-rendering the template.
+     *
+     * **Note:** This method should only be used when `bufferedRenderer` is set to `false`.  BufferedRender
+     * has its own methods for managing its data's state.
      *
      * @since 2.3.0
      */
@@ -983,12 +869,12 @@ Ext.define('Ext.view.AbstractView', {
             prevItemCount = items.getCount(),
             refreshCounter = me.refreshCounter,
             targetEl,
+            dom,
             records,
             selModel = me.getSelectionModel(),
             restoreFocus,
             // If there are items in the view, then honour preserveScrollOnRefresh
-            scroller = refreshCounter && items.getCount() && me.preserveScrollOnRefresh &&
-                       me.getScrollable(),
+            scroller = refreshCounter && items.getCount() && me.preserveScrollOnRefresh && me.getScrollable(),
             bufferedRenderer = me.bufferedRenderer,
             scrollPos;
 
@@ -997,6 +883,7 @@ Ext.define('Ext.view.AbstractView', {
         }
 
         if (!me.hasListeners.beforerefresh || me.fireEvent('beforerefresh', me) !== false) {
+
             // So that listeners to itemremove events know that its because of a refresh
             me.refreshing = true;
 
@@ -1005,29 +892,25 @@ Ext.define('Ext.view.AbstractView', {
 
             targetEl = me.getTargetEl();
             records = me.getViewRange();
+            dom = targetEl.dom;
 
             if (scroller) {
                 scrollPos = scroller.getPosition();
-
                 if (!(scrollPos.x || scrollPos.y)) {
                     scrollPos = null;
                 }
             }
 
-            if (refreshCounter || me.emptyEl) {
-                me.clearViewEl();
-            }
-
             if (refreshCounter) {
+                me.clearViewEl();
                 me.refreshCounter++;
-            }
-            else {
+            } else {
                 me.refreshCounter = 1;
             }
 
             // Usually, for an empty record set, this would be blank, but when the Template
-            // Creates markup outside of the record loop, this must still be honoured
-            // even if there are no records.
+            // Creates markup outside of the record loop, this must still be honoured even if there are no
+            // records.
             me.tpl.append(targetEl, me.collectData(records, items.startIndex || 0));
 
             // The emptyText is now appended to the View's element
@@ -1036,8 +919,7 @@ Ext.define('Ext.view.AbstractView', {
                 // Process empty text unless the store is being cleared.
                 me.addEmptyText();
                 items.clear();
-            }
-            else {
+            } else {
                 me.collectNodes(targetEl.dom);
                 me.updateIndexes(0);
             }
@@ -1045,8 +927,7 @@ Ext.define('Ext.view.AbstractView', {
             // If focus was in any way in this view, this will restore it
             restoreFocus();
 
-            // Some subclasses do not need to do this. TableView does not need to do this -
-            // it renders selected class using its tenmplate.
+            // Some subclasses do not need to do this. TableView does not need to do this - it renders selected class using its tenmplate.
             if (me.refreshSelmodelOnRefresh !== false) {
                 selModel.refresh();
             }
@@ -1070,7 +951,7 @@ Ext.define('Ext.view.AbstractView', {
                 me.viewReady = true;
                 me.fireEvent('viewready', me);
             }
-
+            
             me.refreshing = false;
 
             if (bufferedRenderer) {
@@ -1099,27 +980,20 @@ Ext.define('Ext.view.AbstractView', {
         }
     },
 
-    addEmptyText: function() {
+    addEmptyText: function() {       
         var me = this,
             store = me.getStore();
 
-        if (me.emptyText && !store.isLoading() &&
-            (!me.deferEmptyText || me.refreshCounter > 1 || store.isLoaded())) {
-            if (!me.emptyEl) {
-                me.emptyEl =
-                    Ext.core.DomHelper.insertHtml('beforeEnd', me.getTargetEl().dom, me.emptyText);
-            }
-            else {
-                Ext.fly(me.emptyEl).setHtml(me.emptyText);
-            }
+        if (me.emptyText && !store.isLoading() && (!me.deferEmptyText || me.refreshCounter > 1 || store.isLoaded())) {
+            me.emptyEl = Ext.core.DomHelper.insertHtml('beforeEnd', me.getTargetEl().dom, me.emptyText);
         }
     },
 
-    getEmptyText: function() {
+    getEmptyText: function () {
         return this.emptyText;
     },
 
-    setEmptyText: function(emptyText) {
+    setEmptyText: function (emptyText) {
         var me = this;
 
         if (me.emptyText !== emptyText) {
@@ -1139,12 +1013,12 @@ Ext.define('Ext.view.AbstractView', {
      * Called by the framework when the view is refreshed, or when rows are added or deleted.
      *
      * These operations may cause the view's dimensions to change, and if the owning container
-     * is shrinkwrapping this view, then the layout must be updated to accommodate these new
-     * dimensions.
+     * is shrinkwrapping this view, then the layout must be updated to accommodate these new dimensions.
      */
     refreshSize: function(forceLayout) {
         var me = this,
-            sizeModel = me.getSizeModel();
+            sizeModel = me.getSizeModel(),
+            scroller = me.getScrollable();
 
         if (sizeModel.height.shrinkWrap || sizeModel.width.shrinkWrap || forceLayout) {
             me.updateLayout();
@@ -1156,15 +1030,13 @@ Ext.define('Ext.view.AbstractView', {
             scroller = me.getScrollable();
 
         if (scroller) {
-            me.viewScrollListeners = scroller.on({
+            scroller.on({
                 scroll: me.onViewScroll,
                 scrollend: me.onViewScrollEnd,
                 scope: me,
-                onFrame: !!Ext.global.requestAnimationFrame,
-                destroyable: true
+                onFrame: !!Ext.global.requestAnimationFrame
             });
         }
-
         me.callParent([width, height]);
     },
 
@@ -1173,24 +1045,19 @@ Ext.define('Ext.view.AbstractView', {
             targetEl = me.getTargetEl(),
             all = me.all,
             store = me.getStore(),
-            nodeContainerIsTarget = me.getNodeContainer() === targetEl,
-            i, removedItems, removedRecs;
+            i, removedItems, removedRecs,
+            nodeContainerIsTarget = me.getNodeContainer() === targetEl;
 
         // We must ensure that the itemremove event is fired EVERY time an item is removed from the
         // view. This is so that widgets rendered into a view by a WidgetColumn can be recycled.
         removedItems = all.slice();
         removedRecs = [];
-
         for (i = all.startIndex; i <= all.endIndex; i++) {
-            removedRecs.push(
-                store.getByInternalId(all.item(i, true).getAttribute('data-recordId'))
-            );
+            removedRecs.push(store.getByInternalId(all.item(i, true).getAttribute('data-recordId')));  
         }
-
         me.fireItemMutationEvent('itemremove', removedRecs, all.startIndex || 0, removedItems, me);
 
         me.clearEmptyEl();
-
         // If nodeContainer is the el, just clear the innerHTML. Otherwise, we need
         // to manually remove each node we know about.
         me.all.clear(!nodeContainerIsTarget);
@@ -1210,25 +1077,19 @@ Ext.define('Ext.view.AbstractView', {
         if (emptyEl) {
             Ext.removeNode(emptyEl);
         }
-
         this.emptyEl = null;
     },
 
     onViewScroll: function(scroller, x, y) {
-        if (!this.destroyed) {
-            this.fireEvent('scroll', this, x, y);
-        }
+        this.fireEvent('scroll', this, x, y);
     },
 
     onViewScrollEnd: function(scroller, x, y) {
-        if (!this.destroyed) {
-            this.fireEvent('scrollend', this, x, y);
-        }
+        this.fireEvent('scrollend', this, x, y);
     },
 
     /**
-     * Saves the scrollState in a private variable.
-     * Must be used in conjunction with restoreScrollState.
+     * Saves the scrollState in a private variable. Must be used in conjunction with restoreScrollState.
      * @private
      */
     saveScrollState: function() {
@@ -1257,22 +1118,19 @@ Ext.define('Ext.view.AbstractView', {
     },
 
     /**
-     * Function which can be overridden to provide custom formatting for each Record that is used by
-     * this DataView's {@link #tpl template} to render each node.
+     * Function which can be overridden to provide custom formatting for each Record that is used by this
+     * DataView's {@link #tpl template} to render each node.
      * @param {Object/Object[]} data The raw data object that was used to create the Record.
      * @param {Number} recordIndex the index number of the Record being prepared for rendering.
      * @param {Ext.data.Model} record The Record being prepared for rendering.
-     * @return {Array/Object} The formatted data in a format expected by the internal
-     * {@link #tpl template}'s overwrite() method. (either an array if your params are numeric
-     * (i.e. {0}) or an object (i.e. { foo: 'bar' }))
+     * @return {Array/Object} The formatted data in a format expected by the internal {@link #tpl template}'s overwrite() method.
+     * (either an array if your params are numeric (i.e. {0}) or an object (i.e. {foo: 'bar'}))
      * @since 2.3.0
      */
-    prepareData: function(data, recordIndex, record) {
+    prepareData: function(data, index, record) {
         var associatedData, attr, hasCopied;
-
         if (record) {
             associatedData = record.getAssociatedData();
-
             for (attr in associatedData) {
                 if (associatedData.hasOwnProperty(attr)) {
                     // This would be better done in collectData, however
@@ -1283,12 +1141,10 @@ Ext.define('Ext.view.AbstractView', {
                         data = Ext.Object.chain(data);
                         hasCopied = true;
                     }
-
                     data[attr] = associatedData[attr];
                 }
             }
         }
-
         return data;
     },
 
@@ -1297,18 +1153,17 @@ Ext.define('Ext.view.AbstractView', {
      * DataView's {@link #cfg-tpl template} to render the whole DataView.
      *
      * This is usually an Array of data objects, each element of which is processed by an
-     * {@link Ext.XTemplate XTemplate} which uses `'&lt;tpl for="."&gt;'` to iterate over
-     * its supplied data object as an Array. However, <i>named</i> properties may be placed
-     * into the data object to provide non-repeating data such as headings, totals etc.
+     * {@link Ext.XTemplate XTemplate} which uses `'&lt;tpl for="."&gt;'` to iterate over its supplied
+     * data object as an Array. However, <i>named</i> properties may be placed into the data object to
+     * provide non-repeating data such as headings, totals etc.
      *
-     * @param {Ext.data.Model[]} records An Array of {@link Ext.data.Model}s to be rendered into
-     * the DataView.
+     * @param {Ext.data.Model[]} records An Array of {@link Ext.data.Model}s to be rendered into the DataView.
      * @param {Number} startIndex the index number of the Record being prepared for rendering.
-     * @return {Object[]} An Array of data objects to be processed by a repeating XTemplate.
-     * May also contain <i>named</i> properties.
+     * @return {Object[]} An Array of data objects to be processed by a repeating XTemplate. May also
+     * contain <i>named</i> properties.
      * @since 2.3.0
      */
-    collectData: function(records, startIndex) {
+    collectData: function(records, startIndex){
         var data = [],
             i = 0,
             len = records.length,
@@ -1318,10 +1173,9 @@ Ext.define('Ext.view.AbstractView', {
             record = records[i];
             data[i] = this.prepareData(record.data, startIndex + i, record);
         }
-
         return data;
     },
-
+    
     cleanupData: Ext.emptyFn,
 
     bufferRender: function(records, index) {
@@ -1331,12 +1185,10 @@ Ext.define('Ext.view.AbstractView', {
             nodes, len, i;
 
         me.tpl.overwrite(div, me.collectData(records, index));
-        nodes = div.query(me.getItemSelector());
-
+        nodes = Ext.fly(div).query(me.getItemSelector());
         for (i = 0, len = nodes.length; i < len; i++) {
             result.appendChild(nodes[i]);
         }
-
         return {
             fragment: result,
             children: nodes
@@ -1345,6 +1197,12 @@ Ext.define('Ext.view.AbstractView', {
 
     // Element which contains rows
     nodeContainerSelector: null,
+
+    getNodeContainer: function() {
+        var target = this.getTargetEl(),
+            selector = this.nodeContainerSelector;
+        return selector ? target.down(selector, true) : target;
+    },
 
     /**
      * For use by the {@link Ext.view.DragZone} plugin on platforms which use the
@@ -1371,24 +1229,17 @@ Ext.define('Ext.view.AbstractView', {
         var me = this,
             selector = '#' + me.id + ' ' + me.getItemSelector(),
             styleSheet = me.viewStyleSheet;
-
+        
         if (draggable) {
             if (!styleSheet) {
-                styleSheet = Ext.view.AbstractView.prototype.viewStyleSheet =
-                    Ext.util.CSS.createStyleSheet('', 'AbstractView');
+                styleSheet = Ext.view.AbstractView.prototype.viewStyleSheet = Ext.util.CSS.createStyleSheet('', 'AbstractView');
             }
-
             // Pointer Events platforms implement the touch-action or -ms-touch-action properties
             // which deicate how an element responds to touches.
-            // Non Pointer Events platforms such as iOS show a selection rectangle
-            // on longpress+drag, and that is disabled by -webkit-user-drag: none;
-            Ext.util.CSS.createRule(
-                styleSheet, selector,
-                'touch-action: pinch-zoom double-tap-zoom;' +
-                '-ms-touch-action: pinch-zoom double-tap-zoom;-webkit-user-drag: none;'
-            );
-        }
-        else if (styleSheet) {
+            // Non Pointer Events platforms such as iOS show a selection rectangle on longpress+drag, and that
+            // is disabled by -webkit-user-drag: none;
+            Ext.util.CSS.createRule(styleSheet, selector, 'touch-action: pinch-zoom double-tap-zoom;-ms-touch-action: pinch-zoom double-tap-zoom;-webkit-user-drag: none;');
+        } else if (styleSheet) {
             Ext.util.CSS.deleteRule(selector);
         }
     },
@@ -1406,16 +1257,14 @@ Ext.define('Ext.view.AbstractView', {
 
         // If, due to filtering or buffered rendering, or node collapse, the updated record is not
         // represented in the rendered structure, this is a no-op.
-        // The correct, new values will be rendered the next time the record becomes visible
-        // and is rendered.
+        // The correct, new values will be rendered the next time the record becomes visible and is rendered.
         if (!isFiltered && me.getNode(record)) {
 
-            // If we are throttling UI updates (See the updateDelay global config),
-            // ensure there's a change entry queued for the record in the global queue.
+            // If we are throttling UI updates (See the updateDelay global config), ensure there's a change entry
+            // queued for the record in the global queue.
             if (me.throttledUpdate) {
                 me.statics().queueRecordChange(me, store, record, operation, modifiedFieldNames);
-            }
-            else {
+            } else {
                 // Cannot use arguments array.
                 // TableView's signature acceses these arguments plus one more of its own.
                 // Event firing passes the addListener options object as rge final parameter
@@ -1425,35 +1274,31 @@ Ext.define('Ext.view.AbstractView', {
         }
     },
 
-    handleUpdate: function(store, record) {
+    handleUpdate: function(store, record){
         var me = this,
-            selModel = me.getSelectionModel(),
-            index, node;
+            index,
+            node,
+            selModel = me.getSelectionModel();
 
         if (me.viewReady && !me.refreshNeeded) {
             index = me.dataSource.indexOf(record);
 
-            // If the record has been removed from the data source since the changes were made,
-            // do nothing
+            // If the record has been removed from the data source since the changes were made, do nothing
             if (index > -1) {
                 // ensure the node actually exists in the DOM
                 if (me.getNode(record)) {
                     node = me.bufferRender([record], index).children[0];
                     me.all.replaceElement(index, node, true);
                     me.updateIndexes(index, index);
-
                     // Maintain selection after update
                     selModel.onUpdate(record);
                     me.refreshSizePending = true;
-
                     if (selModel.isSelected(record)) {
                         me.onItemSelect(record);
                     }
-
                     if (me.hasListeners.itemupdate) {
                         me.fireEvent('itemupdate', record, index, node, me);
                     }
-
                     return node;
                 }
             }
@@ -1468,8 +1313,6 @@ Ext.define('Ext.view.AbstractView', {
     onReplace: function(store, startIndex, oldRecords, newRecords) {
         var me = this,
             all = me.all,
-            scroller = me.getScrollable(),
-            yPos = scroller && scroller.getPosition().y,
             selModel = me.getSelectionModel(),
             origStart = startIndex,
             result, item, fragment, children, oldItems, endIndex, restoreFocus;
@@ -1483,8 +1326,7 @@ Ext.define('Ext.view.AbstractView', {
 
             if (item) {
                 all.item(startIndex).insertSibling(fragment, 'before', true);
-            }
-            else {
+            } else {
                 me.appendNodes(fragment);
             }
 
@@ -1503,11 +1345,6 @@ Ext.define('Ext.view.AbstractView', {
             // Remove the items which correspond to old records
             oldItems = all.removeRange(startIndex, endIndex, true);
 
-            // Restore scroll position
-            if (scroller) {
-                scroller.scrollTo(null, yPos);
-            }
-
             // Some subclasses do not need to do this. TableView does not need to do this.
             if (me.refreshSelmodelOnRefresh !== false) {
                 selModel.refresh();
@@ -1517,6 +1354,7 @@ Ext.define('Ext.view.AbstractView', {
             me.updateIndexes(startIndex);
 
             me.fireItemMutationEvent('itemremove', oldRecords, origStart, oldItems, me);
+
             me.fireItemMutationEvent('itemadd', newRecords, origStart, children, me);
 
             // If focus was in this view, this will restore it
@@ -1532,21 +1370,17 @@ Ext.define('Ext.view.AbstractView', {
             selModel = me.getSelectionModel();
 
         if (me.rendered && !me.refreshNeeded) {
-            // If we are adding into an empty view, we must refresh in order that
-            // the *full tpl* is applied which might create boilerplate content *around*
-            // the record nodes.
+            // If we are adding into an empty view, we must refresh in order that the *full tpl* is applied
+            // which might create boilerplate content *around* the record nodes.
             if (me.all.getCount() === 0) {
                 me.refresh();
                 nodes = me.all.slice();
-            }
-            else {
+            } else {
                 nodes = me.doAdd(records, index);
-
                 // Some subclasses do not need to do this. TableView does not need to do this.
                 if (me.refreshSelmodelOnRefresh !== false) {
                     selModel.refresh();
                 }
-
                 me.updateIndexes(index);
 
                 // Ensure layout system knows about new content size
@@ -1557,15 +1391,14 @@ Ext.define('Ext.view.AbstractView', {
         }
 
     },
-
+    
     appendNodes: function(nodes) {
         var all = this.all,
             count = all.getCount();
 
         if (this.nodeContainerSelector) {
             this.getNodeContainer().appendChild(nodes);
-        }
-        else {
+        } else {
             // If we don't have a nodeContainerSelector, we may have our
             // itemSelector nodes wrapped in some other container, so we
             // can't just append them to the node container, it may be the wrong element
@@ -1586,16 +1419,13 @@ Ext.define('Ext.view.AbstractView', {
 
         if (count === 0 || index > lastRowIndex) {
             me.appendNodes(fragment);
-        }
-        else if (index <= firstRowIndex) {
+        } else if (index <= firstRowIndex) {
             all.item(firstRowIndex).insertSibling(fragment, 'before', true);
-        }
-        else {
+        } else {
             all.item(index).insertSibling(children, 'before', true);
         }
 
         all.insert(index, children);
-
         return children;
     },
 
@@ -1607,8 +1437,7 @@ Ext.define('Ext.view.AbstractView', {
         if (me.rendered && !me.refreshNeeded && rows.getCount()) {
             if (me.dataSource.getCount() === 0) {
                 me.refresh();
-            }
-            else {
+            } else {
                 // If this view contains focus, this will return
                 // a function which will restore that state.
                 restoreFocus = me.saveFocusState();
@@ -1616,16 +1445,14 @@ Ext.define('Ext.view.AbstractView', {
                 // Just remove the elements which corresponds to the removed records
                 // The tpl's full HTML will still be in place.
                 nodes = [];
-
                 for (i = records.length - 1; i >= 0; --i) {
                     record = records[i];
                     currIdx = index + i;
-
                     if (nodes) {
                         node = rows.item(currIdx);
                         nodes[i] = node ? node.dom : undefined;
                     }
-
+                    
                     if (rows.item(currIdx)) {
                         me.doRemove(record, currIdx);
                     }
@@ -1655,37 +1482,18 @@ Ext.define('Ext.view.AbstractView', {
 
     fireItemMutationEvent: function(eventName) {
         var me = this,
-            ownerGrid = me.ownerGrid,
-            vm;
-
-        Ext.suspendLayouts();
+            ownerGrid = me.ownerGrid;
 
         // Inform the ownerGrid.
         if (ownerGrid) {
-            if (eventName !== 'refresh') {
-                vm = me.lookupViewModel();
-            }
-
-            ownerGrid[me.eventLifecycleMap[eventName]].apply(
-                ownerGrid, Ext.Array.slice(arguments, 1)
-            );
+            me.ownerGrid[me.eventLifecycleMap[eventName]].apply(me.ownerGrid, Ext.Array.slice(arguments, 1));
         }
-
         me.fireEvent.apply(me, arguments);
-
-        // The content height MUST be measurable by the caller (the buffered renderer),
-        // so data must be flushed to it immediately.
-        if (vm) {
-            vm.notify();
-        }
-
-        Ext.resumeLayouts(true);
     },
 
     /**
      * @private
-     * Called prior to an operation which mey remove focus from this view by some kind
-     * of DOM operation.
+     * Called prior to an operation which mey remove focus from this view by some kind of DOM operation.
      *
      * If this view contains focus, this method returns a function which, when called after
      * the disruptive DOM operation will restore focus to the same record, or, if the record has
@@ -1712,27 +1520,19 @@ Ext.define('Ext.view.AbstractView', {
                 me.el.dom.focus();
             }
 
-            // The following function will attempt to refocus back to the same record
-            // if it is still there, or the same item index.
+            // The following function will attempt to refocus back to the same record if it is still there,
+            // or the same item index.
             return function() {
-                // If we still have data, attempt to refocus at the same record,
-                // or the same item index..
+                // If we still have data, attempt to refocus at the same record, or the same item index..
                 if (store.getCount()) {
-                    // Adjust expectations of where we are able to refocus according to
-                    // what kind of destruction might have been wrought on this view's DOM
-                    // during focus save.
-                    lastFocusedIndex = Math.min(lastFocusedIndex, me.all.getCount() - 1);
 
-                    navModel.setPosition(
-                        store.contains(lastFocusedRec)
-                            ? lastFocusedRec
-                            : lastFocusedIndex,
-                        null, null, true, !containsFocus
-                    );
+                    // Adjust expectations of where we are able to refocus according to what kind of destruction
+                    // might have been wrought on this view's DOM during focus save.
+                    lastFocusedIndex = Math.min(lastFocusedIndex, me.all.getCount() - 1);
+                    navModel.setPosition(store.contains(lastFocusedRec) ? lastFocusedRec : lastFocusedIndex, null, null, true, !containsFocus);
                 }
             };
         }
-
         return Ext.emptyFn;
     },
 
@@ -1745,52 +1545,43 @@ Ext.define('Ext.view.AbstractView', {
         if (Ext.isNumber(record)) {
             record = this.store.getAt(record);
         }
-
         this.onUpdate(this.dataSource, record);
     },
 
     updateIndexes: function(startIndex, endIndex) {
-        var me = this,
-            nodes = me.all.elements,
-            records = me.getViewRange(),
-            selModel = me.getSelectionModel(),
-            myId = me.id,
-            node, record, i;
+        var nodes = this.all.elements,
+            node,
+            records = this.getViewRange(),
+            i,
+            myId = this.id;
 
         startIndex = startIndex || 0;
         endIndex = endIndex || ((endIndex === 0) ? 0 : (nodes.length - 1));
-
         for (i = startIndex; i <= endIndex; i++) {
             node = nodes[i];
-            record = records[i];
-
             node.setAttribute('data-recordIndex', i);
-            node.setAttribute('data-recordId', record.internalId);
+            node.setAttribute('data-recordId', records[i].internalId);
             node.setAttribute('data-boundView', myId);
-
-            if (selModel.getLastSelected()) {
-                me[selModel.isSelected(record) ? 'onItemSelect' : 'onItemDeselect'](record);
-            }
         }
     },
 
     /**
      * Changes the data store bound to this view and refreshes it.
      * @param {Ext.data.Store} store The store to bind to this view
-     * @param {Object} initial
      * @since 3.4.0
      */
-    bindStore: function(store, initial) {
+    bindStore: function (store, initial) {
         var me = this,
             selModel = me.getSelectionModel(),
             navModel = me.getNavigationModel();
+
 
         // Can be already destroyed if we're called from doDestroy()
         if (selModel && !selModel.destroyed) {
             selModel.bindStore(store, initial);
             selModel.bindComponent(store ? me : null);
         }
-
+        
         me.mixins.storeholder.bindStore.apply(me, arguments);
 
         // Navigation model must bind to new store
@@ -1801,14 +1592,9 @@ Ext.define('Ext.view.AbstractView', {
         // If we have already achieved our first layout, refresh immediately.
         // If we bind to the Store before the first layout, then beforeLayout will
         // call doFirstRefresh
-        if (store && me.componentLayoutCounter) {
+        if (store && me.componentLayoutCounter && !me.blockRefresh) {
             // If not the initial bind, we enforce noDefer.
-            if (me.blockRefresh) {
-                me.refreshNeeded = true;
-            }
-            else {
-                me.doFirstRefresh(store, !initial);
-            }
+            me.doFirstRefresh(store, !initial);
         }
     },
 
@@ -1827,8 +1613,8 @@ Ext.define('Ext.view.AbstractView', {
         }
 
         else {
-            // 4.1.0: If we have a store, and the Store is *NOT* already loading
-            // (a refresh is on the way), then on first layout, refresh regardless of record count.
+            // 4.1.0: If we have a store, and the Store is *NOT* already loading (a refresh is on the way), then
+            // on first layout, refresh regardless of record count.
             // Template may contain boilerplate HTML outside of record iteration loop.
             // Also, emptyText is appended by the refresh method.
             if (store && !me.deferRefreshForLoad(store)) {
@@ -1848,20 +1634,18 @@ Ext.define('Ext.view.AbstractView', {
     onBindStore: function(store, oldStore) {
         var me = this;
 
-        // A BufferedStore has to know to reload the most recent visible zone if its View
-        // is preserveScrollOnReload
+        // A BufferedStore has to know to reload the most recent visible zone if its View is preserveScrollOnReload
         if (me.store.isBufferedStore) {
             me.store.preserveScrollOnReload = me.preserveScrollOnReload;
         }
-
         if (oldStore && oldStore.isBufferedStore) {
             delete oldStore.preserveScrollOnReload;
         }
 
         me.setMaskBind(store);
 
-        // When unbinding the data store, the dataSource will be nulled out
-        // if it's the same as the data store. Restore it here.
+        // When unbinding the data store, the dataSource will be nulled out if it's the same as the data store.
+        // Restore it here.
         if (!me.dataSource) {
             me.dataSource = store;
         }
@@ -1869,6 +1653,7 @@ Ext.define('Ext.view.AbstractView', {
 
     setMaskBind: function(store) {
         var mask = this.loadMask;
+
 
         if (this.rendered && mask && store && !mask.bindStore) {
             mask = this.createMask();
@@ -1881,7 +1666,6 @@ Ext.define('Ext.view.AbstractView', {
 
     getStoreListeners: function() {
         var me = this;
-
         return {
             refresh: me.onDataRefresh,
             replace: me.onReplace,
@@ -1896,7 +1680,6 @@ Ext.define('Ext.view.AbstractView', {
 
     onBeginUpdate: function() {
         ++this.updateSuspendCounter;
-
         Ext.suspendLayouts();
     },
 
@@ -1906,9 +1689,8 @@ Ext.define('Ext.view.AbstractView', {
         if (me.updateSuspendCounter) {
             --me.updateSuspendCounter;
         }
-
+        
         Ext.resumeLayouts(true);
-
         if (me.refreshSizePending) {
             me.refreshSize(true);
             me.refreshSizePending = false;
@@ -1926,10 +1708,9 @@ Ext.define('Ext.view.AbstractView', {
 
         // If this refresh event is fire from a store load, then use the 
         // preserveScrollOnReload setting to decide whether to preserve scroll position
-        if (store.loadCount >= (me.lastRefreshLoadCount || 0)) {
+        if (store.loadCount > me.lastRefreshLoadCount) {
             me.preserveScrollOnRefresh = me.preserveScrollOnReload;
         }
-
         me.refreshView();
         me.preserveScrollOnRefresh = preserveScrollOnRefresh;
         me.lastRefreshLoadCount = store.loadCount;
@@ -1937,23 +1718,19 @@ Ext.define('Ext.view.AbstractView', {
 
     refreshView: function(startIndex) {
         var me = this,
-            // If we have an ancestor in a non-boxready state (collapsed or about to collapse,
-            // or hidden), then block the refresh because the next layout will trigger the refresh
-            blocked = me.blockRefresh || !me.rendered ||
-                      me.up('[collapsed],[isCollapsingOrExpanding=1],[hidden]'),
+            // If we have an ancestor in a non-boxready state (collapsed or in-transition, or hidden), then block the
+            // refresh because the next layout will trigger the refresh
+            blocked = me.blockRefresh || !me.rendered || me.up('[collapsed],[isCollapsingOrExpanding],[hidden]'),
             bufferedRenderer = me.bufferedRenderer;
 
-        // If we are blocked in any way due to either a setting, or hidden or collapsed,
-        // or animating ancestor, then the next refresh attempt at the upcoming layout
-        // must not defer.
+        // If we are blocked in any way due to either a setting, or hidden or collapsed, or animating ancestor, then
+        // the next refresh attempt at the upcoming layout must not defer.
         if (blocked) {
             me.refreshNeeded = true;
-        }
-        else {
+        } else {
             if (bufferedRenderer) {
                 bufferedRenderer.refreshView(startIndex);
-            }
-            else {
+            } else {
                 me.refresh();
             }
         }
@@ -1964,7 +1741,7 @@ Ext.define('Ext.view.AbstractView', {
      * @param {HTMLElement} node
      * @return {HTMLElement} The template node
      */
-    findItemByChild: function(node) {
+    findItemByChild: function(node){
         return Ext.fly(node).findParent(this.getItemSelector(), this.getTargetEl());
     },
 
@@ -1976,16 +1753,17 @@ Ext.define('Ext.view.AbstractView', {
         return e.getTarget(this.getItemSelector(), this.getTargetEl());
     },
 
+
     /**
      * Gets the currently selected nodes.
      * @return {HTMLElement[]} An array of HTMLElements
      * @since 2.3.0
      */
-    getSelectedNodes: function() {
-        var nodes = [],
+    getSelectedNodes: function(){
+        var nodes   = [],
             records = this.getSelectionModel().getSelection(),
             ln = records.length,
-            i = 0;
+            i  = 0;
 
         for (; i < ln; i++) {
             nodes.push(this.getNode(records[i]));
@@ -2001,12 +1779,13 @@ Ext.define('Ext.view.AbstractView', {
      * @since 2.3.0
      */
     getRecords: function(nodes) {
-        var me = this,
-            records = [],
-            i;
+        var records = [],
+            i = 0,
+            len = nodes.length,
+            data = this.dataSource.data;
 
-        for (i = 0; i < nodes.length; i++) {
-            records.push(me.getRecord(nodes[i]));
+        for (; i < len; i++) {
+            records[records.length] = data.getByKey(nodes[i].getAttribute('data-recordId'));
         }
 
         return records;
@@ -2019,12 +1798,10 @@ Ext.define('Ext.view.AbstractView', {
      * @return {Ext.data.Model} record The {@link Ext.data.Model} object
      * @since 2.3.0
      */
-    getRecord: function(node) {
-        var dom = Ext.getDom(node),
-            id = dom.getAttribute('data-recordId');
-
-        return this.dataSource.getByInternalId(id);
+    getRecord: function(node){
+        return this.dataSource.getByInternalId(Ext.getDom(node).getAttribute('data-recordId'));
     },
+
 
     /**
      * Returns true if the passed node is selected, else false.
@@ -2034,7 +1811,6 @@ Ext.define('Ext.view.AbstractView', {
      */
     isSelected: function(node) {
         var r = this.getRecord(node);
-
         return this.getSelectionModel().isSelected(r);
     },
 
@@ -2062,8 +1838,8 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * Gets a template node.
-     * @param {HTMLElement/String/Number/Ext.data.Model} nodeInfo An HTMLElement template node,
-     * index of a template node, the id of a template node or the record associated with the node.
+     * @param {HTMLElement/String/Number/Ext.data.Model} nodeInfo An HTMLElement template node, index of a template node,
+     * the id of a template node or the record associated with the node.
      * @return {HTMLElement} The node or null if it wasn't found
      * @since 2.3.0
      */
@@ -2075,27 +1851,20 @@ Ext.define('Ext.view.AbstractView', {
             if (Ext.isString(nodeInfo)) {
                 // Id
                 out = document.getElementById(nodeInfo);
-            }
-            else if (nodeInfo.isModel) {
+            } else if (nodeInfo.isModel) {
                 // Record
                 out = me.getNodeByRecord(nodeInfo);
-            }
-            else if (Ext.isNumber(nodeInfo)) {
+            } else if (Ext.isNumber(nodeInfo)) {
                 // Index
                 out = me.all.elements[nodeInfo];
-            }
-            else {
+            } else {
                 if (nodeInfo.target && nodeInfo.target.nodeType) {
-                    // An event. Check that target is a node: <a target="_blank">
-                    // must pass unchanged
+                    // An event. Check that target is a node: <a target="_blank"> must pass unchanged
                     nodeInfo = nodeInfo.target;
                 }
-
-                // already an HTMLElement
-                out = Ext.fly(nodeInfo).findParent(me.itemSelector, me.getTargetEl());
+                out = Ext.fly(nodeInfo).findParent(me.itemSelector, me.getTargetEl()); // already an HTMLElement
             }
         }
-
         return out || null;
     },
 
@@ -2104,7 +1873,6 @@ Ext.define('Ext.view.AbstractView', {
      */
     getNodeByRecord: function(record) {
         var index = this.store.indexOf(record);
-
         return this.all.elements[index] || null;
     },
 
@@ -2121,28 +1889,24 @@ Ext.define('Ext.view.AbstractView', {
         if (end !== undefined) {
             end++;
         }
-
         return all.slice(start, end);
     },
 
     /**
      * Finds the index of the passed node.
-     * @param {HTMLElement/String/Number/Ext.data.Model} node An HTMLElement template node,
-     * index of a template node, the id of a template node or a record associated with a node.
+     * @param {HTMLElement/String/Number/Ext.data.Model} nodeInfo An HTMLElement template node, index of a template node, the id of a template node
+     * or a record associated with a node.
      * @return {Number} The index of the node or -1
      * @since 2.3.0
      */
     indexOf: function(node) {
         node = this.getNode(node);
-
         if (!node && node !== 0) {
             return -1;
         }
-
         if (node.getAttribute('data-recordIndex')) {
             return Number(node.getAttribute('data-recordIndex'));
         }
-
         return this.all.indexOf(node);
     },
 
@@ -2151,30 +1915,26 @@ Ext.define('Ext.view.AbstractView', {
             count = me.updateSuspendCounter,
             tabGuardEl = me.tabGuardEl;
 
-        if (me.viewScrollListeners) {
-            me.viewScrollListeners.destroy();
-        }
-
         // Can be already destroyed in Table view
         if (me.all && !me.all.destroyed) {
             me.all.clear();
         }
-
+        
         if (tabGuardEl) {
             if (tabGuardEl.parentNode) {
                 tabGuardEl.parentNode.removeChild(tabGuardEl);
             }
         }
-
+        
         me.emptyEl = null;
         me.setItemsDraggable(false);
-
+        
         me.bindStore(null);
-
+        
         if (me.selModelRelayer) {
             me.selModelRelayer.destroy();
         }
-
+        
         Ext.destroy(me.navigationModel, me.selectionModel, me.loadMask);
 
         // We have been destroyed during a begin/end update, which means we're
@@ -2194,7 +1954,7 @@ Ext.define('Ext.view.AbstractView', {
             Ext.fly(node).addCls(this.selectedItemCls);
             node.setAttribute('aria-selected', 'true');
         }
-
+        
         return node;
     },
 
@@ -2206,7 +1966,7 @@ Ext.define('Ext.view.AbstractView', {
             Ext.fly(node).removeCls(this.selectedItemCls);
             node.setAttribute('aria-selected', 'false');
         }
-
+        
         return node;
     },
 
@@ -2216,13 +1976,12 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * Adds a CSS Class to a specific item.
-     * @param {HTMLElement/String/Number/Ext.data.Model} itemInfo An HTMLElement,
-     * index or instance of a model representing this item
+     * @param {HTMLElement/String/Number/Ext.data.Model} itemInfo An HTMLElement, index or instance of a model
+     * representing this item
      * @param {String} cls
      */
     addItemCls: function(itemInfo, cls) {
         var item = this.getNode(itemInfo);
-
         if (item) {
             Ext.fly(item).addCls(cls);
         }
@@ -2230,25 +1989,24 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * Removes a CSS Class from a specific item.
-     * @param {HTMLElement/String/Number/Ext.data.Model} itemInfo An HTMLElement,
-     * index or instance of a model representing this item
+     * @param {HTMLElement/String/Number/Ext.data.Model} itemInfo An HTMLElement, index or instance of a model
+     * representing this item
      * @param {String} cls
      */
     removeItemCls: function(itemInfo, cls) {
         var item = this.getNode(itemInfo);
-
         if (item) {
             Ext.fly(item).removeCls(cls);
         }
     },
 
-    setStore: function(newStore) {
-        // Here we want to override the config system setter because setting the store
-        // is a special case that the config system wasn't able to handle.
+    setStore: function (newStore) {
+        // Here we want to override the config system setter because setting the store is a special case
+        // that the config system wasn't able to handle.
         //
-        // For instance, because `bindStore` is the only API for both binding and unbinding a store,
-        // we couldn't unbind the old store using the config system because it would simply unbind
-        // the new store that the setter had just poked onto the instance:
+        // For instance, because `bindStore` is the only API for both binding and unbinding a store, we
+        // couldn't unbind the old store using the config system because it would simply unbind the new
+        // store that the setter had just poked onto the instance:
         //
         //      setStore    -> intance.store = newStore
         //      updateStore -> view.unbind(null) (unbinds the newStore)
@@ -2258,9 +2016,8 @@ Ext.define('Ext.view.AbstractView', {
         if (me.store !== newStore) {
             if (me.isConfiguring) {
                 me.store = newStore;
-            }
-            else {
-                me.bindStore(newStore, /* initial */ false);
+            } else {
+                me.bindStore(newStore, /*initial*/ false);
             }
         }
     },
@@ -2269,12 +2026,12 @@ Ext.define('Ext.view.AbstractView', {
         deferRefreshForLoad: function(store) {
             return store.isLoading();
         },
-
+        
         toggleChildrenTabbability: function(enableTabbing) {
             var focusEl = this.getTargetEl();
 
             if (enableTabbing) {
-                focusEl.restoreTabbableState({ skipSelf: true });
+                focusEl.restoreTabbableState(/* skipSelf = */ true);
             }
             else {
                 // Do NOT includeSaved
@@ -2302,7 +2059,7 @@ Ext.define('Ext.view.AbstractView', {
             if (this.focusable) {
                 options.tabindex = '-1';
             }
-
+            
             all.set(options);
         },
 
@@ -2320,44 +2077,26 @@ Ext.define('Ext.view.AbstractView', {
                     // rendering let's push on the store
                     store: maskStore
                 };
-
                 // Do not overwrite default msgCls if we do not have a loadingCls
                 if (me.loadingCls) {
                     cfg.msgCls = me.loadingCls;
                 }
-
                 // either a config object 
                 if (Ext.isObject(mask)) {
                     cfg = Ext.apply(cfg, mask);
                 }
-
-                // Attach the LoadMask to a *Component* so that it can be sensitive to resizing
-                // during long loads. If this DataView is floating, then mask this DataView.
-                // Otherwise, mask its owning Container (or this, if there *is* no owning Container)
+                // Attach the LoadMask to a *Component* so that it can be sensitive to resizing during long loads.
+                // If this DataView is floating, then mask this DataView.
+                // Otherwise, mask its owning Container (or this, if there *is* no owning Container).
                 // LoadMask captures the element upon render.
                 me.loadMask = new Ext.LoadMask(cfg);
-
                 me.loadMask.on({
                     scope: me,
                     beforeshow: me.onMaskBeforeShow,
                     hide: me.onMaskHide
                 });
             }
-
             return me.loadMask;
-        },
-
-        /**
-         * @private
-         * This method returns the inner node containing element. This is useful
-         * for the bufferedRenderer or for when the view contains extra elements
-         * and we need to point the exact element that will contain the view nodes.
-         */
-        getNodeContainer: function() {
-            var target = this.getTargetEl(),
-                selector = this.nodeContainerSelector;
-
-            return selector ? target.down(selector, true) : target;
         },
 
         getOverflowEl: function() {
@@ -2376,27 +2115,23 @@ Ext.define('Ext.view.AbstractView', {
         Ext.view.AbstractView.override({
             /**
              * @cfg {Boolean} [multiSelect=false]
-             * True to allow selection of more than one item at a time, false to allow selection
-             * of only a single item at a time or no selection at all, depending on the value of
-             * {@link #singleSelect}.
-             * @deprecated 4.0 Use {@link Ext.selection.Model#cfg-mode} 'MULTI' instead.
+             * True to allow selection of more than one item at a time, false to allow selection of only a single item
+             * at a time or no selection at all, depending on the value of {@link #singleSelect}.
+             * @deprecated 4.0 Use {@link Ext.selection.Model#mode} 'MULTI' instead.
              * @since 2.3.0
              */
-
             /**
              * @cfg {Boolean} [singleSelect]
-             * Allows selection of exactly one item at a time. As this is the default selection mode
-             * anyway, this config is completely ignored.
-             * @removed 4.0 Use {@link Ext.selection.Model#cfg-mode} 'SINGLE' instead.
+             * Allows selection of exactly one item at a time. As this is the default selection mode anyway, this config
+             * is completely ignored.
+             * @removed 4.0 Use {@link Ext.selection.Model#mode} 'SINGLE' instead.
              * @since 2.3.0
              */
-
             /**
              * @cfg {Boolean} [simpleSelect=false]
-             * True to enable multiselection by clicking on multiple items without requiring
-             * the user to hold Shift or Ctrl, false to force the user to hold Ctrl or Shift
-             * to select more than on item.
-             * @deprecated 4.0 Use {@link Ext.selection.Model#cfg-mode} 'SIMPLE' instead.
+             * True to enable multiselection by clicking on multiple items without requiring the user to hold Shift or Ctrl,
+             * false to force the user to hold Ctrl or Shift to select more than on item.
+             * @deprecated 4.0 Use {@link Ext.selection.Model#mode} 'SIMPLE' instead.
              * @since 2.3.0
              */
 
@@ -2406,14 +2141,10 @@ Ext.define('Ext.view.AbstractView', {
              * @deprecated 4.0 Use {@link Ext.selection.Model#getCount} instead.
              * @since 2.3.0
              */
-            getSelectionCount: function() {
+            getSelectionCount: function(){
                 if (Ext.global.console) {
-                    Ext.global.console.warn(
-                        "DataView: getSelectionCount will be removed, please interact " +
-                        "with the Ext.selection.DataViewModel"
-                    );
+                    Ext.global.console.warn("DataView: getSelectionCount will be removed, please interact with the Ext.selection.DataViewModel");
                 }
-
                 return this.selModel.getSelection().length;
             },
 
@@ -2423,14 +2154,10 @@ Ext.define('Ext.view.AbstractView', {
              * @deprecated 4.0 Use {@link Ext.selection.Model#getSelection} instead.
              * @since 2.3.0
              */
-            getSelectedRecords: function() {
+            getSelectedRecords: function(){
                 if (Ext.global.console) {
-                    Ext.global.console.warn(
-                        "DataView: getSelectedRecords will be removed, please interact " +
-                        "with the Ext.selection.DataViewModel"
-                    );
+                    Ext.global.console.warn("DataView: getSelectedRecords will be removed, please interact with the Ext.selection.DataViewModel");
                 }
-
                 return this.selModel.getSelection();
             },
 
@@ -2438,15 +2165,9 @@ Ext.define('Ext.view.AbstractView', {
             // @ignore
             select: function(records, keepExisting, supressEvents) {
                 if (Ext.global.console) {
-                    Ext.global.console.warn(
-                        "DataView: select will be removed, please access select through " +
-                        "a DataView's SelectionModel, ie: view.getSelectionModel().select()"
-                    );
+                    Ext.global.console.warn("DataView: select will be removed, please access select through a DataView's SelectionModel, ie: view.getSelectionModel().select()");
                 }
-
-                // eslint-disable-next-line vars-on-top
                 var sm = this.getSelectionModel();
-
                 return sm.select.apply(sm, arguments);
             },
 
@@ -2457,18 +2178,12 @@ Ext.define('Ext.view.AbstractView', {
              */
             clearSelections: function() {
                 if (Ext.global.console) {
-                    Ext.global.console.warn(
-                        "DataView: clearSelections will be removed, please access " +
-                        "deselectAll through DataView's SelectionModel, ie: " +
-                        "view.getSelectionModel().deselectAll()"
-                    );
+                    Ext.global.console.warn("DataView: clearSelections will be removed, please access deselectAll through DataView's SelectionModel, ie: view.getSelectionModel().deselectAll()");
                 }
-
-                // eslint-disable-next-line vars-on-top
                 var sm = this.getSelectionModel();
-
                 return sm.deselectAll();
             }
         });
     });
 });
+

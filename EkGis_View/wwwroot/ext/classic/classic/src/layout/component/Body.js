@@ -1,21 +1,27 @@
 /**
- * Component layout for components which maintain an inner body element which must be resized
- * to synchronize with the Component size.
+ * Component layout for components which maintain an inner body element which must be resized to synchronize with the
+ * Component size.
  * @private
  */
 Ext.define('Ext.layout.component.Body', {
+
+    /* Begin Definitions */
+
+    alias: ['layout.body'],
+
     extend: 'Ext.layout.component.Auto',
-    alias: 'layout.body',
+
+    /* End Definitions */
 
     type: 'body',
 
-    beginLayout: function(ownerContext) {
+    beginLayout: function (ownerContext) {
         this.callParent(arguments);
 
         ownerContext.bodyContext = ownerContext.getEl('body');
     },
 
-    beginLayoutCycle: function(ownerContext, firstCycle) {
+    beginLayoutCycle: function(ownerContext, firstCycle){
         var me = this,
             lastWidthModel = me.lastWidthModel,
             lastHeightModel = me.lastHeightModel,
@@ -39,7 +45,7 @@ Ext.define('Ext.layout.component.Body', {
     // already handled the ownerContext's frameInfo (border+framing) so all that is left
     // is padding.
 
-    calculateOwnerHeightFromContentHeight: function(ownerContext, contentHeight) {
+    calculateOwnerHeightFromContentHeight: function (ownerContext, contentHeight) {
         var height = this.callParent(arguments);
 
         if (ownerContext.targetContext !== ownerContext) {
@@ -49,7 +55,7 @@ Ext.define('Ext.layout.component.Body', {
         return height;
     },
 
-    calculateOwnerWidthFromContentWidth: function(ownerContext, contentWidth) {
+    calculateOwnerWidthFromContentWidth: function (ownerContext, contentWidth) {
         var width = this.callParent(arguments);
 
         if (ownerContext.targetContext !== ownerContext) {
@@ -59,17 +65,15 @@ Ext.define('Ext.layout.component.Body', {
         return width;
     },
 
-    measureContentWidth: function(ownerContext) {
-        return ownerContext.bodyContext.setWidth(ownerContext.bodyContext.el.dom.offsetWidth,
-                                                 false);
+    measureContentWidth: function (ownerContext) {
+        return ownerContext.bodyContext.setWidth(ownerContext.bodyContext.el.dom.offsetWidth, false);
     },
 
-    measureContentHeight: function(ownerContext) {
-        return ownerContext.bodyContext.setHeight(ownerContext.bodyContext.el.dom.offsetHeight,
-                                                  false);
+    measureContentHeight: function (ownerContext) {
+        return ownerContext.bodyContext.setHeight(ownerContext.bodyContext.el.dom.offsetHeight, false);
     },
 
-    publishInnerHeight: function(ownerContext, height) {
+    publishInnerHeight: function (ownerContext, height) {
         var innerHeight = height - ownerContext.getFrameInfo().height,
             targetContext = ownerContext.targetContext;
 
@@ -81,7 +85,7 @@ Ext.define('Ext.layout.component.Body', {
         return ownerContext.bodyContext.setHeight(innerHeight, !ownerContext.heightModel.natural);
     },
 
-    publishInnerWidth: function(ownerContext, width) {
+    publishInnerWidth: function (ownerContext, width) {
         var innerWidth = width - ownerContext.getFrameInfo().width,
             targetContext = ownerContext.targetContext;
 

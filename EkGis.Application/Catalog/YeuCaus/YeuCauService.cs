@@ -36,6 +36,8 @@ namespace EkGis.Application.Catalog.YeuCaus
             return request.MaYeuCau;
         }
 
+
+
         public async Task<int> Delete(int ma)
         {
             var yeuCau = await _context.YeuCaus.FindAsync(ma);
@@ -46,22 +48,37 @@ namespace EkGis.Application.Catalog.YeuCaus
 
         public async Task<List<YeuCauViewModel>> GetAll()
         {
-            var yeuCaus = await _context.YeuCaus.Select(x => new YeuCauViewModel()
+            var query = from a in _context.YeuCaus
+                        join b in _context.Loais on a.MaLoai equals b.MaLoai
+                        join c in _context.TrangThais on a.MaTrangThai equals c.MaTrangThai
+                        join d in _context.NhanViens on a.MaNV equals d.MaNV
+                        join e in _context.KhachHangs on a.MaKH equals e.MaKH
+                        join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
+                        select new { a, b, c, d, e, f };
+
+
+            var data = await query.Select(x => new YeuCauViewModel()
             {
-                MaYeuCau = x.MaYeuCau,
-                MaLoai = x.MaLoai,
-                MaTrangThai = x.MaTrangThai,
-                MaMucDo = x.MaMucDo,
-                MaNV = x.MaNV,
-                NgayTiepNhan = x.NgayTiepNhan,
-                Noidung = x.Noidung,
-                DiaDiem = x.DiaDiem,
-                MoTa = x.MoTa
+                MaYeuCau = x.a.MaYeuCau,
+                MaLoai = x.b.MaLoai,
+                TenLoai = x.b.TenLoai,
+                MaTrangThai = x.c.MaTrangThai,
+                TenTrangThai = x.c.TenTrangThai,
+                MaMucDo = x.f.MaMucDo,
+                TenMucDo = x.f.TenMucDo,
+                MaNV = x.d.MaNV,
+                TenNV = x.d.TenNV,
+                MaKH = x.e.MaKH,
+                TenKH = x.e.TenKH,
+                NgayTiepNhan = x.a.NgayTiepNhan,
+                Noidung = x.a.Noidung,
+                DiaDiem = x.a.DiaDiem,
+                MoTa = x.a.MoTa
             }).ToListAsync();
-            return new List<YeuCauViewModel>(yeuCaus);
+            return new List<YeuCauViewModel>(data);
         }
 
-        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(GetYeuCauPagingRequest request)
+        public async Task<PagedResult<YeuCauViewModel>> GetAllPaging(SearchRequest request)
         {
             //1. Select join
             var query = from a in _context.YeuCaus
@@ -72,27 +89,59 @@ namespace EkGis.Application.Catalog.YeuCaus
                         join f in _context.MucDos on a.MaMucDo equals f.MaMucDo
                         select new { a, b, c, d, e, f };
             //2. filter
-            if (!string.IsNullOrEmpty(request.keywords))
-                query = query.Where(x => x.a.Noidung.Contains(request.keywords));
+            if (!string.IsNullOrEmpty(request.Noidung))
+            {
+                query = query.Where(x => x.a.Noidung.Contains(request.Noidung));
+            }
+            if (!string.IsNullOrEmpty(request.TenKH))
+            {
+                query = query.Where(x => x.e.TenKH.Contains(request.TenKH));
+            }
+            if (request.MaLoai.HasValue)
+            {
+                query = query.Where(x => x.a.MaLoai == request.MaLoai);
+            }
+            if (request.NgayBatDau.HasValue)
+            {
+                query = query.Where(x => x.a.NgayTiepNhan >= request.NgayBatDau);
+            }
+            if (request.NgayKetThuc.HasValue)
+            {
+                query = query.Where(x => x.a.NgayTiepNhan <= request.NgayKetThuc);
+            }
+            if (request.MaTrangThai.HasValue)
+            {
+                query = query.Where(x => x.a.MaTrangThai == request.MaTrangThai);
+            }
             //3. Paging
             int totalRow = await query.CountAsync();
 
-            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
-                       .Take(request.PageSize)
+            var data = await query.Skip((request.page - 1) * request.limit)
+                       .Take(request.limit)
                        .Select(x => new YeuCauViewModel()
                        {
+                           MaYeuCau = x.a.MaYeuCau,
+                           MaLoai = x.b.MaLoai,
+                           TenLoai = x.b.TenLoai,
+                           MaTrangThai = x.c.MaTrangThai,
+                           TenTrangThai = x.c.TenTrangThai,
+                           MaMucDo = x.f.MaMucDo,
+                           TenMucDo = x.f.TenMucDo,
+                           MaNV = x.d.MaNV,
+                           TenNV = x.d.TenNV,
+                           MaKH = x.e.MaKH,
+                           TenKH = x.e.TenKH,
                            NgayTiepNhan = x.a.NgayTiepNhan,
                            Noidung = x.a.Noidung,
-                           TenKH = x.e.TenKH,
-                           TenLoai = x.b.TenLoai,
-                           TenTrangThai = x.c.TenTrangThai
+                           DiaDiem = x.a.DiaDiem,
+                           MoTa = x.a.MoTa,
+                           SDT = x.e.SDT,
+                           Email = x.e.Email
                        }).ToListAsync();
             //4. Select and projection
             var pagedResult = new PagedResult<YeuCauViewModel>()
             {
                 TotalRecord = totalRow,
-                PageSize = request.PageSize,
-                PageIndex = request.PageIndex,
                 Items = data
             };
             return pagedResult;
@@ -123,11 +172,12 @@ namespace EkGis.Application.Catalog.YeuCaus
             if (yeuCau == null) throw new EkGisException($"Khong tim thay ma yeu cau: {request.MaYeuCau}");
 
             yeuCau.MaLoai = request.MaLoai;
-            yeuCau.NgayTiepNhan = DateTime.Now;
+            yeuCau.NgayTiepNhan = request.NgayTiepNhan.Value;
             yeuCau.MaMucDo = request.MaMucDo;
+            yeuCau.MaNV = request.MaNV;
+            //yeuCau.MaKH = request.MaKH;
             yeuCau.Noidung = request.Noidung;
             yeuCau.DiaDiem = request.DiaDiem;
-            yeuCau.MaNV = request.MaNV;
 
             return await _context.SaveChangesAsync();
         }

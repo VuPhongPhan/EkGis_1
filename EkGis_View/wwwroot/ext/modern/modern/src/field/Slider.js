@@ -1,199 +1,31 @@
 /**
- * The slider is a way to allow the user to select a value from a given numerical range.
- * You might use it for choosing a percentage, combine two of them to get min and max values,
- * or use three of them to specify the hex values for a color. Each slider contains a single
- * 'thumb' that can be dragged along the slider's length to change the value. Sliders are equally
- * useful inside {@link Ext.form.Panel forms} and standalone. Here's how to quickly create a slider
- * in form, in this case enabling a user to choose a percentage:
+ * The slider is a way to allow the user to select a value from a given numerical range. You might use it for choosing
+ * a percentage, combine two of them to get min and max values, or use three of them to specify the hex values for a
+ * color. Each slider contains a single 'thumb' that can be dragged along the slider's length to change the value.
+ * Sliders are equally useful inside {@link Ext.form.Panel forms} and standalone. Here's how to quickly create a
+ * slider in form, in this case enabling a user to choose a percentage:
  *
- * ```javascript
- * @example({ framework: 'extjs' })
- * Ext.create('Ext.form.Panel', {
- *     fullscreen: true,
- *     items: [
- *         {
- *             xtype: 'sliderfield',
- *             label: 'Percentage',
- *             value: 50,
- *             minValue: 0,
- *             maxValue: 100
- *         }
- *     ]
- * });
- * ```
- * ```javascript
- * @example({framework: 'ext-react', packages:['ext-react']})
- * import React, { Component } from 'react';
- * import { ExtContainer, ExtFormPanel, ExtSliderField } from '@sencha/ext-react';
- * export default class SliderFieldExample extends Component {
- *         state = {
- *             singleValue: 20,
- *             multipleValue: [10, 70]
- *         };
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         fullscreen: true,
+ *         items: [
+ *             {
+ *                 xtype: 'sliderfield',
+ *                 label: 'Percentage',
+ *                 value: 50,
+ *                 minValue: 0,
+ *                 maxValue: 100
+ *             }
+ *         ]
+ *     });
  *
- *         onSingleChange = (field, value) => {
- *             this.setState({ singleValue: value });
- *         }
+ * In this case we set a starting value of 50%, and defined the min and max values to be 0 and 100 respectively, giving
+ * us a percentage slider. Because this is such a common use case, the defaults for {@link #minValue} and
+ * {@link #maxValue} are already set to 0 and 100 so in the example above they could be removed.
  *
- *         onMultipleChange = (field, value) => {
- *             this.setState({ multipleValue: value });
- *         }
- *
- *         render() {
- *             const { singleValue, multipleValue } = this.state;
- *
- *             return (
- *                 <ExtContainer layout="center">
- *                     <ExtFormPanel shadow width="300">
- *                         <ExtSliderField
- *                             onChange={this.onSingleChange}
- *                             label="Single Thumb"
- *                             value={singleValue}
- *                         />
- *                         <div style={{marginBottom: '20px'}}>Value: {singleValue}</div>
- *                         <ExtSliderField
- *                             onChange={this.onMultipleChange}
- *                             label="Multiple Thumbs"
- *                             values={multipleValue}
- *                         />
- *                         <div>Values: {multipleValue.join(', ')}</div>
- *                     </ExtFormPanel>
- *                 </ExtContainer>
- *             )
- *         }
- *     }
- * ```
- * ```javascript
- * @example({framework: 'ext-angular', packages:['ext-angular']})
- * import { Component } from '@angular/core'
- * declare var Ext: any;
- *
- * @Component({
- *     selector: 'app-root-1',
- *     styles: [``],
- *     template: `
- *         <ExtContainer [layout]="'center'">
- *             <ExtFormPanel [shadow]="true" [width]="400" [height]="300">
- *                 <ExtSliderField
- *                     (change)="onSingleChange($event)"
- *                     label="Single Thumb"
- *                     [value]="singleValue"
- *                 >
- *                 </ExtSliderField>
- *                 <ExtContainer [style]="{marginBottom: 20}"
- *                      [html]="'Value: '+singleValue">
- *                 </ExtContainer>
- *                 <ExtSliderField
- *                     (change)="onMultipleChange($event)"
- *                     label="Multiple Thumbs"
- *                     [value]="multipleValue"
- *                 >
- *                 </ExtSliderField>
- *                 <ExtContainer
- *                     [html]="'Values: '+multipleValue.join(', ')">
- *                 </ExtContainer>
- *             </ExtFormPanel>
- *         </ExtContainer>
- *     `
- * })
- * export class AppComponent {
- *     singleValue:number = 20;
- *     multipleValue:number[] = [10, 70];
- *
- *     onSingleChange = (params) => {
- *         this.singleValue = params.newValue;
- *     }
- *
- *     onMultipleChange = (params) => {
- *         this.multipleValue = params.newValue;
- *     }
- * }
- * ```
- * ```html
- * @example({framework: 'ext-web-components', packages:['ext-web-components'], tab: 1 })
- * <ext-container layout="center">
- *    <ext-formpanel
- *         shadow="true"
- *         width="300"
- *    >
- *        <ext-sliderfield
- *             onChange="sliderfield.onSingleChange"
- *             label="Single Thumb"
- *             value="20"
- *             onready="sliderfield.readySingleChangeSliderField"
- *        >
- *        </ext-sliderfield>
- *        <ext-container
- *            style='{marginBottom: "20px"}'
- *            onready="sliderfield.readySingleValueMessage"
- *        >
- *        </ext-container>
- *        <ext-sliderfield
- *             onChange="sliderfield.onMultipleChange"
- *             label="Multiple Thumbs"
- *             value="[10,70]"
- *             onready="sliderfield.readyMultipleChangeSliderField"
- *        >
- *        </ext-sliderfield>
- *        <ext-container
- *             onready="sliderfield.readyMultipleValueMessage"
- *        >
- *        </ext-container>
- *    </ext-formpanel>
- * </ext-container>
- * ```
- * ```javascript
- * @example({framework: 'ext-web-components', packages:['ext-web-components'], tab: 2 })
- * import '@sencha/ext-web-components/dist/ext-container.component';
- * import '@sencha/ext-web-components/dist/ext-formpanel.component';
- * import '@sencha/ext-web-components/dist/ext-sliderfield.component';
- *
- * export default class SliderFieldComponent {
- *
- *   constructor() {
- *       this.singleValue = 20;
- *       this.multipleValue = [10, 70];
- *   }
- *
- *   onSingleChange = (event) => {
- *       this.singleValueMessageView.setHTML(`Values: ${event.detail.newValue}`)
- *   }
- *
- *   readySingleChangeSliderField = (event) => {
- *       this.singleValueSliderFieldView = event.detail.cmp;
- *   }
- *
- *   readyMultipleChangeSliderField = (event) => {
- *       this.multipleValueSliderFieldView = event.detail.cmp;
- *   }
- *
- *   onMultipleChange = (event) => {
- *       this.multipleValueMessageView.setHTML(`Values: ${event.detail.newValue.join(',')}`)
- *   }
- *
- *   readyMultipleValueMessage = (event) => {
- *        this.multipleValueMessageView = event.detail.cmp;
- *        this.multipleValueMessageView.setHtml(`Values: ${this.multipleValue}`)
- *   }
- *
- *   readySingleValueMessage = (event) => {
- *        this.singleValueMessageView = event.detail.cmp;
- *        this.singleValueMessageView.setHtml(`Value: ${this.singleValue}`);
- *   }
- * }
- *
- *  window.sliderfield = new SliderFieldComponent();
- * ```
- *
- * In this case we set a starting value of 50%, and defined the min and max values to be 0 and
- * 100 respectively, giving us a percentage slider. Because this is such a common use case, the
- * defaults for {@link #minValue} and {@link #maxValue} are already set to 0 and 100 so in the
- * example above they could be removed.
- *
- * It's often useful to render sliders outside the context of a form panel too. In this example
- * we create a slider that allows a user to choose the waist measurement of a pair of jeans.
- * Let's say the online store we're making this for sells jeans with waist sizes from 24 inches
- * to 60 inches in 2 inch increments - here's how we might achieve that:
+ * It's often useful to render sliders outside the context of a form panel too. In this example we create a slider that
+ * allows a user to choose the waist measurement of a pair of jeans. Let's say the online store we're making this for
+ * sells jeans with waist sizes from 24 inches to 60 inches in 2 inch increments - here's how we might achieve that:
  *
  *     @example
  *     Ext.create('Ext.form.Panel', {
@@ -210,10 +42,9 @@
  *         ]
  *     });
  *
- * Now that we've got our slider, we can ask it what value it currently has and listen
- * to events that it fires. For example, if we wanted our app to show different images
- * for different sizes, we can listen to the {@link #change} event to be informed whenever
- * the slider is moved:
+ * Now that we've got our slider, we can ask it what value it currently has and listen to events that it fires. For
+ * example, if we wanted our app to show different images for different sizes, we can listen to the {@link #change}
+ * event to be informed whenever the slider is moved:
  *
  *     slider.on('change', function(field, newValue) {
  *         if (newValue[0] > 40) {
@@ -223,20 +54,15 @@
  *         }
  *     }, this);
  *
- * Here we listened to the {@link #change} event on the slider and updated the background
- * image of an {@link Ext.Img image component} based on what size the user selected. Of
- * course, you can use any logic inside your event listener.
+ * Here we listened to the {@link #change} event on the slider and updated the background image of an
+ * {@link Ext.Img image component} based on what size the user selected. Of course, you can use any logic inside your
+ * event listener.
  */
 Ext.define('Ext.field.Slider', {
-    extend: 'Ext.field.Field',
-    xtype: 'sliderfield',
+    extend  : 'Ext.field.Field',
+    xtype   : 'sliderfield',
     requires: ['Ext.slider.Slider'],
     alternateClassName: 'Ext.form.Slider',
-
-    mixins: [
-        'Ext.mixin.ConfigProxy',
-        'Ext.field.BoxLabelable'
-    ],
 
     /**
      * @event change
@@ -286,12 +112,8 @@ Ext.define('Ext.field.Slider', {
     */
 
     config: {
-        /**
-         * @private
-         */
-        slider: {
-            xtype: 'slider',
-            inheritUi: true
+        component: {
+            xtype: 'slider'
         },
 
         /**
@@ -308,72 +130,55 @@ Ext.define('Ext.field.Slider', {
         tabIndex: -1,
 
         /**
-         * @cfg readOnly
          * Will make this field read only, meaning it cannot be changed with used interaction.
+         * @cfg {Boolean} readOnly
          * @accessor
          */
         readOnly: false,
 
         /**
-         * @cfg value
-         * @inheritdoc Ext.slider.Slider#cfg-value
+         * @inheritdoc Ext.slider.Slider#value
+         * @cfg {Number/Number[]} value
          * @accessor
          */
         value: 0
     },
 
-    /**
-     * @property classCls
-     * @inheritdoc
-     */
     classCls: Ext.baseCSSPrefix + 'sliderfield',
 
     proxyConfig: {
-        slider: [
-            /**
-             * @cfg increment
-             * @inheritdoc Ext.slider.Slider#increment
-             */
-            'increment',
 
-            /**
-             * @cfg minValue
-             * @inheritdoc Ext.slider.Slider#minValue
-             */
-            'minValue',
+        /**
+         * @inheritdoc Ext.slider.Slider#increment
+         * @cfg {Number} increment
+         * @accessor
+         */
+        increment : 1,
 
-            /**
-             * @cfg maxValue
-             * @inheritdoc Ext.slider.Slider#maxValue
-             */
-            'maxValue'
-        ]
+        /**
+         * @inheritdoc Ext.slider.Slider#minValue
+         * @cfg {Number} minValue
+         * @accessor
+         */
+        minValue: 0,
+
+        /**
+         * @inheritdoc Ext.slider.Slider#maxValue
+         * @cfg {Number} maxValue
+         * @accessor
+         */
+        maxValue: 100
     },
 
-    /**
-     * @cfg bodyAlign
-     * @inheritdoc
-     */
-    bodyAlign: 'stretch',
-
-    /**
-     * @property defaultBindProperty
-     * @inheritdoc
-     */
     defaultBindProperty: 'value',
-
-    /**
-     * @cfg twoWayBindable
-     * @inheritdoc
-     */
     twoWayBindable: {
         values: 1,
         value: 1
     },
 
     /**
-     * @cfg values
-     * @inheritdoc Ext.slider.Slider#cfg-values
+     * @inheritdoc Ext.slider.Slider#values
+     * @cfg {Number/Number[]} values
      */
 
     constructor: function(config) {
@@ -393,7 +198,7 @@ Ext.define('Ext.field.Slider', {
     initialize: function() {
         this.callParent();
 
-        this.getSlider().on({
+        this.getComponent().on({
             scope: this,
 
             change: 'onSliderChange',
@@ -403,66 +208,46 @@ Ext.define('Ext.field.Slider', {
         });
     },
 
-    getBodyTemplate: function() {
-        return this.mixins.boxLabelable.getBodyTemplate.call(this);
-    },
+    /**
+     * @private
+     */
+    updateComponent: function(component, oldComponent) {
+        this.callParent([component, oldComponent]);
 
-    applySlider: function(slider) {
-        if (slider && !slider.isInstance) {
-            slider = this.mergeProxiedConfigs('slider', slider);
-            slider.$initParent = this;
-            slider = Ext.create(slider);
-            delete slider.$initParent;
-        }
-
-        this.boxElement.appendChild(slider.el);
-
-        slider.ownerCmp = this;
-
-        return slider;
-    },
-
-    updateSlider: function(slider) {
-        slider.doInheritUi();
-    },
-
-    getValue: function() {
-        return this._value;
+        component.setMinValue(this.getMinValue());
+        component.setMaxValue(this.getMaxValue());
     },
 
     applyValue: function(value, oldValue) {
-        value = this.callParent([value, oldValue]) || 0;
-
+        value = value || 0;
         // If we are currently dragging, don't allow the binding
         // to push a value over the top of what the user is doing.
         if (this.dragging && this.isSyncing('value')) {
             value = undefined;
-        }
-        else if (Ext.isArray(value)) {
+        } else if (Ext.isArray(value)) {
             value = value.slice(0);
-
             if (oldValue && Ext.Array.equals(value, oldValue)) {
                 value = undefined;
             }
-        }
-        else {
+        } else {
             value = [value];
         }
-
         return value;
     },
 
     updateValue: function(value, oldValue) {
-        if (!this.dragging) {
-            value = this.setSliderValue(value);
-        }
+        var me = this;
 
-        this.callParent([value, oldValue]);
+        if (!me.dragging) {
+            me.setComponentValue(value);
+        }
+        if (me.initialized) {
+            me.fireEvent('change', me, value, oldValue);
+        }
     },
 
-    setSliderValue: function(value) {
-        // Get the value back out after setting
-        return this.getSlider().setValue(value).getValue();
+    setComponentValue: function(value) {
+        this.getComponent().setValue(value);
     },
 
     onSliderChange: function(slider, thumb, newValue, oldValue) {
@@ -477,11 +262,9 @@ Ext.define('Ext.field.Slider', {
 
     onSliderDrag: function(slider, thumb, value, e) {
         var me = this;
-
         if (me.getLiveUpdate()) {
             me.setValue(slider.getValue());
         }
-
         me.fireEvent('drag', me, slider, thumb, value, e);
     },
 
@@ -515,42 +298,21 @@ Ext.define('Ext.field.Slider', {
     },
 
     updateReadOnly: function(newValue) {
-        this.getSlider().setReadOnly(newValue);
+        this.getComponent().setReadOnly(newValue);
+    },
+
+    isDirty : function () {
+        if (this.getDisabled()) {
+            return false;
+        }
+
+        return this.getValue() !== this.originalValue;
     },
 
     updateMultipleState: function() {
         var value = this.getValue();
-
         if (value && value.length > 1) {
             this.addCls(Ext.baseCSSPrefix + 'slider-multiple');
         }
-    },
-
-    updateDisabled: function(disabled, oldDisabled) {
-        this.callParent([disabled, oldDisabled]);
-
-        this.getSlider().setDisabled(disabled);
-    },
-
-    doDestroy: function() {
-        this.getSlider().destroy();
-        this.callParent();
-    },
-
-    getRefItems: function(deep) {
-        var refItems = [],
-            slider = this.getSlider();
-
-        if (slider) {
-            refItems.push(slider);
-
-            if (deep && slider.getRefItems) {
-                refItems.push.apply(refItems, slider.getRefItems(deep));
-            }
-        }
-
-        return refItems;
-    },
-
-    rawToValue: Ext.emptyFn
+    }
 });

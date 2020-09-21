@@ -10,9 +10,9 @@ Ext.define('Ext.layout.container.ColumnSplitter', {
 
     isSplitter: true,
 
-    synthetic: true,
+    synthetic  : true,
 
-    cls: Ext.baseCSSPrefix + 'splitter-vertical',
+    cls : Ext.baseCSSPrefix + 'splitter-vertical',
 
     orientation: 'vertical',
 
@@ -24,11 +24,9 @@ Ext.define('Ext.layout.container.ColumnSplitter', {
 
     height: 1,
 
-    getTrackerConfig: function() {
+    getTrackerConfig: function () {
         var tracker = this.callParent();
-
         tracker.xclass = this.trackerClass;
-
         return tracker;
     }
 });

@@ -1,38 +1,37 @@
-topSuite("Ext.grid.plugin.RowWidget",
-    ['Ext.grid.Panel', 'Ext.Button', 'Ext.app.ViewModel', 'Ext.grid.column.*', 'Ext.mixin.Watchable'],
-function() {
-    var itNotIE8 = Ext.isIE8 ? xit : it,
-        dummyData = [
-            ['3m Co', 71.72, 0.02, 0.03, '9/1 12:00am', 'Manufacturing'],
-            ['Alcoa Inc', 29.01, 0.42, 1.47, '9/1 12:00am', 'Manufacturing'],
-            ['Altria Group Inc', 83.81, 0.28, 0.34, '9/1 12:00am', 'Manufacturing'],
-            ['American Express Company', 52.55, 0.01, 0.02, '9/1 12:00am', 'Finance'],
-            ['American International Group, Inc.', 64.13, 0.31, 0.49, '9/1 12:00am', 'Services'],
-            ['AT&T Inc.', 31.61, -0.48, -1.54, '9/1 12:00am', 'Services'],
-            ['Boeing Co.', 75.43, 0.53, 0.71, '9/1 12:00am', 'Manufacturing'],
-            ['Caterpillar Inc.', 67.27, 0.92, 1.39, '9/1 12:00am', 'Services'],
-            ['Citigroup, Inc.', 49.37, 0.02, 0.04, '9/1 12:00am', 'Finance'],
-            ['E.I. du Pont de Nemours and Company', 40.48, 0.51, 1.28, '9/1 12:00am', 'Manufacturing'],
-            ['Exxon Mobil Corp', 68.1, -0.43, -0.64, '9/1 12:00am', 'Manufacturing'],
-            ['General Electric Company', 34.14, -0.08, -0.23, '9/1 12:00am', 'Manufacturing'],
-            ['General Motors Corporation', 30.27, 1.09, 3.74, '9/1 12:00am', 'Automotive'],
-            ['Hewlett-Packard Co.', 36.53, -0.03, -0.08, '9/1 12:00am', 'Computer'],
-            ['Honeywell Intl Inc', 38.77, 0.05, 0.13, '9/1 12:00am', 'Manufacturing'],
-            ['Intel Corporation', 19.88, 0.31, 1.58, '9/1 12:00am', 'Computer'],
-            ['International Business Machines', 81.41, 0.44, 0.54, '9/1 12:00am', 'Computer'],
-            ['Johnson & Johnson', 64.72, 0.06, 0.09, '9/1 12:00am', 'Medical'],
-            ['JP Morgan & Chase & Co', 45.73, 0.07, 0.15, '9/1 12:00am', 'Finance'],
-            ['McDonald\'s Corporation', 36.76, 0.86, 2.40, '9/1 12:00am', 'Food'],
-            ['Merck & Co., Inc.', 40.96, 0.41, 1.01, '9/1 12:00am', 'Medical'],
-            ['Microsoft Corporation', 25.84, 0.14, 0.54, '9/1 12:00am', 'Computer'],
-            ['Pfizer Inc', 27.96, 0.4, 1.45, '9/1 12:00am', 'Services', 'Medical'],
-            ['The Coca-Cola Company', 45.07, 0.26, 0.58, '9/1 12:00am', 'Food'],
-            ['The Home Depot, Inc.', 34.64, 0.35, 1.02, '9/1 12:00am', 'Retail'],
-            ['The Procter & Gamble Company', 61.91, 0.01, 0.02, '9/1 12:00am', 'Manufacturing'],
-            ['United Technologies Corporation', 63.26, 0.55, 0.88, '9/1 12:00am', 'Computer'],
-            ['Verizon Communications', 35.57, 0.39, 1.11, '9/1 12:00am', 'Services'],
-            ['Wal-Mart Stores, Inc.', 45.45, 0.73, 1.63, '9/1 12:00am', 'Retail'],
-            ['Walt Disney Company (The) (Holding Company)', 29.89, 0.24, 0.81, '9/1 12:00am', 'Services']
+/* global Ext, jasmine, expect, spyOn */
+
+describe('Ext.grid.plugin.RowWidget', function () {
+    var dummyData = [
+            ['3m Co',71.72,0.02,0.03,'9/1 12:00am', 'Manufacturing'],
+            ['Alcoa Inc',29.01,0.42,1.47,'9/1 12:00am', 'Manufacturing'],
+            ['Altria Group Inc',83.81,0.28,0.34,'9/1 12:00am', 'Manufacturing'],
+            ['American Express Company',52.55,0.01,0.02,'9/1 12:00am', 'Finance'],
+            ['American International Group, Inc.',64.13,0.31,0.49,'9/1 12:00am', 'Services'],
+            ['AT&T Inc.',31.61,-0.48,-1.54,'9/1 12:00am', 'Services'],
+            ['Boeing Co.',75.43,0.53,0.71,'9/1 12:00am', 'Manufacturing'],
+            ['Caterpillar Inc.',67.27,0.92,1.39,'9/1 12:00am', 'Services'],
+            ['Citigroup, Inc.',49.37,0.02,0.04,'9/1 12:00am', 'Finance'],
+            ['E.I. du Pont de Nemours and Company',40.48,0.51,1.28,'9/1 12:00am', 'Manufacturing'],
+            ['Exxon Mobil Corp',68.1,-0.43,-0.64,'9/1 12:00am', 'Manufacturing'],
+            ['General Electric Company',34.14,-0.08,-0.23,'9/1 12:00am', 'Manufacturing'],
+            ['General Motors Corporation',30.27,1.09,3.74,'9/1 12:00am', 'Automotive'],
+            ['Hewlett-Packard Co.',36.53,-0.03,-0.08,'9/1 12:00am', 'Computer'],
+            ['Honeywell Intl Inc',38.77,0.05,0.13,'9/1 12:00am', 'Manufacturing'],
+            ['Intel Corporation',19.88,0.31,1.58,'9/1 12:00am', 'Computer'],
+            ['International Business Machines',81.41,0.44,0.54,'9/1 12:00am', 'Computer'],
+            ['Johnson & Johnson',64.72,0.06,0.09,'9/1 12:00am', 'Medical'],
+            ['JP Morgan & Chase & Co',45.73,0.07,0.15,'9/1 12:00am', 'Finance'],
+            ['McDonald\'s Corporation',36.76,0.86,2.40,'9/1 12:00am', 'Food'],
+            ['Merck & Co., Inc.',40.96,0.41,1.01,'9/1 12:00am', 'Medical'],
+            ['Microsoft Corporation',25.84,0.14,0.54,'9/1 12:00am', 'Computer'],
+            ['Pfizer Inc',27.96,0.4,1.45,'9/1 12:00am', 'Services', 'Medical'],
+            ['The Coca-Cola Company',45.07,0.26,0.58,'9/1 12:00am', 'Food'],
+            ['The Home Depot, Inc.',34.64,0.35,1.02,'9/1 12:00am', 'Retail'],
+            ['The Procter & Gamble Company',61.91,0.01,0.02,'9/1 12:00am', 'Manufacturing'],
+            ['United Technologies Corporation',63.26,0.55,0.88,'9/1 12:00am', 'Computer'],
+            ['Verizon Communications',35.57,0.39,1.11,'9/1 12:00am', 'Services'],
+            ['Wal-Mart Stores, Inc.',45.45,0.73,1.63,'9/1 12:00am', 'Retail'],
+            ['Walt Disney Company (The) (Holding Company)',29.89,0.24,0.81,'9/1 12:00am', 'Services']
         ],
         store, expander, grid, view, scroller, bufferedRenderer, columns, i, widget, componentCount,
         lorem = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna.<br/><br/>Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit.';
@@ -53,12 +52,12 @@ function() {
                 {
                     name: 'id'
                 },
-                { name: 'company' },
-                { name: 'price', type: 'float' },
-                { name: 'change', type: 'float' },
-                { name: 'pctChange', type: 'float' },
-                { name: 'lastChange', type: 'date',  dateFormat: 'n/j h:ia' },
-                { name: 'industry' },
+                {name: 'company'},
+                {name: 'price', type: 'float'},
+                {name: 'change', type: 'float'},
+                {name: 'pctChange', type: 'float'},
+                {name: 'lastChange', type: 'date',  dateFormat: 'n/j h:ia'},
+                {name: 'industry'},
                 // Rating dependent upon performance 0 = best, 2 = worst
                 {
                     name: 'rating',
@@ -82,18 +81,13 @@ function() {
         Ext.define('spec.RowWidgetOrder', {
             extend: 'Ext.data.Model',
 
-            requires: [
-                'Ext.data.proxy.Memory',
-                'Ext.data.reader.Json'
-            ],
-
             fields: [
                 { name: 'id' },
                 // Declare an association with Company.
                 // Each Company record will be decorated with
                 // an "orders" method which yields a store
                 // containing associated orders.
-                {
+                { 
                     name: 'companyId',
                     reference: {
                         parent: 'spec.RowWidgetCompany',
@@ -824,7 +818,7 @@ function() {
         });
 
         expander = new Ext.grid.plugin.RowWidget(Ext.apply({
-            widget: {
+            widget : {
                 xtype: 'button',
                 isExpanderButton: true,
                 bind: '{record.company}'
@@ -832,11 +826,11 @@ function() {
         }, rowWidgetCfg || {}));
 
         columns = gridCfg.columns || [
-            { text: "Company", flex: 1, dataIndex: 'company' },
-            { text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price' },
-            { text: "Change", dataIndex: 'change' },
-            { text: "% Change", dataIndex: 'pctChange' },
-            { text: "Last Updated", renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange' }
+            {text: "Company", flex: 1, dataIndex: 'company'},
+            {text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price'},
+            {text: "Change", dataIndex: 'change'},
+            {text: "% Change", dataIndex: 'pctChange'},
+            {text: "Last Updated", renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange'}
         ];
 
         grid = new Ext.grid.Panel(Ext.apply({
@@ -852,10 +846,9 @@ function() {
             renderTo: document.body,
             leadingBufferZone: 1,
             trailingBufferZone: 1
-        }, gridCfg));
-
-        view = grid.getView();
-        scroller = view.isLockingView ? view.normalView.getScrollable() : view.getScrollable();
+        }, gridCfg)),
+        view = grid.getView(),
+        scroller = view.isLockingView ? view.normalView.getScrollable() : view.getScrollable(),
         bufferedRenderer = view.bufferedRenderer;
     }
 
@@ -865,15 +858,14 @@ function() {
 
     function getRowBodyTr(index, locked) {
         view = locked ? expander.lockedView : expander.view;
-
-        return Ext.fly(view.all.item(index).down('.' + Ext.baseCSSPrefix + 'grid-rowbody-tr', true));
+        return view.all.item(index).down('.' + Ext.baseCSSPrefix + 'grid-rowbody-tr');
     }
-
+    
     beforeEach(function() {
         componentCount = Ext.ComponentQuery.query('*').length;
     });
 
-    afterEach(function() {
+    afterEach(function () {
         Ext.destroy(grid);
         store = expander = grid = columns = null;
         Ext.undefine('spec.RowWidgetCompany');
@@ -884,15 +876,13 @@ function() {
         expect(Ext.ComponentQuery.query('*').length).toBe(componentCount);
     });
 
-    describe("RowWidget", function() {
+    describe("RowWidget", function () {
         it("should not expand in response to mousedown", function() {
             makeGrid();
 
             jasmine.fireMouseEvent(grid.view.el.query('.x-grid-row-expander')[0], 'mousedown');
 
             expect(getRowBodyTr(0).isVisible()).toBe(false);
-
-            jasmine.fireMouseEvent(grid.view.el.query('.x-grid-row-expander')[0], 'mouseup');
         });
 
         it("should expand on click", function() {
@@ -913,10 +903,10 @@ function() {
             // Check that the widget is of the correct type and rendered and updated correctly.
             widget = expander.getWidget(grid.view, store.getAt(0));
             expect(widget.isButton).toBe(true);
-            expect(widget === Ext.Component.from(grid.view.all.item(0).down('.' + Ext.baseCSSPrefix + 'grid-rowbody', true).firstChild)).toBe(true);
+            expect(widget === Ext.Component.fromElement(grid.view.all.item(0).down('.' + Ext.baseCSSPrefix + 'grid-rowbody', true).firstChild)).toBe(true);
 
             // Flush the VM's data so we can work synchronously
-            widget.lookupViewModel().notify();
+            widget.getViewModel().notify();
             expect(widget.getText()).toBe(store.getAt(0).get('company'));
         });
 
@@ -934,7 +924,7 @@ function() {
             // Collapsing ust lay out in case it triggers underflow
             expect(grid.view.componentLayoutCounter).toBe(layoutCounter + 1);
         });
-
+        
         it('should only create widgets for the rendered viewSize', function() {
             makeGrid();
 
@@ -942,52 +932,27 @@ function() {
             var widgetCount = Ext.ComponentQuery.query('*').length;
 
             var viewSize = grid.bufferedRenderer.viewSize,
+                idx = 0,
                 storeCount = store.getCount(),
-                item = 0,
-                checkScrollEnd,
-                node;
+                done;
 
-            waitsFor(checkScrollEnd = function(done) {
-                // Click all rendered expanders until we hit the end of the rendered block
-                // eslint-disable-next-line no-cond-assign
-                while (node = view.all.item(item)) {
-                    jasmine.fireMouseEvent(node.query('.x-grid-row-expander')[0], 'click');
-                    item++;
-                }
-
-                if (item === storeCount) {
-                    return done();
-                }
-
-                // When we hit the end of the rendered block, ask that the required
-                // row be scrolled into view.
-                grid.ensureVisible(item, {
-                    callback: function() {
-                        checkScrollEnd(done);
+            waitsFor(function() {
+                grid.ensureVisible(idx, {
+                    callback: function(success, record, item) {
+                        jasmine.fireMouseEvent(Ext.fly(item).query('.x-grid-row-expander')[0], 'click');
+                        done = ++idx === storeCount;
                     }
                 });
-            }, 'grid to scroll to end');
+                return done;
+            }, 'all rows to be expanded', 30000, Ext.isIE8 ? 50 : undefined);
             // Wait up to 30 seconds for all rows to be expanded.
+            // for IE8, pause 50ms between checks to let the browser work.
 
             runs(function() {
                 // The total component count should be the initial count plus one row widget for every RENDERED row.
                 // So that's "viewSize" widgets created.
                 expect(Ext.ComponentQuery.query('*').length).toBe(widgetCount + viewSize + grid.freeRowContexts.length);
             });
-        });
-
-        it("should keep the widget in place when a column updates", function() {
-            makeGrid();
-
-            var rec = store.getAt(0);
-
-            expander.toggleRow(0, rec);
-
-            var btn = grid.down('[isExpanderButton]');
-
-            expect(btn.el.parent(null, true)).toHaveCls('x-grid-rowbody');
-            rec.set('company', 'Foo');
-            expect(expect(btn.el.parent(null, true)).toHaveCls('x-grid-rowbody'));
         });
 
         describe("with scrollIntoViewOnExpand", function() {
@@ -1007,7 +972,7 @@ function() {
             });
 
             describe("with locked columns", function() {
-                function makeLockedGrid(tall) {
+                function makeLockedGrid (tall) {
                     var smallWidget = {
                             xtype: 'button',
                             bind: '{record.company}'
@@ -1020,39 +985,16 @@ function() {
 
                     makeGrid({
                         columns: [
-                            { text: "Company", width: 200, dataIndex: 'company', locked: true },
-                            { text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price' },
-                            { text: "Change", dataIndex: 'change' }
+                            {text: "Company", width: 200, dataIndex: 'company', locked: true},
+                            {text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price'},
+                            {text: "Change", dataIndex: 'change'}
                         ]
                     }, {
                         scrollIntoViewOnExpand: true,
-                        widget: tall ? tallWidget : smallWidget,
-                        lockedWidget: tall ? smallWidget : tallWidget
+                        widget : tall ? tallWidget : smallWidget,
+                        lockedWidget : tall ? smallWidget : tallWidget
                     });
                 }
-
-                it("should be able to focus a component in the normal view", function() {
-                    makeLockedGrid(false);
-
-                    expander.toggleRow(1, store.getAt(1));
-                    widget = expander.getWidget(grid.normalGrid.view, store.getAt(1));
-
-                    waitsFor(function() {
-                        return widget.rendered;
-                    });
-
-                    runs(function() {
-                        jasmine.fireMouseEvent(widget, 'click');
-                    });
-
-                    waitsFor(function() {
-                        return widget.hasFocus;
-                    });
-
-                    runs(function() {
-                        expect(Ext.fly(widget.ownerCmp.getRow(1)).selectNode('.x-grid-cell')).not.toHaveCls('x-grid-item-focused');
-                    });
-                });
 
                 it("should use the lockedWidget content (when it is taller) to determine scroll distance", function() {
                     var viewBottom, rowBottom;
@@ -1068,9 +1010,9 @@ function() {
                         rowBottom = getElementBottom(getRowBodyTr(12, true));
                         // row body should be scrolled into view
                         expect(rowBottom).not.toBeGreaterThan(viewBottom);
-                    });
+                    });            
                 });
-
+                
                 it("should use the widget content (when it is taller) to determine scroll distance", function() {
                     var viewBottom, rowBottom;
 
@@ -1085,7 +1027,7 @@ function() {
                         rowBottom = getElementBottom(getRowBodyTr(12, false));
                         // row body should be scrolled into view
                         expect(rowBottom).not.toBeGreaterThan(viewBottom);
-                    });
+                    });            
                 });
             });
         });
@@ -1095,27 +1037,25 @@ function() {
                 makeGrid({
                     syncRowHeight: false,
                     columns: [
-                        { text: "Company", width: 200, dataIndex: 'company', locked: true },
-                        { text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price' },
-                        { text: "Change", dataIndex: 'change' },
-                        { text: "% Change", dataIndex: 'pctChange' },
-                        { text: "Last Updated", renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange' }
+                        {text: "Company", width: 200, dataIndex: 'company', locked: true},
+                        {text: "Price", renderer: Ext.util.Format.usMoney, dataIndex: 'price'},
+                        {text: "Change", dataIndex: 'change'},
+                        {text: "% Change", dataIndex: 'pctChange'},
+                        {text: "Last Updated", renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange'}
                     ]
               }, {
-                    widget: {
+                    widget : {
                         xtype: 'button',
                         defaultBindProperty: 'company',
-                        bind: '{record.company}',
-                        setCompany: function(name) {
-                            this.setText(name);
+                        setCompany: function(company) {
+                            this.setText(company.get('company'));
                         }
                     },
                     lockedWidget: {
                         xtype: 'component',
-                        defaultBindProperty: 'industry',
-                        bind: '{record.industry}',
-                        setIndustry: function(name) {
-                            this.setHtml(name);
+                        defaultBindProperty: 'company',
+                        setCompany: function(company) {
+                            this.setHtml(company.get('industry'));
                         }
                     }
                 });
@@ -1125,15 +1065,13 @@ function() {
                 jasmine.fireMouseEvent(grid.lockedGrid.view.el.query('.x-grid-row-expander')[0], 'mousedown');
 
                 expect(getRowBodyTr(0, true).isVisible()).toBe(false);
-
-                jasmine.fireMouseEvent(grid.lockedGrid.view.el.query('.x-grid-row-expander')[0], 'mouseup');
             });
 
             it("should expand on click", function() {
                 jasmine.fireMouseEvent(grid.lockedGrid.view.el.query('.x-grid-row-expander')[0], 'click');
 
                 expect(getRowBodyTr(0, true).isVisible()).toBe(true);
-
+                
                 expect(grid.lockedGrid.view.body.getHeight()).toBe(grid.normalGrid.view.body.getHeight());
             });
 
@@ -1150,9 +1088,8 @@ function() {
                 // Check the content of the rowbody in the locked side.
                 // The lockedWidget specifies that it be a component with the textual content being the industry field.
                 widget = expander.getWidget(grid.lockedGrid.view, store.getAt(0));
-                widget.lookupViewModel().notify();
                 expect(widget.isComponent).toBe(true);
-                expect(widget === Ext.Component.from(grid.lockedGrid.view.all.item(0).down('.' + Ext.baseCSSPrefix + 'grid-rowbody', true).firstChild)).toBe(true);
+                expect(widget === Ext.Component.fromElement(grid.lockedGrid.view.all.item(0).down('.' + Ext.baseCSSPrefix + 'grid-rowbody', true).firstChild)).toBe(true);
                 expect(widget.el.dom.textContent || widget.el.dom.innerText).toBe(store.getAt(0).get('industry'));
 
                 // Check thetwo rows (one on each side) are synched in height
@@ -1161,9 +1098,9 @@ function() {
             });
         });
 
-        describe('striping rows', function() {
-            describe('normal grid', function() {
-                it("should place the altRowCls on the view row's ancestor row", function() {
+        describe('striping rows', function () {
+            describe('normal grid', function () {
+                it("should place the altRowCls on the view row's ancestor row", function () {
                     // The .x-grid-item-alt class is now placed on the view *item*. The row table.
                     // See EXTJSIV-612.
                     makeGrid();
@@ -1174,17 +1111,17 @@ function() {
                 });
             });
 
-            describe('locked grid', function() {
-                it("should place the altRowCls on the view row's ancestor row", function() {
+            describe('locked grid', function () {
+                it("should place the altRowCls on the view row's ancestor row", function () {
                     // The .x-grid-item-alt class is now placed on the view *item*. The row table.
                     // See EXTJSIV-612.
                     makeGrid({
                         columns: [
-                            { text: 'Company', dataIndex: 'company', locked: true },
-                            { text: 'Price', dataIndex: 'price', locked: true },
-                            { text: 'Change', dataIndex: 'change' },
-                            { text: '% Change', dataIndex: 'pctChange' },
-                            { text: 'Last Updated', dataIndex: 'lastChange' }
+                            {text: 'Company', dataIndex: 'company', locked: true},
+                            {text: 'Price', dataIndex: 'price', locked: true},
+                            {text: 'Change', dataIndex: 'change'},
+                            {text: '% Change', dataIndex: 'pctChange'},
+                            {text: 'Last Updated', dataIndex: 'lastChange'}
                         ]
                     });
 
@@ -1195,17 +1132,17 @@ function() {
                     expect(Ext.fly(normalNode).hasCls('x-grid-item-alt')).toBe(true);
                 });
 
-                it("should sync row heights when buffered renderer adds new rows during scroll", function() {
+                it("should sync row heights when buffered renderer adds new rows during scroll", function () {
                     makeGrid({
                         leadingBufferZone: 2,
                         trailingBufferZone: 2,
                         height: 100,
                         columns: [
-                            { text: 'Company', dataIndex: 'company', locked: true },
-                            { text: 'Price', dataIndex: 'price', locked: true },
-                            { text: 'Change', dataIndex: 'change' },
-                            { text: '% Change', dataIndex: 'pctChange' },
-                            { text: 'Last Updated', dataIndex: 'lastChange' }
+                            {text: 'Company', dataIndex: 'company', locked: true},
+                            {text: 'Price', dataIndex: 'price', locked: true},
+                            {text: 'Change', dataIndex: 'change'},
+                            {text: '% Change', dataIndex: 'pctChange'},
+                            {text: 'Last Updated', dataIndex: 'lastChange'}
                         ]
                     });
 
@@ -1213,8 +1150,6 @@ function() {
                     var expanders = grid.view.el.query('.x-grid-row-expander'),
                         lockedView = grid.lockedGrid.view,
                         normalView = grid.normalGrid.view,
-                        lockedBR = lockedView.bufferedRenderer,
-                        normalBR = normalView.bufferedRenderer,
                         item0CollapsedHeight = lockedView.all.item(0, true).offsetHeight,
                         item0ExpandedHeight;
 
@@ -1233,32 +1168,11 @@ function() {
 
                     waits(500);
                     runs(function() {
-                        // Everything must be in sync
-                        expect(normalBR.bodyTop).toBe(lockedBR.bodyTop);
-                        expect(normalBR.scrollTop).toBe(lockedBR.scrollTop);
-                        expect(normalBR.position).toBe(lockedBR.position);
-                        expect(normalBR.rowHeight).toBe(lockedBR.rowHeight);
-                        expect(normalBR.bodyHeight).toBe(lockedBR.bodyHeight);
-                        expect(normalBR.viewClientHeight).toBe(lockedBR.viewClientHeight);
-
                         normalView.setScrollY(0);
                     });
 
                     waits(500);
                     runs(function() {
-                        // We must be at position zero
-                        expect(lockedBR.bodyTop).toBe(0);
-                        expect(lockedBR.scrollTop).toBe(0);
-                        expect(lockedBR.position).toBe(0);
-
-                        // Everything must be in sync
-                        expect(normalBR.bodyTop).toBe(lockedBR.bodyTop);
-                        expect(normalBR.scrollTop).toBe(lockedBR.scrollTop);
-                        expect(normalBR.position).toBe(lockedBR.position);
-                        expect(normalBR.rowHeight).toBe(lockedBR.rowHeight);
-                        expect(normalBR.bodyHeight).toBe(lockedBR.bodyHeight);
-                        expect(normalBR.viewClientHeight).toBe(lockedBR.viewClientHeight);
-
                         // We scrolled the normal view, and the locked view should have had its newly rendered row 0 height synced
                         expect(lockedView.all.item(0, true).offsetHeight).toBe(item0ExpandedHeight);
                     });
@@ -1266,7 +1180,7 @@ function() {
             });
         });
 
-        it('should work when defined in a subclass', function() {
+        it('should work when defined in a subclass', function () {
             // The point of this spec is to demonstrate that the RowWidget plugin, which depends on the
             // RowBody grid feature, will still be properly constructed and rendered when defined in initComponent
             // in a subclass of grid (really, anything that has panel.Table as an ancestor class).
@@ -1278,13 +1192,13 @@ function() {
             // See EXTJSIV-EXTJSIV-11927.
             makeGrid({
                 xhooks: {
-                    initComponent: function() {
+                    initComponent: function () {
                         Ext.apply(this, {
                             store: [],
                             columns: [],
                             plugins: [{
                                 ptype: 'rowwidget',
-                                widget: {
+                                widget : {
                                     xtype: 'button',
                                     defaultBindProperty: 'company',
                                     setCompany: function(company) {
@@ -1302,14 +1216,14 @@ function() {
             expect(grid.view.features.length).toBe(1);
         });
 
-        it('should insert a colspan attribute on the rowwrap cell equal to the number of grid columns', function() {
+        it('should insert a colspan attribute on the rowwrap cell equal to the number of grid columns', function () {
             makeGrid({
                 columns: [
-                    { text: 'Company', dataIndex: 'company' },
-                    { text: 'Price', dataIndex: 'price' },
-                    { text: 'Change', dataIndex: 'change' },
-                    { text: '% Change', dataIndex: 'pctChange' },
-                    { text: 'Last Updated', dataIndex: 'lastChange' }
+                    {text: 'Company', dataIndex: 'company'},
+                    {text: 'Price', dataIndex: 'price'},
+                    {text: 'Change', dataIndex: 'change'},
+                    {text: '% Change', dataIndex: 'pctChange'},
+                    {text: 'Last Updated', dataIndex: 'lastChange'}
                 ]
             });
 
@@ -1318,7 +1232,7 @@ function() {
             expect(parseInt(grid.body.down('.x-grid-cell-rowbody', true).getAttribute('colspan'), 10)).toBe(5);
         });
 
-        itNotIE8('should expand the buffered rendering scroll range when at the bottom and the row is expanded', function() {
+        it('should expand the buffered rendering scroll range when at the bottom and the row is expanded', function() {
             makeGrid({
                 leadingBufferZone: 2,
                 trailingBufferZone: 2,
@@ -1328,13 +1242,10 @@ function() {
             expect(bufferedRenderer).toBeDefined();
 
             // Scroll until last row visible
-            jasmine.waitsForScroll(scroller, function(scroller, x, y) {
-                if (view.all.endIndex === store.getCount() - 1) {
-                    return true;
-                }
-
-                scroller.scrollBy(0, 25);
-            }, 'scroll until last record is rendered', 20000);
+            waitsFor(function() {
+                view.setScrollY(view.getScrollY() + 10);
+                return view.all.endIndex === store.getCount() - 1;
+            });
 
             runs(function() {
                 // Get the expander elements to click on
@@ -1350,23 +1261,23 @@ function() {
             });
         });
 
-        describe('locking grid', function() {
-            describe('no initial locked columns', function() {
-                beforeEach(function() {
+        describe('locking grid', function () {
+            describe('no initial locked columns', function () {
+                beforeEach(function () {
                     makeGrid({
                         enableLocking: true
                     });
                 });
 
-                it('should add the expander column to the normal grid', function() {
+                it('should add the expander column to the normal grid', function () {
                     expect(expander.expanderColumn.up('tablepanel')).toBe(grid.normalGrid);
                 });
 
-                it('should hide the locked grid', function() {
+                it('should hide the locked grid', function () {
                     expect(grid.lockedGrid.hidden).toBe(true);
                 });
 
-                it('should move the expander column to the locked grid when first column is locked', function() {
+                it('should move the expander column to the locked grid when first column is locked', function () {
                     // Pass in an active header. Don't use the first column in the stack (it's the rowwidget column)!
                     grid.lock(grid.columnManager.getColumns()[1]);
 
@@ -1374,28 +1285,28 @@ function() {
                 });
             });
 
-            describe('has locked columns', function() {
-                beforeEach(function() {
+            describe('has locked columns', function () {
+                beforeEach(function () {
                     makeGrid({
                         columns: [
-                            { text: 'Company', locked: true, dataIndex: 'company' },
-                            { text: 'Price', dataIndex: 'price' },
-                            { text: 'Change', dataIndex: 'change' },
-                            { text: '% Change', dataIndex: 'pctChange' },
-                            { text: 'Last Updated', dataIndex: 'lastChange' }
+                            {text: 'Company', locked: true, dataIndex: 'company'},
+                            {text: 'Price', dataIndex: 'price'},
+                            {text: 'Change', dataIndex: 'change'},
+                            {text: '% Change', dataIndex: 'pctChange'},
+                            {text: 'Last Updated', dataIndex: 'lastChange'}
                         ]
                     });
                 });
 
-                it('should add the expander column to the locked grid', function() {
+                it('should add the expander column to the locked grid', function () {
                     expect(expander.expanderColumn.up('tablepanel')).toBe(grid.lockedGrid);
                 });
 
-                it('should not hide the locked grid', function() {
+                it('should not hide the locked grid', function () {
                     expect(grid.lockedGrid.hidden).toBe(false);
                 });
 
-                it('should move the expander column to the normal grid when there are no locked columns', function() {
+                it('should move the expander column to the normal grid when there are no locked columns', function () {
                     // Pass in an active header. Don't use the first column in the stack (it's the rowwidget column)!
                     grid.unlock(grid.columnManager.getColumns()[1]);
 
@@ -1403,26 +1314,6 @@ function() {
                     expect(expander.expanderColumn.up('tablepanel')).toBe(grid.normalGrid);
                 });
             });
-        });
-    });
-
-    describe("reconfigure", function() {
-        it("should should place widgets when setting a new store", function() {
-            makeGrid();
-            expander.toggleRow(0, store.getAt(0));
-            var newStore = new Ext.data.Store({
-                model: 'spec.RowWidgetCompany',
-                data: [{
-                    company: 'Foo'
-                }]
-            });
-
-            grid.setStore(newStore);
-            expander.toggleRow(0, newStore.getAt(0));
-            newStore.sort('company');
-            var body = grid.el.dom.querySelector('.x-grid-rowbody');
-
-            expect(body.querySelector('.x-btn')).not.toBeNull();
         });
     });
 
@@ -1435,7 +1326,7 @@ function() {
                 trailingBufferZone: 10,
                 height: 200
             }, {
-                widget: {
+                widget : {
                     xtype: 'container',
                     bind: {},
                     layout: {
@@ -1485,8 +1376,8 @@ function() {
             });
             loadSpy = spyOn(Ext.data.ProxyStore.prototype, 'load').andCallThrough();
         });
-
-        itNotIE8('should work', function() {
+        
+        it('should work', function() {
             var layoutCount = view.componentLayoutCounter,
                 scrollRange = scroller.getSize().y;
 
@@ -1497,7 +1388,7 @@ function() {
             expect(scroller.getSize().y).toBeGreaterThan(scrollRange);
             expect(loadSpy.callCount).toBe(1);
 
-            layoutCount = view.componentLayoutCounter;
+            layoutCount = view.componentLayoutCounter,
             scrollRange = scroller.getSize().y;
 
             expect(view.componentLayoutCounter).toBe(layoutCount);
@@ -1509,19 +1400,16 @@ function() {
             expect(scroller.getSize().y).toBeGreaterThan(scrollRange);
             expect(loadSpy.callCount).toBe(2);
 
-            layoutCount = view.componentLayoutCounter;
+            layoutCount = view.componentLayoutCounter,
             scrollRange = scroller.getSize().y;
 
             expect(view.componentLayoutCounter).toBe(layoutCount);
 
-            jasmine.waitsForScroll(scroller, function(s, x, y) {
-                if (y === scroller.getMaxUserPosition().y &&
-                    (view.all.endIndex === store.getCount() - 1)) {
-                    return true;
-                }
-
-                scroller.scrollBy(0, 100);
-             }, 'scroll to end', 20000);
+            waitsFor(function() {
+                scroller.scrollBy(0, 25);
+                return scroller.getPosition().y === scroller.getMaxUserPosition().y &&
+                    view.all.endIndex === store.getCount() - 1;
+            }, 'scroll to end', 20000, 50);
 
             // No more loads.
             runs(function() {
@@ -1529,32 +1417,24 @@ function() {
             });
         });
 
-        itNotIE8('should correctly resize rendered block when last row expands', function() {
+        it('should correctly resize rendered block when last row expands', function() {
             var lastRow;
 
             waitsFor(function() {
-                if (scroller.getPosition().y === scroller.getMaxUserPosition().y &&
-                    view.all.endIndex === store.getCount() - 1) {
-                    return true;
-                }
-
-                scroller.scrollBy(null, 100);
-            }, 'scroll to end', 500);
+                scroller.scrollBy(0, 25);
+                return scroller.getPosition().y === scroller.getMaxUserPosition().y &&
+                    view.all.endIndex === store.getCount() - 1;
+            }, 'scroll to end', 20000, 50);
 
             runs(function() {
                 lastRow = view.all.last(true);
-                jasmine.fireMouseEvent(Ext.fly(lastRow).down('.x-grid-row-expander', true), 'click');
+                jasmine.fireMouseEvent(Ext.fly(lastRow).down('.x-grid-row-expander'), 'click');
             });
-
             waitsFor(function() {
-
-                if (scroller.getPosition().y === scroller.getMaxUserPosition().y &&
-                    view.all.endIndex === store.getCount() - 1) {
-                    return true;
-                }
-
-                scroller.scrollBy(null, 100);
-            }, 'scroll to end after row expansion', 500);
+                scroller.scrollBy(0, 25);
+                return scroller.getPosition().y === scroller.getMaxUserPosition().y &&
+                    view.all.endIndex === store.getCount() - 1;
+            }, 'scroll to end', 20000, 50);
 
             // Last row should still be the same
             runs(function() {

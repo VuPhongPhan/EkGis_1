@@ -1,7 +1,8 @@
-topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
+describe('Ext.layout.container.Fit', function(){
+
     var ct;
 
-    afterEach(function() {
+    afterEach(function(){
         Ext.destroy(ct);
         ct = null;
     });
@@ -18,21 +19,20 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
                 layout: Ext.apply({ type: 'fit' }, layoutOptions)
             }, options));
 
-        // eslint-disable-next-line eqeqeq
         if (failedLayouts != Ext.failedLayouts) {
             expect('failedLayout=true').toBe('false');
         }
     }
 
-    describe('should handle minWidth and/or minHeight', function() {
-        it('should stretch the configured size child', function() {
+    describe('should handle minWidth and/or minHeight', function () {
+        it('should stretch the configured size child', function(){
             makeCt({
                     width: undefined,
                     height: undefined,
                     floating: true,
                     minWidth: 100,
                     minHeight: 100,
-                    // style: 'border: 1px solid red',
+                    //style: 'border: 1px solid red',
                     items: {
                         xtype: 'component',
                         width: 50,
@@ -49,8 +49,8 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
         });
     });
 
-    describe('Fixed dimensions', function() {
-        it('should size the child item to the parent', function() {
+    describe('Fixed dimensions', function(){
+        it('should size the child item to the parent', function(){
             makeCt({
                     items: {}
                 });
@@ -63,7 +63,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for padding on the owner', function() {
+        it('should account for padding on the owner', function(){
             makeCt({
                     padding: 10,
                     items: {}
@@ -77,7 +77,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for top padding on the owner', function() {
+        it('should account for top padding on the owner', function(){
             makeCt({
                     padding: '10 0 0 0',
                     items: {}
@@ -91,7 +91,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for right padding on the owner', function() {
+        it('should account for right padding on the owner', function(){
             makeCt({
                     padding: '0 10 0 0',
                     items: {}
@@ -105,7 +105,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for bottom padding on the owner', function() {
+        it('should account for bottom padding on the owner', function(){
             makeCt({
                     padding: '0 0 10 0',
                     items: {}
@@ -119,7 +119,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for left padding on the owner', function() {
+        it('should account for left padding on the owner', function(){
             makeCt({
                     padding: '0 0 0 10',
                     items: {}
@@ -133,7 +133,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for margin on the child', function() {
+        it('should account for margin on the child', function(){
             makeCt({
                     items: {
                         margin: 10
@@ -148,7 +148,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for a top margin on the child', function() {
+        it('should account for a top margin on the child', function(){
             makeCt({
                     items: {
                         margin: '10 0 0 0'
@@ -163,7 +163,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for a right margin on the child', function() {
+        it('should account for a right margin on the child', function(){
             makeCt({
                     items: {
                         margin: '0 10 0 0'
@@ -178,7 +178,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for a bottom margin on the child', function() {
+        it('should account for a bottom margin on the child', function(){
             makeCt({
                     items: {
                         margin: '0 0 10'
@@ -193,7 +193,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for a left margin on the child', function() {
+        it('should account for a left margin on the child', function(){
             makeCt({
                     items: {
                         margin: '0 0 0 10'
@@ -208,7 +208,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for both padding & margin', function() {
+        it('should account for both padding & margin', function(){
             makeCt({
                     padding: 10,
                     items: {
@@ -242,10 +242,10 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should support margin and a style margin', function() {
+        it('should support margin and a style margin', function(){
             makeCt({
                     items: {
-                        style: { margin: '10px' }, // Will be ignored
+                        style: {margin: '10px'}, // Will be ignored
                         margin: 15
                     }
                 });
@@ -258,12 +258,12 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should support multiple items', function() {
+        it('should support multiple items', function(){
             makeCt({
                     style: 'position: relative',
                     items: [{}, {
                         // TODO: this is currently required but perhaps shouldn't be
-                        style: { position: 'absolute' },
+                        style: {position: 'absolute'},
                         itemId: 'second'
                     }]
                 });
@@ -277,7 +277,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should support multiple items with margin & padding', function() {
+        it('should support multiple items with margin & padding', function(){
             makeCt({
                     style: 'position: relative',
                     padding: 10,
@@ -285,7 +285,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
                         margin: true // 5
                     }, {
                         // TODO: this is currently required but perhaps shouldn't be
-                        style: { position: 'absolute' },
+                        style: {position: 'absolute'},
                         itemId: 'second',
                         margin: 20
                     }]
@@ -301,7 +301,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should prioritize fitting the child over a configured size', function() {
+        it('should prioritize fitting the child over a configured size', function(){
             makeCt({
                     items: {
                         height: 50, // should be ignored
@@ -319,8 +319,8 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
         });
     });
 
-    describe('Shrink-wrapping', function() {
-        it('should force the parent to the child size', function() {
+    describe('Shrink-wrapping', function(){
+        it('should force the parent to the child size', function(){
             makeCt({
                     floating: true, // avoid stretching to full body width
                     items: {
@@ -337,7 +337,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should take into account owner padding', function() {
+        it('should take into account owner padding', function(){
             makeCt({
                     floating: true, // avoid stretching to full body width
                     padding: 10,
@@ -355,7 +355,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should take into account child margin', function() {
+        it('should take into account child margin', function(){
             makeCt({
                     floating: true, // avoid stretching to full body width
                     items: {
@@ -373,7 +373,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for both padding/margin', function() {
+        it('should account for both padding/margin', function(){
             makeCt({
                     floating: true, // avoid stretching to full body width
                     padding: 10,
@@ -392,7 +392,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for left padding & a top margin', function() {
+        it('should account for left padding & a top margin', function(){
             makeCt({
                     floating: true, // avoid stretching to full body width
                     padding: '0 0 0 10',
@@ -453,7 +453,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for hscrollbar if overflowing', function() {
+        it('should account for hscrollbar if overflowing', function () {
             makeCt({
                     floating: true,
                     width: 100,
@@ -473,7 +473,7 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
             });
         });
 
-        it('should account for vscrollbar if overflowing', function() {
+        it('should account for vscrollbar if overflowing', function () {
             makeCt({
                     floating: true,
                     xtype: 'panel',
@@ -493,9 +493,9 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
                     0: { el: { xywh: '0 0 50 200' } }
                 }
             });
-        });
+        })
     });
-
+    
     it("should not fail when the item is hidden & the container is shrink wrapping", function() {
         expect(function() {
             ct = new Ext.container.Container({
@@ -507,6 +507,6 @@ topSuite("Ext.layout.container.Fit", ['Ext.Panel'], function() {
                     xtype: 'component'
                 }
             });
-        }).not.toThrow();
+        }).not.toThrow();        
     });
 });

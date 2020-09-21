@@ -2,7 +2,7 @@
  * @private
  */
 Ext.define('Ext.grid.locking.RowSynchronizer', {
-    constructor: function(view, rowEl) {
+    constructor: function (view, rowEl) {
         var me = this,
             rowTpl;
 
@@ -19,7 +19,7 @@ Ext.define('Ext.grid.locking.RowSynchronizer', {
         }
     },
 
-    add: function(name, selector) {
+    add: function (name, selector) {
         var el = Ext.fly(this.rowEl).down(selector, true);
 
         if (el) {
@@ -29,7 +29,7 @@ Ext.define('Ext.grid.locking.RowSynchronizer', {
         }
     },
 
-    finish: function(other) {
+    finish: function (other) {
         var me = this,
             els = me.els,
             otherEls = other.els,
@@ -41,7 +41,7 @@ Ext.define('Ext.grid.locking.RowSynchronizer', {
         for (name in els) {
             otherEl = otherEls[name];
 
-            // Partner RowSynchronizer may not have the element.
+            // Partnet RowSynchronizer may not have the element.
             // For example, group summary may not be wanted in locking side.
             otherHeight = otherEl ? otherEl.height : 0;
             delta = otherHeight - els[name].height;
@@ -49,8 +49,7 @@ Ext.define('Ext.grid.locking.RowSynchronizer', {
             if (delta > 0) {
                 growth += delta;
                 Ext.fly(els[name].el).setHeight(otherHeight);
-            }
-            else {
+            } else {
                 otherGrowth -= delta;
             }
         }
@@ -70,20 +69,19 @@ Ext.define('Ext.grid.locking.RowSynchronizer', {
         }
     },
 
-    measure: function() {
+    measure: function () {
         var me = this,
             els = me.els,
-            grid = me.view.ownerGrid,
             name;
 
-        me.rowHeight = grid.getElementHeight(me.rowEl);
+        me.rowHeight = me.rowEl.offsetHeight;
 
         for (name in els) {
-            els[name].height = grid.getElementHeight(els[name].el);
+            els[name].height = els[name].el.offsetHeight;
         }
     },
 
-    reset: function() {
+    reset: function () {
         var els = this.els,
             name;
 
