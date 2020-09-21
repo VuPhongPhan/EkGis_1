@@ -12,6 +12,7 @@ namespace EkGis.Application.Catalog.NhanViens
         Task<int> Update(NVUpdateRequest request);
         Task<int> Delete(int MaKH);
         Task<NVViewModel> GetByMa(int ma);
+        Task<List<NVViewModel>> GetAll();
         Task<PagedResult<NVViewModel>> GetAllPaging(int page, int start, int limit, string keywords);
     }
 }

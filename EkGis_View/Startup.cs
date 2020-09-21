@@ -9,6 +9,7 @@ using EkGis.Application.Catalog.YeuCaus;
 using EkGis.Data.EF;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ namespace EkGis_View
 {
     public class Startup
     {
+        readonly string Origin = "_Origin";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -40,6 +42,14 @@ namespace EkGis_View
 
             services.AddControllersWithViews();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: "Origin",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:8100");
+                    });
+            });
 
             services.AddSwaggerGen(c =>
             {
@@ -95,6 +105,8 @@ namespace EkGis_View
 
             app.UseAuthorization();
 
+            app.UseCors(Origin);
+
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -107,6 +119,15 @@ namespace EkGis_View
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapGet("/echo",
+               context => context.Response.WriteAsync("echo"))
+               .RequireCors(Origin);
+
+                endpoints.MapControllers()
+                         .RequireCors(Origin);
+
+                endpoints.MapGet("/echo2",
+                    context => context.Response.WriteAsync("echo2"));
             });
         }
     }

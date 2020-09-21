@@ -2,10 +2,12 @@
 using EkGis.Application.Catalog.YeuCaus;
 using EkGis.Application.Catalog.YeuCaus.Dtos;
 using EkGis.Data.Entities;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EkGis_1.Controllers
 {
+    [EnableCors("Origin")]
     [Route("api/[controller]")]
     [ApiController]
     public class YeuCauController : ControllerBase
