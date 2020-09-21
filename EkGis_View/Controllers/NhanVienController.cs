@@ -25,10 +25,10 @@ namespace EkGis_View.Controllers
             var result = await _nhanVienService.GetAllPaging(page, start, limit, keywords);
             return Ok(result);
         }
-        [HttpGet("{keywords}")]
-        public async Task<IActionResult> GetSearch(int page, int start, int limit, string keywords)
+        [HttpGet("EkGis")]
+        public async Task<IActionResult> GetAll()
         {
-            var result = await _nhanVienService.GetAllPaging(page, start, limit, keywords);
+            var result = await _nhanVienService.GetAll();
             return Ok(result);
         }
         /*[HttpGet("{ma}")]

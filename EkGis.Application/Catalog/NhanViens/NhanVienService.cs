@@ -103,7 +103,22 @@ namespace EkGis.Application.Catalog.NhanViens
             };
             return NVViewModel;
         }
+        public async Task<List<NVViewModel>> GetAll()
+        {
+            var query = from a in _context.NhanViens select new { a };
 
-        
+            var data = await query.Select(x => new NVViewModel()
+            {
+                MaNV = x.a.MaNV,
+                TenNV = x.a.TenNV,
+                ChucVu = x.a.ChucVu,
+                DiaChi = x.a.DiaChi,
+                Email = x.a.Email,
+                NgaySinh = x.a.NgaySinh,
+                SDT = x.a.SDT
+            }).ToListAsync();
+            return new List<NVViewModel>(data);
+        }
+
     }
 }
